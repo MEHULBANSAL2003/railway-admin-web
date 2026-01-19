@@ -1,8 +1,10 @@
-import React from "react";
+import React, {Suspense} from "react";
 
 function App() {
   return (
-  <></>
+    <Suspense fallback={<LoadingSpinner />}>
+      <AppRoutes />
+    </Suspense>
   )
 }
 
