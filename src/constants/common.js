@@ -8,22 +8,6 @@ const appVersion = 1.2;
 
 export const common = {
 
-  getBrowserTimeZoneCountry : () => {
-    var userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (userTimeZone === 'Asia/Calcutta') {
-      userTimeZone = 'Asia/Kolkata';
-    } else if (userTimeZone === 'Asia/Katmandu') {
-      userTimeZone = 'Asia/Kathmandu';
-    }
-    var country = common.getMobileCode().find((country) => country.timeZone === userTimeZone);
-    if (!country) {
-      country = {
-        name: 'India', dial_code: '+91', code: 'IN', timeZone: 'Asia/Kolkata'
-      };
-    }
-    return country;
-  },
-
   getBusinessId : () =>{
     return businessId;
   },
@@ -62,6 +46,23 @@ export const common = {
       sessionStorage.removeItem(key);
     }
   },
+
+  setUserData : (data) => {
+    if (data.isForeign) {
+      common.setItem('timeZone', 'foreign');
+    } else {
+      common.setItem('timeZone', 'Asia/Kolkata');
+    }
+    common.setItem('userData', JSON.stringify(data));
+
+  },
+  setToken:(token) => {
+    const tokenKey = import.meta.env.VITE_APP_TOKEN;
+    if (tokenKey) {
+      common.setItem(tokenKey, token);
+    }
+
+  },
   getUserData : (key='') => {
   if (this.checkDeviceIsBrowser()) {
     const jsonData = common.getItem('userData');
@@ -72,32 +73,11 @@ export const common = {
       }
       return userData;
     }
-  } else if (!this.checkDeviceIsBrowser() && key === 'id') {
-
-  } else if (!this.checkDeviceIsBrowser() && key == null) {
-    return {
-      'verifiedMobile': '8002858152',
-      'id': null,
-      'timeZone': 'Asia/Calcutta',
-      'timeOfBirth': '03:22 PM',
-      'dob': '01-January-2022',
-      'lastName': '',
-      'gender': 'male',
-      'isForeign': false,
-      'email': null,
-      'placeOfBirth': 'Karjan, Gujarat, India',
-      'profile_pic': 'https://aws.astrotalk.com/assets/images/astrotalk-mini-logo.webp',
-      'name': 'User'
-    };
   }
   return '';
 },
 getToken: () => {
-  if (common.checkDeviceIsBrowser()) {
     return common.getItem(import.meta.env.VITE_APP_TOKEN || '');
-  } else {
-    // return this.getCookie(AppConstant.token);
-  }
 },
   checkDeviceIsMobile: () => {
   const ua = navigator.userAgent;
@@ -111,7 +91,6 @@ getToken: () => {
   getAppId : () => {
   if (common.checkDeviceIsMobile()) {
     return APP_ID_WEB_MOBILE;
-
   } else {
 
     return APP_ID_WEB;
@@ -130,35 +109,10 @@ getToken: () => {
   return timeZone;
 },
   logout:() =>  {
-    common.setLocalTimeZone();
     common.removeItem(import.meta.env.VITE_APP_TOKEN ? import.meta.env.REACT_APP_TOKEN : '');
     common.removeItem('userData');
-    common.removeItem('isToTakeVerifiedNo');
-    common.removeItem('hasLanguage');
-    common.removeItem('isToTakeVerifiedNo_firebase');
-    common.removeItem('chatCallTip');
-    common.removeItem('chatCall2ndTip');
-    common.removeItem('fireBaseToken');
-    common.removeItem('oldLogin');
-    common.removeItem('liveEventUrl');
-    common.removeItem('webview');
-    common.removeItem('partner');
-    common.removeItem('poOffer');
-    common.removeItem('guestUser');
-    common.removeItem('generateDetails');
-    common.removeItem('notificationToken');
-    common.removeItem('deviceData');
     // this.setLoginValue(false);
     let browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const conversion = common.getWithExpiry('conRate');
-    if (browserTimeZone === 'Asia/Calcutta' && (conversion && conversion?.isoCode !== 'INR')) {
-      common.removeItem('conRate');
-    }
 
   },
-
-  getWithExpiry: (expiry) => {
-
-  }
-
 }
