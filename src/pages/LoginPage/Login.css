@@ -1,0 +1,67 @@
+/* Full page center */
+.login-container {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Card */
+.login-card {
+  background: #ffffff;
+  width: 360px;
+  padding: 40px 30px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Railway icon */
+.railway-illustration {
+  font-size: 64px;
+  margin-bottom: 10px;
+}
+
+/* Title */
+.login-title {
+  margin: 0;
+  font-size: 26px;
+  color: #203a43;
+}
+
+/* Subtitle */
+.login-subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 8px 0 30px;
+}
+
+/* Google button */
+.google-login-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: #dd4b39;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #fff;
+}
+
+.google-login-btn img {
+  width: 18px;
+  height: 18px;
+}
+
+.google-login-btn:hover {
+  background: #c8200a;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
