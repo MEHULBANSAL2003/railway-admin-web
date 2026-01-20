@@ -3,7 +3,6 @@ import { useAuth } from '../context/AuthContext';
 
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">

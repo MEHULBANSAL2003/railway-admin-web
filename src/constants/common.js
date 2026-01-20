@@ -1,4 +1,5 @@
 import {isBrowser} from "../utils/Storage.js";
+import {Storage} from "../utils/Storage.js";
 
 
 const businessId = 12;
@@ -64,7 +65,7 @@ export const common = {
 
   },
   getUserData : (key='') => {
-  if (this.checkDeviceIsBrowser()) {
+  if (common.checkDeviceIsBrowser()) {
     const jsonData = common.getItem('userData');
     if (jsonData && jsonData !== '') {
       const userData = JSON.parse(jsonData);

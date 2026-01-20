@@ -30,6 +30,7 @@ const AppRoutes = () => {
         }
       >
         <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
       </Route>
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
