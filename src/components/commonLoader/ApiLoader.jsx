@@ -9,68 +9,13 @@ const ApiLoader = () => {
   return (
     <div className="api-loader-overlay">
       <div className="api-loader-container">
-        {/* Train Animation */}
-        <div className="train-animation">
-          {/* Train Track */}
-          <div className="train-track">
-            <div className="track-line"></div>
-            <div className="track-sleepers">
-              <span></span>
-              <span></span>
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-          </div>
+        <img
+          src="https://travel-assets-akamai.paytm.com/travel/mweb-train/assets/b82f98ba.gif"
+          alt="Loading..."
+          className="api-loader-gif"
+        />
 
-          {/* Train */}
-          <div className="train">
-            {/* Engine */}
-            <div className="train-engine">
-              <div className="engine-top"></div>
-              <div className="engine-body">
-                <div className="engine-window"></div>
-              </div>
-              <div className="engine-wheels">
-                <div className="wheel"></div>
-                <div className="wheel"></div>
-              </div>
-            </div>
-
-            {/* Coaches */}
-            <div className="train-coach">
-              <div className="coach-body">
-                <div className="coach-window"></div>
-                <div className="coach-window"></div>
-              </div>
-              <div className="coach-wheels">
-                <div className="wheel"></div>
-                <div className="wheel"></div>
-              </div>
-            </div>
-
-            <div className="train-coach">
-              <div className="coach-body">
-                <div className="coach-window"></div>
-                <div className="coach-window"></div>
-              </div>
-              <div className="coach-wheels">
-                <div className="wheel"></div>
-                <div className="wheel"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Loading Text */}
         <p className="loader-message">{message}</p>
-
-        {/* Loading Dots */}
-        <div className="loader-dots">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
       </div>
     </div>
   );

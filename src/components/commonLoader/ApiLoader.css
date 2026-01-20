@@ -49,6 +49,11 @@
   right: 0;
   height: 8px;
 }
+.api-loader-gif {
+  width: 180px;     /* adjust as needed */
+  max-width: 100%;
+  margin-bottom: 16px;
+}
 
 .track-line {
   position: absolute;
