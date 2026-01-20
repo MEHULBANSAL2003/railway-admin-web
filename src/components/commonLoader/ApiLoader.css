@@ -1,0 +1,248 @@
+.api-loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Container */
+.api-loader-container {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  min-width: 320px;
+}
+
+/* Train Animation Container */
+.train-animation {
+  width: 280px;
+  height: 120px;
+  margin: 0 auto 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Train Track */
+.train-track {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  height: 8px;
+}
+
+.track-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #4a5568;
+  border-radius: 2px;
+}
+
+.track-sleepers {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.track-sleepers span {
+  width: 3px;
+  height: 12px;
+  background: #718096;
+  border-radius: 2px;
+}
+
+/* Train Container */
+.train {
+  position: absolute;
+  bottom: 28px;
+  display: flex;
+  gap: 8px;
+  animation: trainMove 3s linear infinite;
+}
+
+@keyframes trainMove {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Train Engine */
+.train-engine {
+  position: relative;
+}
+
+.engine-top {
+  width: 20px;
+  height: 15px;
+  background: #667eea;
+  border-radius: 4px 4px 0 0;
+  margin: 0 auto;
+}
+
+.engine-body {
+  width: 50px;
+  height: 35px;
+  background: #667eea;
+  border-radius: 6px;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.engine-window {
+  width: 18px;
+  height: 18px;
+  background: #a3bffa;
+  border: 2px solid #5a67d8;
+  border-radius: 3px;
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.engine-wheels {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 8px;
+  margin-top: -6px;
+}
+
+/* Train Coach */
+.train-coach {
+  position: relative;
+}
+
+.coach-body {
+  width: 60px;
+  height: 35px;
+  background: #4299e1;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.coach-window {
+  width: 16px;
+  height: 16px;
+  background: #90cdf4;
+  border: 2px solid #3182ce;
+  border-radius: 3px;
+}
+
+.coach-wheels {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+  margin-top: -6px;
+}
+
+/* Wheels */
+.wheel {
+  width: 12px;
+  height: 12px;
+  background: #2d3748;
+  border: 2px solid #1a202c;
+  border-radius: 50%;
+  animation: wheelRotate 0.6s linear infinite;
+}
+
+@keyframes wheelRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading Message */
+.loader-message {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0 0 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+/* Loading Dots */
+.loader-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.loader-dots span {
+  width: 8px;
+  height: 8px;
+  background: #667eea;
+  border-radius: 50%;
+  animation: dotBounce 1.4s infinite ease-in-out both;
+}
+
+.loader-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loader-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes dotBounce {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .api-loader-container {
+    padding: 30px 20px;
+    min-width: 280px;
+  }
+
+  .train-animation {
+    width: 240px;
+    height: 100px;
+  }
+
+  .loader-message {
+    font-size: 14px;
+  }
+}
