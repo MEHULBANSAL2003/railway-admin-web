@@ -57,13 +57,6 @@ export const common = {
     common.setItem('userData', JSON.stringify(data));
 
   },
-  setToken:(token) => {
-    const tokenKey = import.meta.env.VITE_APP_TOKEN;
-    if (tokenKey) {
-      common.setItem(tokenKey, token);
-    }
-
-  },
   getUserData : (key='') => {
   if (common.checkDeviceIsBrowser()) {
     const jsonData = common.getItem('userData');
@@ -77,9 +70,41 @@ export const common = {
   }
   return '';
 },
-getToken: () => {
-    return common.getItem(import.meta.env.VITE_APP_TOKEN || '');
-},
+
+  setAccessToken: (token) => {
+    const tokenKey = import.meta.env.VITE_ACCESS_TOKEN_KEY;
+    if (token) {
+      common.setItem(tokenKey, token);
+    }
+  },
+
+  getAccessToken: () => {
+    const tokenKey = import.meta.env.VITE_ACCESS_TOKEN_KEY;
+    return common.getItem(tokenKey);
+  },
+
+  removeAccessToken: () => {
+    const tokenKey = import.meta.env.VITE_ACCESS_TOKEN_KEY;
+    common.removeItem(tokenKey);
+  },
+
+  setRefreshToken: (token) => {
+    const tokenKey = import.meta.env.VITE_REFRESH_TOKEN_KEY;
+    if (token) {
+      common.setItem(tokenKey, token);
+    }
+  },
+
+  getRefreshToken: () => {
+    const tokenKey = import.meta.env.VITE_REFRESH_TOKEN_KEY;
+    return common.getItem(tokenKey);
+  },
+
+  removeRefreshToken: () => {
+    const tokenKey = import.meta.env.VITE_REFRESH_TOKEN_KEY;
+    common.removeItem(tokenKey);
+  },
+
   checkDeviceIsMobile: () => {
   const ua = navigator.userAgent;
 
@@ -110,10 +135,8 @@ getToken: () => {
   return timeZone;
 },
   logout:() =>  {
-    common.removeItem(import.meta.env.VITE_APP_TOKEN ? import.meta.env.REACT_APP_TOKEN : '');
     common.removeItem('userData');
-    // this.setLoginValue(false);
-    let browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
+    common.removeAccessToken();
+    common.removeRefreshToken();
   },
 }

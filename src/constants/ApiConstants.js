@@ -1,4 +1,4 @@
 export const ApiConstants = {
 
-  adminEmailLogin: 'api/auth/admin/login/by/email',
+  adminEmailLogin: '/admin/login/by/email',
 }

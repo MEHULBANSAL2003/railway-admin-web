@@ -2,7 +2,7 @@ import {ApiConstants} from "../constants/ApiConstants.js";
 import {HttpWrapper} from "../httpWrapper/HttpWrapper.js";
 
 
-const base_url =  import.meta.env.VITE_API_BASE_URL;
+const base_url =  import.meta.env.VITE_API_AUTH_URL;
 
 export const AuthService = {
 
