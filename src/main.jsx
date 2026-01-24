@@ -5,16 +5,25 @@ import {BrowserRouter} from "react-router-dom";
 import {AuthProvider} from "./context/AuthContext.jsx";
 import {LoaderProvider} from "./context/LoaderContext.jsx";
 import ApiLoader from "./components/commonLoader/ApiLoader.jsx";
+import {GoogleOAuthProvider} from "@react-oauth/google";
+import {ToastProvider} from "./context/Toast/ToastProvider.jsx";
+
+
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
+      <GoogleOAuthProvider clientId={googleClientId}>
     <BrowserRouter>
+      <ToastProvider>
       <LoaderProvider>
        <App />
         <ApiLoader/>
       </LoaderProvider>
+      </ToastProvider>
       </BrowserRouter>
+      </GoogleOAuthProvider>
     </AuthProvider>
   </StrictMode>,
 )

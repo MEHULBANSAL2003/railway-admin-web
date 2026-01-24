@@ -1,8 +1,36 @@
 import './Login.css';
 import {useLoader} from "../../hooks/useLoader.js";
 import {useEffect} from "react";
+import {GoogleLogin} from "@react-oauth/google";
+import {AuthService} from "../../services/AuthService.js";
+import {useToast} from "../../context/Toast/useToast.js";
 
 const Login = () => {
+
+  const {showLoader, hideLoader} = useLoader();
+  const {showSuccess, showError} = useToast();
+
+  const handleGoogleLogin = async (credentialResponse) => {
+    try {
+      showLoader();
+      const authToken = credentialResponse?.credential;
+      if (!authToken) {
+        throw new Error("Token is missing");
+      }
+      const payload = {
+        google_auth_token: authToken,
+      }
+      const response = await AuthService.loginByEmail(payload);
+
+    }
+    catch (error) {
+      showError(error.message || 'Something went wrong.Please try again later.');
+      console.log(error);
+    }
+    finally {
+      hideLoader();
+    }
+  }
 
   return (
     <div className="login-container">
@@ -18,14 +46,15 @@ const Login = () => {
           Sign in to start session
         </p>
 
-        {/* Google Login Button */}
-        <button className="google-login-btn">
-          <img
-            src="https://developers.google.com/identity/images/g-logo.png"
-            alt="Google"
-          />
-          Login with Google
-        </button>
+        <GoogleLogin
+          onSuccess={(credentialResponse) => {
+             handleGoogleLogin(credentialResponse);
+            // credentialResponse.credential = JWT token
+          }}
+          onError={() => {
+            console.log('Login Failed');
+          }}
+        />
 
       </div>
     </div>
