@@ -1,16 +1,12 @@
 import './Login.css';
 import {useLoader} from "../../hooks/useLoader.js";
-import {useEffect} from "react";
 import {GoogleLogin} from "@react-oauth/google";
-import {AuthService} from "../../services/AuthService.js";
-import {useToast} from "../../context/Toast/useToast.js";
-import {useNavigate} from "react-router-dom";
+import {useAuth} from "../../context/AuthContext.jsx";
 
 const Login = () => {
 
   const {showLoader, hideLoader} = useLoader();
-  const {showSuccess, showError} = useToast();
-  const navigate = useNavigate();
+  const {login} = useAuth();
 
   const handleGoogleLogin = async (credentialResponse) => {
     try {
@@ -19,18 +15,7 @@ const Login = () => {
       if (!authToken) {
         throw new Error("Token is missing");
       }
-      const payload = {
-        google_auth_token: authToken,
-      }
-      const response = await AuthService.loginByEmail(payload);
-      if(response?.data?.status === 'success'){
-          showSuccess("logged in successfully!");
-          navigate("/dashboard");
-      }
-      else{
-        showError('something went wrong');
-      }
-
+      await login(authToken);
     }
     catch (error) {
       console.log(error);

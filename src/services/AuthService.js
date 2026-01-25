@@ -9,5 +9,11 @@ export const AuthService = {
   loginByEmail : async(payload) => {
     const url = `${base_url}${ApiConstants.adminEmailLogin}`;
     return await HttpWrapper.post(url, payload);
-  }
+  },
+
+  refreshAccessToken: async (payload) => {
+    const url = `${base_url}${ApiConstants.refreshAccessToken}`;
+    return await HttpWrapper.post(url, payload);
+  },
+
 }

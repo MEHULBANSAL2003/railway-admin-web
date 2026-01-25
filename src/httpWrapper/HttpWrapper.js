@@ -6,6 +6,10 @@ const api = axios.create({
   timeout: TIMEOUT_VALUE,
 });
 
+const refreshClient = axios.create({
+  timeout: TIMEOUT_VALUE,
+});
+
 // Helper function to build headers
 const buildHeaders = (setHeader = false) => {
   const headers = {
@@ -15,7 +19,7 @@ const buildHeaders = (setHeader = false) => {
   };
 
   if (setHeader) {
-    const token = common.getToken();
+    const token = common.getAccessToken();
     let id = common.getUserData('id');
 
     if (typeof id !== 'string' && id !== null) {
