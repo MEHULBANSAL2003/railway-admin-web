@@ -8,12 +8,13 @@ const api = axios.create({
   timeout: TIMEOUT_VALUE,
 });
 
-// Setup interceptors
-setupInterceptors(api);
-
 const refreshClient = axios.create({
   timeout: TIMEOUT_VALUE,
 });
+
+// Setup interceptors
+setupInterceptors(api, refreshClient);
+
 
 // Helper function to build headers
 const buildHeaders = (setHeader = false) => {
