@@ -9,22 +9,12 @@ const Login = () => {
   const {login} = useAuth();
 
   const handleGoogleLogin = async (credentialResponse) => {
-    try {
+
       showLoader();
       const authToken = credentialResponse?.credential;
-      if (!authToken) {
-        throw new Error("Token is missing");
-      }
       await login(authToken);
-    }
-    catch (error) {
-      console.log(error);
-      showError(error.message || 'Something went wrong.Please try again later.');
-      console.log(error);
-    }
-    finally {
       hideLoader();
-    }
+
   }
 
   return (
