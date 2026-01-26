@@ -4,60 +4,72 @@ import {AuthService} from "../services/AuthService.js";
 import {useToast} from "./Toast/useToast.js";
 import {useNavigate} from "react-router-dom";
 
-
 const AuthContext = createContext(null);
-export const AuthProvider = ({ children }) => {
 
-  const [user, setUser] = useState(null);  // Current logged-in user
-  const [loading, setLoading] = useState(true);  // Loading state
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const {showSuccess, showError} = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
-    checkAuth().then();
+    checkAuth();
   }, []);
 
   const checkAuth = async () => {
-    const token = common?.getAccessToken();
-    const savedUser = common?.getUserData();
+    try {
+      const token = common.getAccessToken();
+      const savedUser = common.getUserData();
 
-    if (token && savedUser) {
-      setUser(savedUser);
+      if (token && savedUser) {
+        setUser(savedUser);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const login = async (authToken) => {
     try {
       const payload = {
         google_auth_token: authToken,
-      }
+      };
+
       const response = await AuthService.loginByEmail(payload);
-      if(response?.data?.status === 'success'){
-        showSuccess("logged in successfully!");
-        common.setUserData(response?.data?.data);
-        common.setAccessToken(response?.data?.data?.accessToken);
-        common.setRefreshToken(response?.data?.data?.refreshToken);
+
+      if (response?.data?.status === 'success') {
+        const userData = response.data.data;
+        common.setUserData(userData);
+        common.setAccessToken(userData.accessToken);
+        common.setRefreshToken(userData.refreshToken);
+
+        setUser(userData);
+        showSuccess("Logged in successfully!");
         navigate("/dashboard");
+      } else {
+        showError('Login failed. Please try again.');
       }
-      else{
-        showError('something went wrong');
-      }
-
     } catch (error) {
-
-    } finally {
-      setLoading(false);
+      console.error('Login error:', error);
+      showError(error.response?.data?.message || 'Something went wrong');
     }
   };
 
   const logout = async () => {
     try {
-
+      // Clear all auth data
+      common.logout();
+      setUser(null);
+      showSuccess("Logged out successfully!");
+      navigate("/login");
     } catch (error) {
-
-    } finally {
-
+      console.error('Logout error:', error);
+      showError('Logout failed');
     }
   };
 
@@ -66,7 +78,14 @@ export const AuthProvider = ({ children }) => {
     common.setUserData(userData);
   };
 
-  const value = {user, login, logout, updateUser, isAuthenticated: !!user, loading,};
+  const value = {
+    user,
+    login,
+    logout,
+    updateUser,
+    isAuthenticated: !!user,
+    loading,
+  };
 
   return (
     <AuthContext.Provider value={value}>

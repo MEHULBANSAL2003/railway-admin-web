@@ -1,10 +1,15 @@
 import axios from 'axios';
 import { common } from "../constants/common.js";
+import { setupInterceptors } from './interceptors.js';
 
 const TIMEOUT_VALUE = 10000;
+
 const api = axios.create({
   timeout: TIMEOUT_VALUE,
 });
+
+// Setup interceptors
+setupInterceptors(api);
 
 const refreshClient = axios.create({
   timeout: TIMEOUT_VALUE,
@@ -40,74 +45,47 @@ const appendParams = (url, params) => {
   return `${url}?${query}`;
 };
 
-// Helper function to handle errors
-const handleError = (error) => {
-  if (error?.response?.status === 401) {
-    console.warn('Unauthorized (401): Logging out user...');
-    common.logout();
-  }
-  throw error;
-};
+// Remove handleError function - now handled by interceptor
 
 export const HttpWrapper = {
   get: async (url, params = null, setHeader = false, signal = null) => {
-    try {
-      const headers = buildHeaders(setHeader);
-      const fullUrl = appendParams(url, params);
+    const headers = buildHeaders(setHeader);
+    const fullUrl = appendParams(url, params);
 
-      return await api.get(fullUrl, {
-        headers,
-        timeout: TIMEOUT_VALUE,
-        signal,
-      });
-    } catch (error) {
-      handleError(error);
-    }
+    return await api.get(fullUrl, {
+      headers,
+      timeout: TIMEOUT_VALUE,
+      signal,
+    });
   },
 
   post: async (url, body, setHeader = false) => {
-    try {
-      const headers = buildHeaders(setHeader);
-      return await api.post(url, body, { headers });
-    } catch (error) {
-      handleError(error);
-    }
+    const headers = buildHeaders(setHeader);
+    return await api.post(url, body, { headers });
   },
 
   postParams: async (url, params = null, setHeader = false) => {
-    try {
-      const headers = buildHeaders(setHeader);
+    const headers = buildHeaders(setHeader);
 
-      const formData = new FormData();
-      if (params && typeof params === 'object') {
-        Object.entries(params).forEach(([key, value]) => {
-          formData.append(key, value);
-        });
-      }
-
-      return await api.post(url, formData, { headers });
-    } catch (error) {
-      handleError(error);
+    const formData = new FormData();
+    if (params && typeof params === 'object') {
+      Object.entries(params).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
     }
+
+    return await api.post(url, formData, { headers });
   },
 
   postWithQueryParams: async (url, params = null, body = null, setHeader = false) => {
-    try {
-      const headers = buildHeaders(setHeader);
-      const fullUrl = appendParams(url, params);
-      return await api.post(fullUrl, body, { headers });
-    } catch (error) {
-      handleError(error);
-    }
+    const headers = buildHeaders(setHeader);
+    const fullUrl = appendParams(url, params);
+    return await api.post(fullUrl, body, { headers });
   },
 
   delete: async (url, params = null, setHeader = false) => {
-    try {
-      const headers = buildHeaders(setHeader);
-      const fullUrl = appendParams(url, params);
-      return await api.delete(fullUrl, { headers });
-    } catch (error) {
-      handleError(error);
-    }
+    const headers = buildHeaders(setHeader);
+    const fullUrl = appendParams(url, params);
+    return await api.delete(fullUrl, { headers });
   },
 };
