@@ -23,7 +23,6 @@ const buildHeaders = (setHeader = false) => {
     business_id: (common?.getBusinessId() || '').toString(),
     app_version: common.getAppVersion() || '1.0.0',
   };
-
   if (setHeader) {
     const token = common.getAccessToken();
     let id = common.getUserData('id');

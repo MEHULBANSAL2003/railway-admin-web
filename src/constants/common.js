@@ -2,10 +2,10 @@ import {isBrowser} from "../utils/Storage.js";
 import {Storage} from "../utils/Storage.js";
 
 
-const businessId = 12;
-const APP_ID_WEB = 4;
-const APP_ID_WEB_MOBILE = 3;
-const appVersion = 1.2;
+const businessId = 1;
+const APP_ID_WEB = 3;
+const APP_ID_WEB_MOBILE = 4;
+const appVersion = 1.0;
 
 export const common = {
 
