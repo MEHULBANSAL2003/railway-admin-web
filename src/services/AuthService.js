@@ -14,7 +14,7 @@ export const AuthService = {
 
   logoutCurrentDevice : async(payload) => {
     const url = `${base_url}${ApiConstants.logoutCurrentDevice}`;
-    return await HttpWrapper.post(url, payload);
+    return await HttpWrapper.post(url, payload, true);
   }
 
 
