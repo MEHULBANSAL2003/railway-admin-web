@@ -14,16 +14,16 @@ const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
+      <LoaderProvider>
     <ToastProvider>
     <AuthProvider>
       <GoogleOAuthProvider clientId={googleClientId}>
-      <LoaderProvider>
        <App />
         <ApiLoader/>
-      </LoaderProvider>
       </GoogleOAuthProvider>
     </AuthProvider>
     </ToastProvider>
+      </LoaderProvider>
     </BrowserRouter>
   </StrictMode>,
 )

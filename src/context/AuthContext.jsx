@@ -3,6 +3,7 @@ import {common} from "../constants/common.js";
 import {AuthService} from "../services/AuthService.js";
 import {useToast} from "./Toast/useToast.js";
 import {useNavigate} from "react-router-dom";
+import {useLoader} from "../hooks/useLoader.js";
 
 const AuthContext = createContext(null);
 
@@ -11,6 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const {showSuccess, showError} = useToast();
   const navigate = useNavigate();
+  const {showLoader, hideLoader} = useLoader();
 
   useEffect(() => {
     checkAuth();
@@ -62,14 +64,24 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      // Clear all auth data
-      common.logout();
-      setUser(null);
-      showSuccess("Logged out successfully!");
-      navigate("/login");
+       showLoader("Logging out...");
+      const payload = {
+        refreshToken: common.getRefreshToken(),
+      }
+      const response = await AuthService.logoutCurrentDevice(payload);
+      if(response?.data?.status === 'success') {
+        // Clear all auth data
+        common.logout();
+        setUser(null);
+        showSuccess(response?.data?.data?.message);
+        navigate("/login");
+      }
     } catch (error) {
       console.error('Logout error:', error);
       showError('Logout failed');
+    }
+    finally {
+      hideLoader();
     }
   };
 
