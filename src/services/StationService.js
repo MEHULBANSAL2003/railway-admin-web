@@ -10,4 +10,9 @@ export const StationService = {
     const url = `${station_base_url}${ApiConstants.createNewStation}`;
     return await HttpWrapper.post(url, payload);
   },
+
+  getAllStations : async(payload) => {
+    const url = `${station_base_url}${ApiConstants.getAllStations}`;
+    return await HttpWrapper.post(url, payload);
+  },
 }

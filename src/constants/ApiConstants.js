@@ -6,4 +6,6 @@ export const ApiConstants = {
   createNewAdmin: '/new/admin/create',
 
   createNewStation: '/admin/add/new/station',
+
+  getAllStations: 'get/list',
 }
