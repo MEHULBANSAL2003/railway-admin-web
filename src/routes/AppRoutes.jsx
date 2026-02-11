@@ -4,6 +4,7 @@ import ProtectedRoute from "./ProtectedRoute.jsx";
 import PublicRoute from "./PublicRoute.jsx";
 import MainLayout from "../layout/MainLayout.jsx";
 import CreateAdmin from "../pages/createAdmin/CreateAdmin.jsx";
+import StationManagement from "../pages/stationManagement/StationManagement.jsx";
 
 
 const Login = lazy(() => import('../pages/LoginPage/Login.jsx'));
@@ -33,6 +34,7 @@ const AppRoutes = () => {
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path='admin/create' element={<CreateAdmin/>}/>
+        <Route path='/admin/stations' element={<StationManagement/>} />
       </Route>
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />

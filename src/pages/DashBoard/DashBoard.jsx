@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './Dashboard.css';
+import {useNavigate} from "react-router-dom";
 
 const Dashboard = () => {
   const [stats] = useState({
@@ -13,6 +14,8 @@ const Dashboard = () => {
     occupancyRate: 78
   });
 
+  const navigate = useNavigate();
+
   const features = [
     {
       id: 1,
@@ -24,60 +27,13 @@ const Dashboard = () => {
     },
     {
       id: 2,
-      title: 'Manage Trains',
-      description: 'Add, edit or remove train schedules',
-      icon: '🚂',
-      link: '/admin/trains',
-      color: '#2196F3'
+      title: 'Station Management',
+      description: 'Add, edit or remove railway stations',
+      icon: '🚉',
+      link: '/admin/stations',
+      color: '#05876f'
     },
-    {
-      id: 3,
-      title: 'View Bookings',
-      description: 'Monitor all ticket bookings',
-      icon: '🎫',
-      link: '/admin/bookings',
-      color: '#FF9800'
-    },
-    {
-      id: 4,
-      title: 'User Management',
-      description: 'Manage registered users',
-      icon: '👥',
-      link: '/admin/users',
-      color: '#9C27B0'
-    },
-    {
-      id: 5,
-      title: 'Route Management',
-      description: 'Configure train routes and stations',
-      icon: '🗺️',
-      link: '/admin/routes',
-      color: '#F44336'
-    },
-    {
-      id: 6,
-      title: 'Reports & Analytics',
-      description: 'View detailed reports and statistics',
-      icon: '📊',
-      link: '/admin/reports',
-      color: '#00BCD4'
-    },
-    {
-      id: 7,
-      title: 'Pricing Management',
-      description: 'Set and update ticket prices',
-      icon: '💰',
-      link: '/admin/pricing',
-      color: '#FF5722'
-    },
-    {
-      id: 8,
-      title: 'Notifications',
-      description: 'Send alerts to users',
-      icon: '🔔',
-      link: '/admin/notifications',
-      color: '#795548'
-    }
+
   ];
 
   const recentActivities = [
@@ -149,7 +105,7 @@ const Dashboard = () => {
                 <button
                   className="feature-button"
                   style={{ backgroundColor: feature.color }}
-                  onClick={() => window.location.href = feature.link}
+                  onClick={() => navigate(feature.link)}
                 >
                   Access
                 </button>

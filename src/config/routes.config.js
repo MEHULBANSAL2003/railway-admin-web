@@ -21,77 +21,15 @@ export const searchableRoutes = [
     category: 'Admin Management'
   },
   {
-    id: 'manage-trains',
-    name: 'Manage Trains',
-    path: '/admin/trains',
-    description: 'Add, edit or remove train schedules',
-    keywords: ['trains', 'schedule', 'railway', 'train list'],
-    icon: '🚂',
-    category: 'Train Management'
+    id: 'station-management',
+    name: 'Station Management',
+    path: '/admin/stations',
+    description: 'Add/fetch/edit/remove railway stations',
+    keywords: ['add station', 'get stations', 'update stations', 'remove stations', 'stations'],
+    icon: '👤',
+    category: 'Admin Management'
   },
-  {
-    id: 'bookings',
-    name: 'View Bookings',
-    path: '/admin/bookings',
-    description: 'Monitor all ticket bookings',
-    keywords: ['bookings', 'tickets', 'reservations', 'orders'],
-    icon: '🎫',
-    category: 'Bookings'
-  },
-  {
-    id: 'users',
-    name: 'User Management',
-    path: '/admin/users',
-    description: 'Manage registered users',
-    keywords: ['users', 'customers', 'passengers', 'user list'],
-    icon: '👥',
-    category: 'User Management'
-  },
-  {
-    id: 'routes',
-    name: 'Route Management',
-    path: '/admin/routes',
-    description: 'Configure train routes and stations',
-    keywords: ['routes', 'stations', 'destinations', 'paths'],
-    icon: '🗺️',
-    category: 'Route Management'
-  },
-  {
-    id: 'reports',
-    name: 'Reports & Analytics',
-    path: '/admin/reports',
-    description: 'View detailed reports and statistics',
-    keywords: ['reports', 'analytics', 'statistics', 'data', 'insights'],
-    icon: '📈',
-    category: 'Reports'
-  },
-  {
-    id: 'pricing',
-    name: 'Pricing Management',
-    path: '/admin/pricing',
-    description: 'Set and update ticket prices',
-    keywords: ['pricing', 'fares', 'rates', 'costs', 'ticket price'],
-    icon: '💰',
-    category: 'Pricing'
-  },
-  {
-    id: 'notifications',
-    name: 'Notifications',
-    path: '/admin/notifications',
-    description: 'Send alerts to users',
-    keywords: ['notifications', 'alerts', 'messages', 'announcements'],
-    icon: '🔔',
-    category: 'Communication'
-  },
-  {
-    id: 'settings',
-    name: 'Settings',
-    path: '/admin/settings',
-    description: 'System configuration',
-    keywords: ['settings', 'configuration', 'preferences', 'setup'],
-    icon: '⚙️',
-    category: 'System'
-  }
+
 ];
 
 /**
