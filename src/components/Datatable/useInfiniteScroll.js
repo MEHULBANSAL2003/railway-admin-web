@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-const useInfiniteScroll = (fetchData) => {
+const useInfiniteScroll = (fetchData, sortBy, sortDirection) => {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -8,12 +8,16 @@ const useInfiniteScroll = (fetchData) => {
   const [error, setError] = useState(null);
 
   const observerTarget = useRef(null);
+  const loadingRef = useRef(false); // Prevent duplicate calls
+  const previousSort = useRef({ sortBy, sortDirection });
 
   // Fetch data function
   const loadData = useCallback(async (pageNum) => {
-    if (loading || !hasMore) return;
+    // Prevent duplicate calls
+    if (loadingRef.current || (!hasMore && pageNum !== 0)) return;
 
     try {
+      loadingRef.current = true;
       setLoading(true);
       setError(null);
 
@@ -31,19 +35,36 @@ const useInfiniteScroll = (fetchData) => {
       setHasMore(false);
     } finally {
       setLoading(false);
+      loadingRef.current = false;
     }
-  }, [fetchData, loading, hasMore]);
+  }, [fetchData, hasMore]);
+
+  // Reset when sort changes
+  useEffect(() => {
+    const sortChanged =
+      previousSort.current.sortBy !== sortBy ||
+      previousSort.current.sortDirection !== sortDirection;
+
+    if (sortChanged) {
+      previousSort.current = { sortBy, sortDirection };
+      setData([]);
+      setPage(0);
+      setHasMore(true);
+      loadData(0);
+    }
+  }, [sortBy, sortDirection, loadData]);
 
   // Initial load
   useEffect(() => {
     loadData(0);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   // Intersection Observer for infinite scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
       entries => {
-        if (entries[0].isIntersecting && hasMore && !loading) {
+        if (entries[0].isIntersecting && hasMore && !loadingRef.current) {
           setPage(prev => {
             const nextPage = prev + 1;
             loadData(nextPage);
@@ -64,7 +85,7 @@ const useInfiniteScroll = (fetchData) => {
         observer.unobserve(currentTarget);
       }
     };
-  }, [hasMore, loading, loadData]);
+  }, [hasMore]); // Removed loadData to prevent re-triggering
 
   // Refresh function
   const refresh = useCallback(() => {

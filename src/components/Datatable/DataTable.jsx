@@ -1,4 +1,5 @@
 import React from 'react';
+import { ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import useInfiniteScroll from './useInfiniteScroll';
 import DataTableSkeleton from './DataTableSkeleton';
 import DataTableActions from './DataTableActions';
@@ -12,16 +13,46 @@ const DataTable = ({
                      emptyMessage = 'No data available',
                      rowKey = 'id',
                      enableActions = true,
+                     onSort,
+                     sortBy,
+                     sortDirection,
                    }) => {
   const { data, loading, hasMore, error, observerTarget, refresh } =
-    useInfiniteScroll(fetchData);
+    useInfiniteScroll(fetchData, sortBy, sortDirection);
 
   // Render cell content
   const renderCell = (row, column) => {
     if (column.render) {
-      return column.render(row[column.key], row);
+      const rendered = column.render(row[column.key], row);
+
+      // Check if the rendered content is an HTML string
+      if (typeof rendered === 'string' && rendered.includes('<')) {
+        return <span dangerouslySetInnerHTML={{ __html: rendered }} />;
+      }
+
+      return rendered;
     }
     return row[column.key] ?? '-';
+  };
+
+  const handleSortClick = (column) => {
+    if (column.sortable && onSort) {
+      onSort(column.key);
+    }
+  };
+
+  const renderSortIcon = (column) => {
+    if (!column.sortable) return null;
+
+    if (sortBy === column.key) {
+      return sortDirection === 'ASC' ? (
+        <ChevronUp size={16} className="sort-icon active" />
+      ) : (
+        <ChevronDown size={16} className="sort-icon active" />
+      );
+    }
+
+    return <ChevronsUpDown size={16} className="sort-icon" />;
   };
 
   // Initial loading state
@@ -57,8 +88,17 @@ const DataTable = ({
           <thead>
           <tr>
             {columns.map((column) => (
-              <th key={column.key} className={column.className}>
-                {column.label}
+              <th
+                key={column.key}
+                className={`${column.className || ''} ${
+                  column.sortable ? 'sortable' : ''
+                }`}
+                onClick={() => handleSortClick(column)}
+              >
+                <div className="th-content">
+                  {column.label}
+                  {renderSortIcon(column)}
+                </div>
               </th>
             ))}
             {enableActions && <th className="actions-column">Actions</th>}
