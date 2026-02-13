@@ -23,15 +23,7 @@ export const stationColumns = [
     key: 'state',
     label: 'State',
   },
-  {
-    key: 'status',
-    label: 'Status',
-    render: (value) => (
-      <span className={`status-badge status-${value?.toLowerCase()}`}>
-        {value}
-      </span>
-    ),
-  },
+
 ];
 
 export const trainColumns = [

@@ -4,12 +4,11 @@ import ProtectedRoute from "./ProtectedRoute.jsx";
 import PublicRoute from "./PublicRoute.jsx";
 import MainLayout from "../layout/MainLayout.jsx";
 import CreateAdmin from "../pages/createAdmin/CreateAdmin.jsx";
-import StationManagement from "../pages/stationManagement/StationManagement.jsx";
 
 
 const Login = lazy(() => import('../pages/LoginPage/Login.jsx'));
 const Dashboard = lazy(() => import('../pages/DashBoard/DashBoard.jsx'));
-
+const StationManagement = lazy(() => import('../pages/stationManagement/StationList.jsx'));
 
 const AppRoutes = () => {
   return (
