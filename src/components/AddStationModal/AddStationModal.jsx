@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import Modal from '../Modal/Modal';
 import FormField from '../FormField/FormField';
 import { validators, validateForm } from '../../utils/formValidation';
+import { StationService } from '../../services/StationService';
 import { useToast } from '../../context/Toast/useToast';
 import './AddStationModal.css';
-import {StationService} from "../../services/StationService.js";
 
 const ZONES = [
   'NORTHERN',
@@ -109,9 +109,15 @@ const AddStationModal = ({ isOpen, onClose, onSuccess }) => {
     setIsSubmitting(true);
 
     try {
+      // Map frontend fields to backend fields
       const payload = {
-        ...formData,
-        numberOfPlatforms: parseInt(formData.numberOfPlatforms, 10)
+        stationCode: formData.stationCode,
+        stationName: formData.stationName,
+        city: formData.city,
+        state: formData.state,
+        zone: formData.zone,
+        numPlatforms: parseInt(formData.numberOfPlatforms, 10), // Backend expects numPlatforms
+        isJunction: formData.isJunction
       };
 
       const response = await StationService.createNewStation(payload);
@@ -126,6 +132,7 @@ const AddStationModal = ({ isOpen, onClose, onSuccess }) => {
     } catch (error) {
       console.error('Error creating station:', error);
       showError(
+        error?.response?.data?.error?.message ||
         error?.message ||
         'Something went wrong. Please try again later.'
       );

@@ -3,15 +3,16 @@ import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import './DataTableActions.css';
 
 const DataTableActions = ({ row, onEdit, onDelete }) => {
-  const { isUpdatable, isDeletable } = row;
+  // Use backend permission fields
+  const { canUpdatedByCurrentAdmin, canDeletedByCurrentAdmin } = row;
 
-  if (!isUpdatable && !isDeletable) {
+  if (!canUpdatedByCurrentAdmin && !canDeletedByCurrentAdmin) {
     return <span className="no-actions">-</span>;
   }
 
   return (
     <div className="table-actions">
-      {isUpdatable && (
+      {canUpdatedByCurrentAdmin && (
         <button
           className="action-btn edit-btn"
           onClick={() => onEdit(row)}
@@ -20,7 +21,7 @@ const DataTableActions = ({ row, onEdit, onDelete }) => {
           <FiEdit2 />
         </button>
       )}
-      {isDeletable && (
+      {canDeletedByCurrentAdmin && (
         <button
           className="action-btn delete-btn"
           onClick={() => onDelete(row)}

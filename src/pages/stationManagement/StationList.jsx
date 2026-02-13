@@ -4,7 +4,7 @@ import { Plus, RefreshCw } from 'lucide-react';
 import DataTable from '../../components/DataTable/DataTable';
 import AddStationModal from '../../components/AddStationModal/AddStationModal';
 import { stationColumns } from '../../config/tableConfigs';
-import { fetchStationData, deleteStationData } from '../../utils/dummyData';
+import { StationService } from '../../services/StationService';
 import './StationList.css';
 
 const StationList = () => {
@@ -14,13 +14,29 @@ const StationList = () => {
   const [selectedStation, setSelectedStation] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Fetch stations with proper error handling
+  // Fetch stations from API with pagination
   const fetchStations = async (page = 0) => {
     try {
-      const response = await fetchStationData(page);
+      const payload = {
+        page: page,
+        size: 20,
+        sortBy: 'stationId',
+        sortDirection: 'ASC'
+      };
+
+      const response = await StationService.getAllStations(payload);
 
       if (response?.data?.status === 'success') {
-        return response?.data?.data;
+        const data = response.data.data;
+
+        return {
+          content: data.content || [],
+          last: data.last ?? true,
+          totalPages: data.totalPages || 0,
+          totalElements: data.totalElements || 0,
+          number: data.number || 0,
+          size: data.size || 20
+        };
       }
 
       throw new Error('Invalid response');
@@ -32,7 +48,7 @@ const StationList = () => {
 
   const handleEdit = (station) => {
     console.log('Edit station:', station);
-    navigate(`/admin/stations/edit/${station.id}`);
+    navigate(`/admin/stations/edit/${station.stationId}`);
   };
 
   const handleDelete = (station) => {
@@ -42,7 +58,10 @@ const StationList = () => {
 
   const confirmDelete = async () => {
     try {
-      await deleteStationData(selectedStation.id);
+      // TODO: Implement delete API call when backend endpoint is ready
+      // await StationService.deleteStation(selectedStation.stationId);
+
+      console.log('Delete station:', selectedStation.stationId);
       setShowDeleteConfirm(false);
       setSelectedStation(null);
 
@@ -125,7 +144,7 @@ const StationList = () => {
           onEdit={handleEdit}
           onDelete={handleDelete}
           emptyMessage="No stations found. Add your first station to get started!"
-          rowKey="id"
+          rowKey="stationId"
           enableActions={true}
         />
       </div>

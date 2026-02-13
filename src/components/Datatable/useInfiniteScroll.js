@@ -19,6 +19,7 @@ const useInfiniteScroll = (fetchData) => {
 
       const response = await fetchData(pageNum);
 
+      // Handle Spring Boot Page response
       const newData = response.content || response.data || [];
       const isLast = response.last ?? (newData.length === 0);
 
@@ -36,7 +37,7 @@ const useInfiniteScroll = (fetchData) => {
   // Initial load
   useEffect(() => {
     loadData(0);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Intersection Observer for infinite scroll
   useEffect(() => {

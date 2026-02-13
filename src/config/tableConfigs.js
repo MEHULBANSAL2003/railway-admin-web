@@ -2,7 +2,7 @@
 
 export const stationColumns = [
   {
-    key: 'id',
+    key: 'stationId',
     label: 'ID',
     className: 'id-column',
   },
@@ -22,6 +22,16 @@ export const stationColumns = [
   {
     key: 'state',
     label: 'State',
+  },
+  {
+    key: 'zone',
+    label: 'Zone',
+    render: (value) => value ? value.replace(/_/g, ' ') : '-',
+  },
+  {
+    key: 'numPlatforms',
+    label: 'Platforms',
+    className: 'text-center',
   },
 
 ];
