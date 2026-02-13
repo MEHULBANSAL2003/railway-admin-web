@@ -1,0 +1,58 @@
+/* Spinner for button loading state */
+.spinner-small {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+  margin-right: var(--spacing-2);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Form spacing in modal */
+.modal-body form {
+  margin: 0;
+}
+
+/* Info text in modal */
+.modal-info {
+  background: var(--info-light);
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-4);
+  margin-bottom: var(--spacing-5);
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: flex-start;
+}
+
+.modal-info-icon {
+  color: var(--info);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.modal-info-content {
+  flex: 1;
+}
+
+.modal-info-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: #1e40af;
+  margin: 0 0 var(--spacing-1) 0;
+}
+
+.modal-info-text {
+  font-size: var(--font-size-xs);
+  color: #1e3a8a;
+  margin: 0;
+  line-height: var(--line-height-relaxed);
+}

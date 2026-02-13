@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, RefreshCw } from 'lucide-react';
 import DataTable from '../../components/DataTable/DataTable';
+import AddStationModal from '../../components/AddStationModal/AddStationModal';
 import { stationColumns } from '../../config/tableConfigs';
 import { fetchStationData, deleteStationData } from '../../utils/dummyData';
 import './StationList.css';
@@ -9,6 +10,7 @@ import './StationList.css';
 const StationList = () => {
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [selectedStation, setSelectedStation] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -56,6 +58,11 @@ const StationList = () => {
     setRefreshKey(prev => prev + 1);
   };
 
+  const handleAddSuccess = () => {
+    // Refresh the table after adding a new station
+    setRefreshKey(prev => prev + 1);
+  };
+
   return (
     <div className="page-container station-list-page">
       {/* Page Header */}
@@ -77,7 +84,7 @@ const StationList = () => {
           </button>
           <button
             className="btn btn-primary"
-            onClick={() => navigate('/admin/stations/add')}
+            onClick={() => setShowAddModal(true)}
           >
             <Plus size={16} />
             Add Station
@@ -161,6 +168,13 @@ const StationList = () => {
           </div>
         </div>
       )}
+
+      {/* Add Station Modal */}
+      <AddStationModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSuccess={handleAddSuccess}
+      />
     </div>
   );
 };
