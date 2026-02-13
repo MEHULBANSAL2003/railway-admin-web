@@ -13,6 +13,7 @@ const StationList = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedStation, setSelectedStation] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [stationStats, setStationStats] = useState();
 
   // Fetch stations from API with pagination
   const fetchStations = async (page = 0) => {
@@ -20,7 +21,7 @@ const StationList = () => {
       const payload = {
         page: page,
         size: 20,
-        sortBy: 'stationId',
+        sortBy: 'id',
         sortDirection: 'ASC'
       };
 
@@ -28,6 +29,7 @@ const StationList = () => {
 
       if (response?.data?.status === 'success') {
         const data = response.data.data;
+        setStationStats(data);
 
         return {
           content: data.content || [],
@@ -115,7 +117,7 @@ const StationList = () => {
       <div className="page-stats">
         <div className="stat-card">
           <div className="stat-label">Total Stations</div>
-          <div className="stat-value">100</div>
+          <div className="stat-value">{stationStats?.totalElements}</div>
         </div>
         <div className="stat-card">
           <div className="stat-label">Active</div>

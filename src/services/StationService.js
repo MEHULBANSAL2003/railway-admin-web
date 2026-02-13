@@ -13,6 +13,6 @@ export const StationService = {
 
   getAllStations : async(payload) => {
     const url = `${station_base_url}${ApiConstants.getAllStations}`;
-    return await HttpWrapper.post(url, payload);
+    return await HttpWrapper.get(url, payload);
   },
 }
