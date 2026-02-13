@@ -144,8 +144,8 @@
   margin-top: var(--spacing-6);
 }
 
-/* Status Badge Overrides */
-.status-badge {
+/* Junction Badge Styles */
+.junction-badge {
   padding: var(--spacing-1) var(--spacing-3);
   border-radius: var(--radius-full);
   font-size: var(--font-size-xs);
@@ -155,19 +155,14 @@
   text-transform: capitalize;
 }
 
-.status-badge.active {
+.junction-badge.is-junction {
   background: var(--success-light);
   color: #065f46;
 }
 
-.status-badge.inactive {
-  background: var(--error-light);
-  color: #991b1b;
-}
-
-.status-badge.maintenance {
-  background: var(--warning-light);
-  color: #92400e;
+.junction-badge.not-junction {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
 }
 
 /* Responsive */

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, RefreshCw } from 'lucide-react';
 import DataTable from '../../components/DataTable/DataTable';
 import AddStationModal from '../../components/AddStationModal/AddStationModal';
-import { stationColumns } from '../../config/tableConfigs';
+import { stationColumns } from '../../config/tableConfigs.jsx';
 import { StationService } from '../../services/StationService';
 import './StationList.css';
 
@@ -14,15 +14,17 @@ const StationList = () => {
   const [selectedStation, setSelectedStation] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [stationStats, setStationStats] = useState();
+  const [sortBy, setSortBy] = useState('id');
+  const [sortDirection, setSortDirection] = useState('ASC');
 
-  // Fetch stations from API with pagination
+  // Fetch stations from API with pagination and sorting
   const fetchStations = async (page = 0) => {
     try {
       const payload = {
         page: page,
         size: 20,
-        sortBy: 'id',
-        sortDirection: 'ASC'
+        sortBy: sortBy,
+        sortDirection: sortDirection
       };
 
       const response = await StationService.getAllStations(payload);
@@ -84,6 +86,19 @@ const StationList = () => {
     setRefreshKey(prev => prev + 1);
   };
 
+  const handleSort = (columnKey) => {
+    if (sortBy === columnKey) {
+      // Toggle direction if same column
+      setSortDirection(prev => prev === 'ASC' ? 'DESC' : 'ASC');
+    } else {
+      // New column, default to ASC
+      setSortBy(columnKey);
+      setSortDirection('ASC');
+    }
+    // Trigger refresh with new sort
+    setRefreshKey(prev => prev + 1);
+  };
+
   return (
     <div className="page-container station-list-page">
       {/* Page Header */}
@@ -117,19 +132,7 @@ const StationList = () => {
       <div className="page-stats">
         <div className="stat-card">
           <div className="stat-label">Total Stations</div>
-          <div className="stat-value">{stationStats?.totalElements}</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Active</div>
-          <div className="stat-value">92</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Maintenance</div>
-          <div className="stat-value">6</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Inactive</div>
-          <div className="stat-value">2</div>
+          <div className="stat-value">{stationStats?.totalElements || 0}</div>
         </div>
       </div>
 
@@ -148,6 +151,9 @@ const StationList = () => {
           emptyMessage="No stations found. Add your first station to get started!"
           rowKey="stationId"
           enableActions={true}
+          onSort={handleSort}
+          sortBy={sortBy}
+          sortDirection={sortDirection}
         />
       </div>
 
