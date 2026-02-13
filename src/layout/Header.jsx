@@ -73,7 +73,7 @@ const Header = () => {
     }
   };
 
-  // Close search results when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -101,10 +101,10 @@ const Header = () => {
       <div className="header-content">
         {/* Left - Search */}
         <div className="header-search" ref={searchRef}>
-          <Search size={20} className="search-icon" />
+          <Search size={18} className="search-icon" />
           <input
             type="text"
-            placeholder="Search bookings, trains, users..."
+            placeholder="Search menu..."
             className="search-input"
             value={searchQuery}
             onChange={handleSearch}
@@ -118,7 +118,7 @@ const Header = () => {
               {searchResults.length > 0 ? (
                 <>
                   <div className="search-results-header">
-                    Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''}
+                    {searchResults.length} Result{searchResults.length !== 1 ? 's' : ''}
                   </div>
                   {searchResults.map((route, index) => (
                     <div
@@ -139,8 +139,8 @@ const Header = () => {
               ) : (
                 <div className="search-no-results">
                   <div className="no-results-icon">🔍</div>
-                  <p>No results found for "{searchQuery}"</p>
-                  <span>Try searching for dashboard, bookings, or users</span>
+                  <p>No results found</p>
+                  <span>Try "dashboard", "stations", or "bookings"</span>
                 </div>
               )}
             </div>
@@ -149,20 +149,20 @@ const Header = () => {
 
         {/* Right - User Info */}
         <div className="header-right">
-
-
           {/* User Menu */}
           {isAuthenticated && (
             <div className="user-menu" ref={dropdownRef}>
               <button
                 className="user-menu-btn"
                 onClick={() => setShowDropdown(!showDropdown)}
+                aria-label="User menu"
               >
                 <div className="user-avatar">
                   {user?.name?.charAt(0).toUpperCase() || 'A'}
                 </div>
                 <div className="user-info">
                   <p className="user-name">{user?.name || 'Admin User'}</p>
+                  <p className="user-role">Administrator</p>
                 </div>
                 <ChevronDown size={16} />
               </button>
@@ -170,11 +170,11 @@ const Header = () => {
               {/* Dropdown Menu */}
               {showDropdown && (
                 <div className="dropdown-menu">
-                  <button className="dropdown-item">
+                  <button className="dropdown-item" onClick={() => navigate('/profile')}>
                     <User size={16} />
                     <span>Profile</span>
                   </button>
-                  <button className="dropdown-item">
+                  <button className="dropdown-item" onClick={() => navigate('/settings')}>
                     <Settings size={16} />
                     <span>Settings</span>
                   </button>

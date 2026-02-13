@@ -1,0 +1,23 @@
+/* ==========================================
+   MAIN STYLESHEET - Import Order Matters!
+   ========================================== */
+
+/* 1. Design System Variables */
+@import './variables.css';
+
+/* 2. CSS Reset & Base Styles */
+@import './reset.css';
+
+/* 3. Utility Classes */
+@import './utilities.css';
+
+/* ==========================================
+   GLOBAL OVERRIDES (if needed)
+   ========================================== */
+
+/* Ensure root element takes full height */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

@@ -8,14 +8,21 @@ const MainLayout = () => {
   return (
     <div className="layout-container">
       <Sidebar />
+
       <div className="layout-main">
-        <Header />
+        <div className="layout-header">
+          <Header />
+        </div>
 
         <main className="layout-body">
-          <Outlet />
+          <div className="layout-content-wrapper">
+            <Outlet />
+          </div>
         </main>
 
-        <Footer />
+        <div className="layout-footer">
+          <Footer />
+        </div>
       </div>
     </div>
   );

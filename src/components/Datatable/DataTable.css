@@ -1,52 +1,77 @@
 .data-table-container {
   width: 100%;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: var(--bg-primary);
   overflow: hidden;
 }
 
 .data-table-wrapper {
   overflow-x: auto;
-  max-height: calc(100vh - 200px);
+  max-height: 600px;
   overflow-y: auto;
+}
+
+/* Custom scrollbar */
+.data-table-wrapper::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.data-table-wrapper::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+.data-table-wrapper::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: var(--radius-full);
+}
+
+.data-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-400);
 }
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
 }
 
 .data-table thead {
   position: sticky;
   top: 0;
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   z-index: 10;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 0 var(--border-primary);
 }
 
 .data-table th {
-  padding: 16px;
+  padding: var(--spacing-4) var(--spacing-5);
   text-align: left;
-  font-weight: 600;
-  color: #495057;
-  border-bottom: 2px solid #dee2e6;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-primary);
   white-space: nowrap;
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .data-table td {
-  padding: 14px 16px;
-  border-bottom: 1px solid #f1f3f5;
-  color: #212529;
+  padding: var(--spacing-4) var(--spacing-5);
+  border-bottom: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
 }
 
 .data-table tbody tr {
-  transition: background-color 0.2s ease;
+  transition: background-color var(--transition-fast);
 }
 
 .data-table tbody tr:hover {
-  background-color: #f8f9fa;
+  background-color: var(--bg-secondary);
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .actions-column {
@@ -54,49 +79,84 @@
   width: 120px;
 }
 
+/* Scroll Trigger */
 .scroll-trigger {
-  padding: 16px;
+  padding: var(--spacing-4);
   text-align: center;
 }
 
 .end-of-data {
-  padding: 20px;
+  padding: var(--spacing-5);
   text-align: center;
-  color: #868e96;
-  font-size: 13px;
-  border-top: 1px solid #e9ecef;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  border-top: 1px solid var(--border-primary);
+  background: var(--bg-secondary);
 }
 
-.table-error,
-.table-empty {
-  padding: 60px 20px;
+/* Error State */
+.table-error {
+  padding: var(--spacing-12) var(--spacing-6);
   text-align: center;
-  color: #868e96;
+  color: var(--text-secondary);
+}
+
+.table-error p {
+  color: var(--error);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-4);
 }
 
 .retry-btn {
-  margin-top: 12px;
-  padding: 8px 20px;
-  background: #1976d2;
-  color: white;
+  margin-top: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-5);
+  background: var(--primary-600);
+  color: var(--text-inverse);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-fast);
 }
 
 .retry-btn:hover {
-  background: #1565c0;
+  background: var(--primary-700);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Empty State */
+.table-empty {
+  padding: var(--spacing-12) var(--spacing-6);
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.table-empty p {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-2);
+}
+
+.table-empty span {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .data-table {
-    font-size: 12px;
+    font-size: var(--font-size-xs);
   }
 
   .data-table th,
   .data-table td {
-    padding: 10px 8px;
+    padding: var(--spacing-3) var(--spacing-4);
+  }
+
+  .data-table-wrapper {
+    max-height: 500px;
   }
 }
