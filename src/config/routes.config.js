@@ -14,7 +14,7 @@ export const searchableRoutes = [
   {
     id: 'create-admin',
     name: 'Create Admin',
-    path: '/admin/create',
+    path: '/admins',
     description: 'Add new admin users',
     keywords: ['add admin', 'new admin', 'register admin', 'admin user'],
     icon: '👤',
