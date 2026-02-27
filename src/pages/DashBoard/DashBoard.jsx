@@ -3,16 +3,7 @@ import './Dashboard.css';
 import {useNavigate} from "react-router-dom";
 
 const Dashboard = () => {
-  const [stats] = useState({
-    totalBookings: 1245,
-    activeTrains: 45,
-    totalRevenue: 2456789,
-    pendingRequests: 23,
-    registeredUsers: 5678,
-    todayBookings: 87,
-    cancelledBookings: 12,
-    occupancyRate: 78
-  });
+
 
   const navigate = useNavigate();
 
@@ -36,13 +27,6 @@ const Dashboard = () => {
 
   ];
 
-  const recentActivities = [
-    { id: 1, activity: 'New booking #1245 created', time: '5 mins ago' },
-    { id: 2, activity: 'Train T-101 schedule updated', time: '15 mins ago' },
-    { id: 3, activity: 'User John Doe registered', time: '1 hour ago' },
-    { id: 4, activity: 'Booking #1230 cancelled', time: '2 hours ago' },
-    { id: 5, activity: 'New route Mumbai-Delhi added', time: '3 hours ago' }
-  ];
 
   return (
     <div className="dashboard">
@@ -51,42 +35,6 @@ const Dashboard = () => {
         <p>Train Booking Management System</p>
       </div>
 
-      {/* Statistics Cards */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon">📈</div>
-          <div className="stat-details">
-            <h3>{stats.totalBookings.toLocaleString()}</h3>
-            <p>Total Bookings</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">🚆</div>
-          <div className="stat-details">
-            <h3>{stats.activeTrains}</h3>
-            <p>Active Trains</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">💵</div>
-          <div className="stat-details">
-            <h3>₹{(stats.totalRevenue / 100000).toFixed(1)}L</h3>
-            <p>Total Revenue</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">⏳</div>
-          <div className="stat-details">
-            <h3>{stats.pendingRequests}</h3>
-            <p>Pending Requests</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Features Grid */}
       <div className="features-section">
         <h2>Quick Actions</h2>
         <div className="features-grid">
@@ -115,43 +63,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Recent Activity & Additional Stats */}
-      <div className="dashboard-bottom">
-        <div className="recent-activity">
-          <h2>Recent Activity</h2>
-          <div className="activity-list">
-            {recentActivities.map((item) => (
-              <div key={item.id} className="activity-item">
-                <div className="activity-dot"></div>
-                <div className="activity-content">
-                  <p>{item.activity}</p>
-                  <span className="activity-time">{item.time}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="additional-stats">
-          <h2>Performance Metrics</h2>
-          <div className="metric-item">
-            <span>Today's Bookings</span>
-            <strong>{stats.todayBookings}</strong>
-          </div>
-          <div className="metric-item">
-            <span>Registered Users</span>
-            <strong>{stats.registeredUsers.toLocaleString()}</strong>
-          </div>
-          <div className="metric-item">
-            <span>Cancelled Today</span>
-            <strong>{stats.cancelledBookings}</strong>
-          </div>
-          <div className="metric-item">
-            <span>Avg. Occupancy</span>
-            <strong>{stats.occupancyRate}%</strong>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
