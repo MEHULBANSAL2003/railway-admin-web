@@ -1,5 +1,5 @@
 import { useAuth } from '../context/AuthContext.jsx';
-import { Bell, Search, ChevronDown, LogOut, User, Settings } from 'lucide-react';
+import { Search, LogOut, User, Settings, Menu } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { searchRoutes } from '../config/routes.config.js';
@@ -99,12 +99,12 @@ const Header = () => {
   return (
     <header className="header">
       <div className="header-content">
-        {/* Left - Search */}
+        {/* Search */}
         <div className="header-search" ref={searchRef}>
-          <Search size={18} className="search-icon" />
+          <Search size={16} className="search-icon" />
           <input
             type="text"
-            placeholder="Search menu..."
+            placeholder="Search..."
             className="search-input"
             value={searchQuery}
             onChange={handleSearch}
@@ -112,82 +112,62 @@ const Header = () => {
             onFocus={() => searchQuery && setShowSearchResults(true)}
           />
 
-          {/* Search Results Dropdown */}
+          {/* Search Results */}
           {showSearchResults && (
             <div className="search-results">
               {searchResults.length > 0 ? (
-                <>
-                  <div className="search-results-header">
-                    {searchResults.length} Result{searchResults.length !== 1 ? 's' : ''}
+                searchResults.map((route, index) => (
+                  <div
+                    key={route.id}
+                    className={`search-item ${index === selectedIndex ? 'active' : ''}`}
+                    onClick={() => handleRouteSelect(route)}
+                    onMouseEnter={() => setSelectedIndex(index)}
+                  >
+                    <span className="search-item-name">{route.name}</span>
+                    <span className="search-item-tag">{route.category}</span>
                   </div>
-                  {searchResults.map((route, index) => (
-                    <div
-                      key={route.id}
-                      className={`search-result-item ${index === selectedIndex ? 'selected' : ''}`}
-                      onClick={() => handleRouteSelect(route)}
-                      onMouseEnter={() => setSelectedIndex(index)}
-                    >
-                      <div className="search-result-icon">{route.icon}</div>
-                      <div className="search-result-content">
-                        <div className="search-result-name">{route.name}</div>
-                        <div className="search-result-description">{route.description}</div>
-                      </div>
-                      <div className="search-result-category">{route.category}</div>
-                    </div>
-                  ))}
-                </>
+                ))
               ) : (
-                <div className="search-no-results">
-                  <div className="no-results-icon">🔍</div>
-                  <p>No results found</p>
-                  <span>Try "dashboard", "stations", or "bookings"</span>
+                <div className="search-empty">
+                  <span>No results found</span>
                 </div>
               )}
             </div>
           )}
         </div>
 
-        {/* Right - User Info */}
-        <div className="header-right">
-          {/* User Menu */}
-          {isAuthenticated && (
-            <div className="user-menu" ref={dropdownRef}>
-              <button
-                className="user-menu-btn"
-                onClick={() => setShowDropdown(!showDropdown)}
-                aria-label="User menu"
-              >
-                <div className="user-avatar">
-                  {user?.name?.charAt(0).toUpperCase() || 'A'}
-                </div>
-                <div className="user-info">
-                  <p className="user-name">{user?.name || 'Admin User'}</p>
-                  <p className="user-role">Administrator</p>
-                </div>
-                <ChevronDown size={16} />
-              </button>
+        {/* User Menu */}
+        {isAuthenticated && (
+          <div className="user-menu" ref={dropdownRef}>
+            <button
+              className="user-btn"
+              onClick={() => setShowDropdown(!showDropdown)}
+            >
+              <span className="user-name">{user?.name || 'Admin'}</span>
+              <div className="user-avatar">
+                {user?.name?.charAt(0).toUpperCase() || 'A'}
+              </div>
+            </button>
 
-              {/* Dropdown Menu */}
-              {showDropdown && (
-                <div className="dropdown-menu">
-                  <button className="dropdown-item" onClick={() => navigate('/profile')}>
-                    <User size={16} />
-                    <span>Profile</span>
-                  </button>
-                  <button className="dropdown-item" onClick={() => navigate('/settings')}>
-                    <Settings size={16} />
-                    <span>Settings</span>
-                  </button>
-                  <hr className="dropdown-divider" />
-                  <button className="dropdown-item" onClick={logout}>
-                    <LogOut size={16} />
-                    <span>Logout</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+            {showDropdown && (
+              <div className="dropdown">
+                <button className="dropdown-item" onClick={() => navigate('/profile')}>
+                  <User size={16} />
+                  <span>Profile</span>
+                </button>
+                <button className="dropdown-item" onClick={() => navigate('/settings')}>
+                  <Settings size={16} />
+                  <span>Settings</span>
+                </button>
+                <div className="dropdown-divider" />
+                <button className="dropdown-item logout" onClick={logout}>
+                  <LogOut size={16} />
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </header>
   );
