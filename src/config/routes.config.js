@@ -12,11 +12,26 @@ export const searchableRoutes = [
     category: 'Main'
   },
   {
-    id: 'create-admin',
-    name: 'Create Admin',
+    id: 'admin-management',
+    name: 'Admin Management',
     path: '/admins',
-    description: 'Add new admin users',
-    keywords: ['add admin', 'new admin', 'register admin', 'admin user'],
+    description: 'View, search, filter, create, update and delete admin users',
+    keywords: [
+      'admin',
+      'admins',
+      'admin list',
+      'list admin',
+      'manage admin',
+      'create admin',
+      'add admin',
+      'edit admin',
+      'update admin',
+      'delete admin',
+      'remove admin',
+      'admin management',
+      'admin users',
+      'super admin'
+    ],
     icon: '👤',
     category: 'Admin Management'
   },
@@ -27,7 +42,7 @@ export const searchableRoutes = [
     description: 'Add/fetch/edit/remove railway stations',
     keywords: ['add station', 'get stations', 'update stations', 'remove stations', 'stations'],
     icon: '👤',
-    category: 'Admin Management'
+    category: 'Station Management'
   },
 
 ];
