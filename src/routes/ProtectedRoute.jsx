@@ -1,21 +1,26 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { validateTokens } from '../utils/tokenValidation';
+import {common} from "../constants/common.js";
 
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const accessToken = common.getAccessToken();
+  const refreshToken = common.getRefreshToken();
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
+  // Check if tokens exist
+  if (!accessToken || !refreshToken) {
     return <Navigate to="/login" replace />;
   }
 
+  // Validate tokens
+  const { valid, reason } = validateTokens();
+
+  // If tokens are invalid and can't be refreshed, redirect to login
+  if (!valid && reason === 'REFRESH_TOKEN_EXPIRED') {
+    common.logout();
+    return <Navigate to="/login" replace />;
+  }
+
+  // If tokens are valid or can be refreshed, allow access
   return children;
 };
 

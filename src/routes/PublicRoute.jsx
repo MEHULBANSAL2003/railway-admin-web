@@ -1,20 +1,26 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { validateTokens } from '../utils/tokenValidation';
+import {common} from "../constants/common.js";
 
 const PublicRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
+  const accessToken = common.getAccessToken();
+  const refreshToken = common.getRefreshToken();
+
+  // If no tokens, allow access to public routes
+  if (!accessToken || !refreshToken) {
+    return children;
   }
 
-  if (isAuthenticated) {
+  // Validate tokens
+  const { valid } = validateTokens();
+
+  // If tokens are valid, redirect to dashboard
+  if (valid) {
     return <Navigate to="/dashboard" replace />;
   }
 
+  // If tokens are invalid, clear them and allow access
+  common.logout();
   return children;
 };
 
