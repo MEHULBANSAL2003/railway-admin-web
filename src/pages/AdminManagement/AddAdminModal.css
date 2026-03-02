@@ -1,0 +1,296 @@
+/* ==========================================
+   ADD ADMIN MODAL — self-contained styles
+   Uses existing CSS variables from variables.css
+   ========================================== */
+
+/* Backdrop */
+.aam-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: var(--spacing-4);
+  animation: aam-fade-in 0.15s ease;
+}
+
+@keyframes aam-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Modal box */
+.aam-modal {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  animation: aam-slide-up 0.18s ease;
+  max-height: calc(100vh - 48px);
+  overflow: hidden;
+}
+
+@keyframes aam-slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Header */
+.aam-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--spacing-5) var(--spacing-6);
+  border-bottom: 1px solid var(--border-primary);
+  gap: var(--spacing-3);
+  flex-shrink: 0;
+}
+
+.aam-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+}
+
+.aam-header-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-lg);
+  background: var(--primary-100);
+  color: var(--primary-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.aam-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0 0 2px;
+  line-height: var(--line-height-tight);
+}
+
+.aam-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.aam-close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.aam-close:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.aam-close:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Body */
+.aam-body {
+  padding: var(--spacing-5) var(--spacing-6);
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+/* Field */
+.aam-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.aam-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+}
+
+.aam-required {
+  color: var(--error);
+  margin-left: 2px;
+}
+
+/* Inputs */
+.aam-input,
+.aam-select {
+  width: 100%;
+  height: 40px;
+  padding: 0 var(--spacing-4);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  outline: none;
+}
+
+.aam-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.aam-input:hover:not(:disabled):not(.aam-input--error),
+.aam-select:hover:not(:disabled):not(.aam-input--error) {
+  border-color: var(--border-secondary);
+}
+
+.aam-input:focus:not(.aam-input--error),
+.aam-select:focus:not(.aam-input--error) {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+}
+
+.aam-input--error {
+  border-color: var(--error) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.aam-input:disabled,
+.aam-select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: var(--bg-secondary);
+}
+
+/* Country code input */
+.aam-input--country {
+  width: 64px;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  cursor: default;
+  background: var(--bg-secondary);
+  text-align: center;
+  padding: 0 var(--spacing-2);
+}
+
+/* Phone row */
+.aam-phone-row {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.aam-input--phone {
+  flex: 1;
+}
+
+/* Select arrow */
+.aam-select {
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  padding-right: 36px;
+}
+
+/* Two-column row */
+.aam-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-3);
+}
+
+/* Error text */
+.aam-error {
+  font-size: var(--font-size-xs);
+  color: var(--error);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.aam-error::before {
+  content: '!';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--error);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Footer */
+.aam-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4) var(--spacing-6);
+  border-top: 1px solid var(--border-primary);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+/* Spinner inside button */
+.aam-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: aam-spin 0.6s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes aam-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 520px) {
+  .aam-modal {
+    max-width: 100%;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 90vh;
+  }
+
+  .aam-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .aam-row {
+    grid-template-columns: 1fr;
+  }
+}

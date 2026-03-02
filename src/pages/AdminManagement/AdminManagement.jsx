@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Search, Mail, Phone, Shield, Building2,
   ChevronUp, ChevronDown, ChevronsUpDown,
@@ -6,6 +6,7 @@ import {
   ToggleLeft, ToggleRight, Inbox
 } from 'lucide-react';
 import { useAdminList } from './useAdminList.js';
+import AddAdminModal from './AddAdminModal.jsx';
 import './AdminManagement.css';
 
 // ── Constants ────────────────────────────────────────────
@@ -18,7 +19,9 @@ const ROLE_OPTIONS = [
 const DEPARTMENT_OPTIONS = [
   { value: '',          label: 'All Departments' },
   { value: 'TECH',      label: 'Tech' },
-  {value: 'SUPPORT',   label: 'Support' },
+  { value: 'OPERATIONS',label: 'Operations' },
+  { value: 'FINANCE',   label: 'Finance' },
+  { value: 'HR',        label: 'HR' },
 ];
 
 const SORTABLE_COLUMNS = [
@@ -106,7 +109,15 @@ const AdminManagementPage = () => {
     loadMore,
     handleStatusToggle, handleRoleChange,
     statusLoadingId, roleLoadingId,
+    updateRowById, refresh,
   } = useAdminList();
+
+  const [addModalOpen, setAddModalOpen] = useState(false);
+
+  // When a new admin is created, refresh the list so it appears
+  const handleAdminCreated = useCallback(() => {
+    refresh();
+  }, [refresh]);
 
   // IntersectionObserver for infinite scroll
   const sentinelRef = useRef(null);
@@ -139,12 +150,19 @@ const AdminManagementPage = () => {
           </p>
         </div>
         <div className="page-actions">
-          <button className="btn btn-primary" onClick={() => {/* open add modal */}}>
+          <button className="btn btn-primary" onClick={() => setAddModalOpen(true)}>
             <UserPlus size={16} />
             Add Admin
           </button>
         </div>
       </div>
+
+      {/* ── Add Admin Modal ── */}
+      <AddAdminModal
+        open={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        onSuccess={handleAdminCreated}
+      />
 
       {/* ── Table Card ── */}
       <div className="card">
