@@ -7,7 +7,7 @@ export const ApiConstants = {
   createNewAdmin: '/new/admin/create',
   getAllAdminList: '/admin/list',
   updateAdminActiveStatus: '/admin/update/status',
-  updateAdminRole: 'admin/role/update',
+  updateAdminRole: '/admin/role/update',
 
 
 

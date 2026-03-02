@@ -78,51 +78,11 @@ export const HttpWrapper = {
     return await api.post(url, formData, { headers });
   },
 
-  postWithQueryParams: async (url, params = null, body = null, setHeader = false) => {
+  postByIdWithQueryParams: async (url, id, params = null, body = null, setHeader = false) => {
     const headers = buildHeaders(setHeader);
-    const fullUrl = appendParams(url, params);
+    let fullUrl = appendId(url, id);
+    fullUrl = appendParams(fullUrl, params);
     return await api.post(fullUrl, body, { headers });
   },
 
-  delete: async (url, params = null, setHeader = false) => {
-    const headers = buildHeaders(setHeader);
-    const fullUrl = appendParams(url, params);
-    return await api.delete(fullUrl, { headers });
-  },
-
-  put: async (url, body, setHeader = false) => {
-    const headers = buildHeaders(setHeader);
-    return await api.put(url, body, { headers });
-  },
-
-  patch: async (url, body, setHeader = false) => {
-    const headers = buildHeaders(setHeader);
-    return await api.patch(url, body, { headers });
-  },
-
-  putById: async (url, id, body, setHeader = false) => {
-    const headers = buildHeaders(setHeader);
-    const fullUrl = appendId(url, id);
-    return await api.put(fullUrl, body, { headers });
-  },
-
-  patchById: async (url, id, body, setHeader = false) => {
-    const headers = buildHeaders(setHeader);
-    const fullUrl = appendId(url, id);
-    return await api.patch(fullUrl, body, { headers });
-  },
-
-  patchByIdWithQueryParams: async (url, id, params = null, body = null, setHeader = false) => {
-    const headers = buildHeaders(setHeader);
-    let fullUrl = appendId(url, id);
-    fullUrl = appendParams(fullUrl, params);
-    return await api.patch(fullUrl, body, { headers });
-  },
-
-  putByIdWithQueryParams: async (url, id, params = null, body = null, setHeader = false) => {
-    const headers = buildHeaders(setHeader);
-    let fullUrl = appendId(url, id);
-    fullUrl = appendParams(fullUrl, params);
-    return await api.put(fullUrl, body, { headers });
-  },
 };
