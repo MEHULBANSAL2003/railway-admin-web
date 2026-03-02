@@ -19,5 +19,10 @@ export const AdminService = {
   updateAdminActiveStatus : async(id,payload) => {
     const url = `${base_url}${ApiConstants.updateAdminActiveStatus}`;
     return await HttpWrapper.patchByIdWithQueryParams(url, id,payload, true);
+  },
+
+  updateAdminRole : async(id,payload) => {
+    const url = `${base_url}${ApiConstants.updateAdminRole}`;
+    return await HttpWrapper.patchByIdWithQueryParams(url, id,payload, true);
   }
 }
