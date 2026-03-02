@@ -23,11 +23,7 @@ const appendId = (url, id) => {
 
 // Helper function to build headers
 const buildHeaders = (setHeader = false) => {
-  const headers = {
-    app_id: (common?.getAppId() || '').toString(),
-    business_id: (common?.getBusinessId() || '').toString(),
-    app_version: common.getAppVersion() || '1.0.0',
-  };
+  const headers = {};
   if (setHeader) {
     const token = common.getAccessToken();
     let id = common.getUserData('id');

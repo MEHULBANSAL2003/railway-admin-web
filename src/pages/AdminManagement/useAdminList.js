@@ -11,8 +11,8 @@ const DEFAULT_FILTERS = {
 };
 
 const DEFAULT_SORT = {
-  sortBy: 'createdAt',
-  sortDir: 'desc',
+  sortBy: 'id',
+  sortDir: 'asc',
 };
 
 const PAGE_SIZE   = 10;
@@ -192,7 +192,7 @@ export const useAdminList = () => {
     );
 
     try {
-      await AdminService.updateAdminActiveStatus(admin.id, { isActive: newStatus });
+      await AdminService.updateAdminActiveStatus(admin.id, { setActive: newStatus });
       showSuccess(`${admin.fullName} ${newStatus ? 'activated' : 'deactivated'} successfully.`);
     } catch (err) {
       // Rollback
@@ -221,7 +221,7 @@ export const useAdminList = () => {
     );
 
     try {
-      await AdminService.updateAdminRole(admin.id, { role: newRole });
+      await AdminService.updateAdminRole(admin.id, { newRole: newRole });
       showSuccess(`${admin.fullName}'s role updated to ${newRole.replace('_', ' ')}.`);
     } catch (err) {
       // Rollback

@@ -6,8 +6,8 @@ export const ApiConstants = {
   logoutCurrentDevice: '/admin/logout',
   createNewAdmin: '/new/admin/create',
   getAllAdminList: '/admin/list',
-  updateAdminActiveStatus: 'admins/set/active/inactive',
-  updateAdminRole: 'admin/update/role',
+  updateAdminActiveStatus: '/admin/update/status',
+  updateAdminRole: 'admin/role/update',
 
 
 
