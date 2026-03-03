@@ -14,7 +14,7 @@ const DEFAULT_FILTERS = {
 };
 
 const DEFAULT_SORT = {
-  sortBy: 'stationCode',
+  sortBy:        'stationCode',
   sortDirection: 'ASC',
 };
 
@@ -166,13 +166,24 @@ export const useStationList = () => {
     setTotalElements(prev => prev + 1);
   }, []);
 
+  const updateRowByCode = useCallback((stationCode, patch) => {
+    setData(prev =>
+      prev.map(r => r.stationCode === stationCode ? { ...r, ...patch } : r)
+    );
+  }, []);
+
+  const removeRowByCode = useCallback((stationCode) => {
+    setData(prev => prev.filter(r => r.stationCode !== stationCode));
+    setTotalElements(prev => prev - 1);
+  }, []);
+
   return {
     data, loading, loadingMore, hasMore, totalElements,
     filters, sort,
     handleFilterChange, handleFilterReset, handleSort,
     loadMore,
     handleStatusToggle, statusLoadingCode,
-    prependStation,
+    prependStation, updateRowByCode, removeRowByCode,
     refresh: fetchList,
   };
 };

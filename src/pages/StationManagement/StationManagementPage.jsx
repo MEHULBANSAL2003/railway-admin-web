@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import {
-  Search, ChevronUp, ChevronDown, ChevronsUpDown,
-  Train, Plus, RotateCcw, Inbox,
-  ToggleLeft, ToggleRight, FileSpreadsheet,
+  Search, ChevronUp, ChevronDown, ChevronsUpDown, Plus, RotateCcw, Inbox,
+  ToggleLeft, ToggleRight, FileSpreadsheet, Pencil, Trash2,
 } from 'lucide-react';
 import { useStationList } from './useStationList.js';
 import AddStationModal from './AddStationModal.jsx';
+import EditStationModal from './EditStationModal.jsx';
+import DeleteStationModal from './DeleteStationModal.jsx';
 import ExcelUploadModal from '../../components/UI/ExcelUploadModal.jsx';
 import { StationService } from '../../services/StationService.js';
 import { StatesCitiesService } from '../../services/StatesCitiesService.js';
@@ -19,10 +20,8 @@ const STATION_TYPE_OPTIONS = [
   { value: '',          label: 'All Types'  },
   { value: 'JUNCTION',  label: 'Junction'   },
   { value: 'REGULAR',   label: 'Regular'    },
-  { value: 'TERMINAL',  label: 'Terminal'   },
+  { value: 'TERMINUS',  label: 'Terminus'   },
   { value: 'HALT',      label: 'Halt'       },
-  { value: 'CANTT',      label: 'Cantt'       },
-  { value: 'CENTRAL',      label: 'Central'       }
 ];
 
 const STATUS_OPTIONS = [
@@ -100,7 +99,7 @@ const StationManagementPage = () => {
     handleFilterChange, handleFilterReset, handleSort,
     loadMore,
     handleStatusToggle, statusLoadingCode,
-    prependStation, refresh,
+    prependStation, updateRowByCode, removeRowByCode, refresh,
   } = useStationList();
 
   // ── Reference data for modals ────────────────────────────
@@ -119,6 +118,8 @@ const StationManagementPage = () => {
   // ── Modal state ──────────────────────────────────────────
   const [addModalOpen,   setAddModalOpen]   = useState(false);
   const [excelModalOpen, setExcelModalOpen] = useState(false);
+  const [editStation,    setEditStation]    = useState(null); // station obj or null
+  const [deleteStation,  setDeleteStation]  = useState(null); // station obj or null
 
   // ── Infinite scroll sentinel ─────────────────────────────
   const sentinelRef = useRef(null);
@@ -339,8 +340,17 @@ const StationManagementPage = () => {
 
                 {/* Actions */}
                 <td>
-                  {station.canUpdatedByCurrentAdmin && (
-                    <div className="sm-row-actions">
+                  <div className="sm-row-actions">
+                    {station.canUpdatedByCurrentAdmin && (
+                      <button
+                        className="sm-action-btn"
+                        title="Edit station"
+                        onClick={() => setEditStation(station)}
+                      >
+                        <Pencil size={14} />
+                      </button>
+                    )}
+                    {station.canUpdatedByCurrentAdmin && (
                       <button
                         className={`sm-action-btn${station.isActive ? ' danger' : ''}`}
                         title={station.isActive ? 'Deactivate' : 'Activate'}
@@ -354,8 +364,17 @@ const StationManagementPage = () => {
                             : <ToggleLeft  size={15} />
                         }
                       </button>
-                    </div>
-                  )}
+                    )}
+                    {station.canDeletedByCurrentAdmin && (
+                      <button
+                        className="sm-action-btn danger"
+                        title="Delete station"
+                        onClick={() => setDeleteStation(station)}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
                 </td>
 
               </tr>
@@ -426,6 +445,31 @@ const StationManagementPage = () => {
         subtitle="Upload an Excel file to bulk-import stations"
         onUpload={(file) => StationService.uploadStationExcel(file)}
         onSuccess={refresh}
+      />
+
+      {/* ── Edit Station Modal ── */}
+      <EditStationModal
+        open={!!editStation}
+        onClose={() => setEditStation(null)}
+        station={editStation}
+        states={states}
+        zones={zones}
+        onSuccess={(updated) => {
+          if (updated) updateRowByCode(editStation.stationCode, updated);
+          else refresh();
+          setEditStation(null);
+        }}
+      />
+
+      {/* ── Delete Station Modal ── */}
+      <DeleteStationModal
+        open={!!deleteStation}
+        onClose={() => setDeleteStation(null)}
+        station={deleteStation}
+        onSuccess={(code) => {
+          removeRowByCode(code);
+          setDeleteStation(null);
+        }}
       />
 
     </div>

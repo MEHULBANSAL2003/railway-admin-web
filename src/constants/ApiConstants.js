@@ -17,6 +17,9 @@ export const ApiConstants = {
   searchStations: '/search/by/name',
   uploadStationExcel: '/upload/excel',
   updateStationStatus: '/set/active/inactive',
+  updateStationDetails: '/update/details',
+  deleteStation: '/delete',
+
 
   //cities
   getAllCities: '/get/all',
