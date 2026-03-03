@@ -25,6 +25,14 @@ const Dashboard = () => {
     },
     {
       id: 2,
+      title: 'States & Cities',
+      description: 'Manage States & Cities',
+      icon: MapPin,
+      link: '/states-cities',
+      color: '#f1a6a6'
+    },
+    {
+      id: 3,
       title: 'Stations',
       description: 'Manage railway stations',
       icon: MapPin,
@@ -32,7 +40,7 @@ const Dashboard = () => {
       color: '#10b981'
     },
     {
-      id: 3,
+      id: 4,
       title: 'Trains',
       description: 'Manage train schedules',
       icon: Train,
@@ -40,7 +48,7 @@ const Dashboard = () => {
       color: '#f59e0b'
     },
     {
-      id: 4,
+      id: 5,
       title: 'Routes',
       description: 'Configure train routes',
       icon: Route,
@@ -48,7 +56,7 @@ const Dashboard = () => {
       color: '#8b5cf6'
     },
     {
-      id: 5,
+      id: 6,
       title: 'Bookings',
       description: 'View all bookings',
       icon: FileText,
@@ -56,7 +64,7 @@ const Dashboard = () => {
       color: '#06b6d4'
     },
     {
-      id: 6,
+      id: 7,
       title: 'Analytics',
       description: 'View reports & stats',
       icon: BarChart3,
@@ -64,7 +72,7 @@ const Dashboard = () => {
       color: '#ec4899'
     },
     {
-      id: 7,
+      id: 8,
       title: 'Zones',
       description: 'Manage railway zones',
       icon: Package,
@@ -72,7 +80,7 @@ const Dashboard = () => {
       color: '#14b8a6'
     },
     {
-      id: 8,
+      id: 9,
       title: 'Settings',
       description: 'System configuration',
       icon: Settings,

@@ -13,6 +13,13 @@ export const ApiConstants = {
 
   //stations
   createNewStation: '/admin/add/new/station',
-
   getAllStations: '/get/all/list',
+
+  //cities
+  getAllCities: '/get/all',
+  getAllCitiesByState: '/by/state/name',
+  addNewCity: '/add/new',
+
+  //states
+  getAllStates: '/get/all/list',
 }
