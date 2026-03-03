@@ -35,9 +35,9 @@
       const url = `${station_base_url}${ApiConstants.updateStationDetails}/${stationCode}`;
       return await HttpWrapper.post(url, payload, true);
     },
-    deleteStation : async (stationCode) => {
-      const url = `${station_base_url}${ApiConstants.deleteStation}`;
-      return await HttpWrapper.postByIdWithQueryParams(url, stationCode,  null, true);
+    deleteStation : async (stationCode, payload) => {
+      const url = `${station_base_url}${ApiConstants.deleteStation}/${stationCode}`;
+      return await HttpWrapper.post(url, payload, true);
     },
 
 

@@ -8,8 +8,11 @@ import '../AdminManagement/AddAdminModal.css';
 const DeleteStationModal = ({ open, onClose, station, onSuccess }) => {
   const { showSuccess, showError } = useToast();
   const [deleting, setDeleting] = useState(false);
+  const [reason,   setReason]   = useState('');
+  const [error,    setError]    = useState('');
 
   useEffect(() => {
+    if (open) { setReason(''); setError(''); }
     document.body.style.overflow = open ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [open]);
@@ -22,9 +25,13 @@ const DeleteStationModal = ({ open, onClose, station, onSuccess }) => {
   }, [open, deleting]);
 
   const handleDelete = async () => {
+    if (reason.trim().length < 5) {
+      setError('Please provide a reason (min 5 characters).');
+      return;
+    }
     setDeleting(true);
     try {
-      await StationService.deleteStation(station.stationCode);
+      await StationService.deleteStation(station.stationCode, { reason: reason.trim() });
       showSuccess(`Station "${station.stationName}" deleted successfully.`);
       onClose();
       onSuccess?.(station.stationCode);
@@ -75,7 +82,7 @@ const DeleteStationModal = ({ open, onClose, station, onSuccess }) => {
                 Are you sure you want to delete this station?
               </p>
               <p style={{ fontSize: 'var(--font-size-xs)', color: '#b91c1c', margin: 0 }}>
-                All data associated with <strong>{station.stationName}</strong> will be permanently removed.
+                <strong>{station.stationName}</strong> will be permanently removed from all queries.
               </p>
             </div>
           </div>
@@ -105,6 +112,23 @@ const DeleteStationModal = ({ open, onClose, station, onSuccess }) => {
             </span>
           </div>
 
+          {/* Reason field */}
+          <div className="aam-field" style={{ marginBottom: 0 }}>
+            <label className="aam-label">
+              Reason for deletion <span className="aam-required">*</span>
+            </label>
+            <textarea
+              className={`aam-input${error ? ' aam-input--error' : ''}`}
+              rows={3}
+              placeholder="e.g. Station closed due to route restructuring…"
+              value={reason}
+              onChange={e => { setReason(e.target.value); setError(''); }}
+              disabled={deleting}
+              style={{ resize: 'vertical', minHeight: 72, paddingTop: 8, paddingBottom: 8 }}
+            />
+            {error && <p className="aam-error">{error}</p>}
+          </div>
+
         </div>
 
         {/* Footer */}
@@ -114,14 +138,15 @@ const DeleteStationModal = ({ open, onClose, station, onSuccess }) => {
           </button>
           <button
             onClick={handleDelete}
-            disabled={deleting}
+            disabled={deleting || reason.trim().length < 5}
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
               height: 36, padding: '0 var(--spacing-4)',
-              background: deleting ? '#fca5a5' : '#dc2626',
+              background: deleting || reason.trim().length < 5 ? '#fca5a5' : '#dc2626',
               color: '#fff', border: 'none', borderRadius: 'var(--radius-md)',
               fontFamily: 'inherit', fontSize: 'var(--font-size-sm)',
-              fontWeight: 'var(--font-weight-medium)', cursor: deleting ? 'not-allowed' : 'pointer',
+              fontWeight: 'var(--font-weight-medium)',
+              cursor: deleting || reason.trim().length < 5 ? 'not-allowed' : 'pointer',
               transition: 'background 0.15s'
             }}
           >
