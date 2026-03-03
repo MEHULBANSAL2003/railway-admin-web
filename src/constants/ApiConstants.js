@@ -14,6 +14,9 @@ export const ApiConstants = {
   //stations
   createNewStation: '/admin/add/new/station',
   getAllStations: '/get/all/list',
+  searchStations: '/search/by/name',
+  uploadStationExcel: '/upload/excel',
+  updateStationStatus: '/set/active/inactive',
 
   //cities
   getAllCities: '/get/all',
@@ -24,4 +27,7 @@ export const ApiConstants = {
   //states
   getAllStates: '/get/all/list',
   addStatesByExcel: '/upload/excel',
+
+  //zones
+  getAllZones: '/get/all',
 }

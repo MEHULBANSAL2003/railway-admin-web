@@ -9,6 +9,7 @@ const Login = lazy(() => import('../pages/LoginPage/Login.jsx'));
 const Dashboard = lazy(() => import('../pages/DashBoard/DashBoard.jsx'));
 const AdminManagement = lazy(() => import('../pages/AdminManagement/AdminManagement.jsx'));
 const StatesCitiesManagement = lazy(() => import('../pages/StatesCitiesManagement/StatesCitiesPage.jsx'));
+const StationsManagement = lazy(() => import('../pages/StationManagement/StationManagementPage.jsx'));
 
 const AppRoutes = () => {
   return (
@@ -34,6 +35,7 @@ const AppRoutes = () => {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="/admins" element={<AdminManagement />} />
         <Route path="/states-cities" element={<StatesCitiesManagement />} />
+        <Route path="/stations" element={<StationsManagement />} />
       </Route>
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />

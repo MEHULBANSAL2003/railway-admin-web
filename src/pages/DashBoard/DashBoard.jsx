@@ -36,7 +36,7 @@ const Dashboard = () => {
       title: 'Stations',
       description: 'Manage railway stations',
       icon: MapPin,
-      link: '/admin/stations',
+      link: '/stations',
       color: '#10b981'
     },
     {
