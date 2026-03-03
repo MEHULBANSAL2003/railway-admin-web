@@ -25,7 +25,17 @@ export const StatesCitiesService = {
   addNewCity : async(payload) => {
     const url = `${cities_base_url}${ApiConstants.addNewCity}`;
     return await HttpWrapper.post(url, payload);
-  }
+  },
+
+  addCitiesByExcel: async (file) => {
+    const url = `${cities_base_url}${ApiConstants.addCitiesByExcel}`;
+    return await HttpWrapper.postFormData(url, { file }, true);
+  },
+
+  addStatesByExcel: async (file) => {
+    const url = `${states_base_url}${ApiConstants.addStatesByExcel}`;
+    return await HttpWrapper.postFormData(url, { file }, true);
+  },
 
 
 }

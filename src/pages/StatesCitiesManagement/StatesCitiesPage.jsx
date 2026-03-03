@@ -1,12 +1,16 @@
 import { useRef, useEffect, useState } from 'react';
 import {
   Search, ChevronRight, MapPin, Building2,
-  Plus, X, Inbox, Map
+  Plus, X, Inbox, Map, FileSpreadsheet
 } from 'lucide-react';
 import { useStatesCities } from './useStatesCities.js';
 import AddCityModal from './AddCityModal.jsx';
+import ExcelUploadModal from '../../components/UI/ExcelUploadModal.jsx';
+import { StatesCitiesService } from '../../services/StatesCitiesService.js';
+import { HttpWrapper } from '../../httpWrapper/HttpWrapper.js';
 import './StatesCities.css';
-import '../AdminManagement/AddAdminModal.css'; // reuse modal styles
+import '../AdminManagement/AddAdminModal.css';
+import '../../components/UI/ExcelUploadModal.css';
 
 // ── Helpers ──────────────────────────────────────────────
 const formatDate = (iso) => {
@@ -56,7 +60,9 @@ const StatesCitiesPage = () => {
     addingCity, handleAddCity,
   } = useStatesCities();
 
-  const [addCityOpen, setAddCityOpen] = useState(false);
+  const [addCityOpen,         setAddCityOpen]         = useState(false);
+  const [cityExcelOpen,       setCityExcelOpen]       = useState(false);
+  const [stateExcelOpen,      setStateExcelOpen]      = useState(false);
 
   // Infinite scroll sentinel
   const sentinelRef = useRef(null);
@@ -84,6 +90,14 @@ const StatesCitiesPage = () => {
           </p>
         </div>
         <div className="page-actions">
+          <button className="btn btn-secondary" onClick={() => setStateExcelOpen(true)}>
+            <FileSpreadsheet size={15} />
+            Import States
+          </button>
+          <button className="btn btn-secondary" onClick={() => setCityExcelOpen(true)}>
+            <FileSpreadsheet size={15} />
+            Import Cities
+          </button>
           <button className="btn btn-primary" onClick={() => setAddCityOpen(true)}
                   style={{ background: '#16a34a' }}
           >
@@ -306,6 +320,26 @@ const StatesCitiesPage = () => {
         saving={addingCity}
         states={states}
         preselectedState={selectedState}
+      />
+
+      {/* ── Import Cities via Excel ── */}
+      <ExcelUploadModal
+        open={cityExcelOpen}
+        onClose={() => setCityExcelOpen(false)}
+        title="Import Cities"
+        subtitle="Upload an Excel file to bulk-import cities"
+        onUpload={(file) => StatesCitiesService.addCitiesByExcel(file)}
+        onSuccess={() => {}}
+      />
+
+      {/* ── Import States via Excel ── */}
+      <ExcelUploadModal
+        open={stateExcelOpen}
+        onClose={() => setStateExcelOpen(false)}
+        title="Import States"
+        subtitle="Upload an Excel file to bulk-import states"
+        onUpload={(file) => StatesCitiesService.addStatesByExcel(file)}
+        onSuccess={() => {}}
       />
 
     </div>

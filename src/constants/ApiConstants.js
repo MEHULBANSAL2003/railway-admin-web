@@ -19,7 +19,9 @@ export const ApiConstants = {
   getAllCities: '/get/all',
   getAllCitiesByState: '/by/state/name',
   addNewCity: '/add/new',
+  addCitiesByExcel: '/upload/excel',
 
   //states
   getAllStates: '/get/all/list',
+  addStatesByExcel: '/upload/excel',
 }

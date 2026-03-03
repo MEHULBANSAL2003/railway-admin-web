@@ -65,24 +65,25 @@ export const HttpWrapper = {
     return await api.post(url, body, { headers });
   },
 
-  postParams: async (url, params = null, setHeader = false) => {
-    const headers = buildHeaders(setHeader);
-
-    const formData = new FormData();
-    if (params && typeof params === 'object') {
-      Object.entries(params).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
-    }
-
-    return await api.post(url, formData, { headers });
-  },
-
   postByIdWithQueryParams: async (url, id, params = null, body = null, setHeader = false) => {
     const headers = buildHeaders(setHeader);
     let fullUrl = appendId(url, id);
     fullUrl = appendParams(fullUrl, params);
     return await api.post(fullUrl, body, { headers });
+  },
+
+  postFormData: async (url, fields = {}, setHeader = false) => {
+    const headers = buildHeaders(setHeader);
+    // Do NOT set Content-Type manually — axios sets it automatically
+    // with the correct boundary when body is FormData
+    delete headers['Content-Type'];
+
+    const formData = new FormData();
+    Object.entries(fields).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    return await api.post(url, formData, { headers });
   },
 
 };

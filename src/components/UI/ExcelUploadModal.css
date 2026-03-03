@@ -1,0 +1,260 @@
+/* ==========================================
+   EXCEL UPLOAD MODAL
+   ========================================== */
+
+.eum-modal {
+  max-width: 480px;
+}
+
+/* ── Drop zone ── */
+.eum-dropzone {
+  border: 2px dashed var(--border-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-8) var(--spacing-6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background: var(--bg-secondary);
+  min-height: 160px;
+}
+
+.eum-dropzone:hover,
+.eum-dropzone.drag-over {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.eum-dropzone.has-file {
+  border-style: solid;
+  border-color: #2563eb;
+  background: #eff6ff;
+  cursor: default;
+}
+
+.eum-dropzone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3);
+  text-align: center;
+}
+
+.eum-dropzone-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-xl);
+  background: #dbeafe;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eum-dropzone-text {
+  font-size: var(--font-size-sm);
+}
+
+.eum-dropzone-primary {
+  color: #2563eb;
+  font-weight: var(--font-weight-medium);
+}
+
+.eum-dropzone-secondary {
+  color: var(--text-secondary);
+}
+
+.eum-dropzone-hint {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+/* ── File selected state ── */
+.eum-file-selected {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  width: 100%;
+}
+
+.eum-file-icon {
+  color: #16a34a;
+  flex-shrink: 0;
+}
+
+.eum-file-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.eum-file-size {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.eum-file-remove {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.eum-file-remove:hover {
+  background: var(--error-light);
+  color: var(--error);
+}
+
+/* ── Result view ── */
+.eum-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4) 0;
+  text-align: center;
+}
+
+.eum-result-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eum-result-icon.success { background: var(--success-light); color: #059669; }
+.eum-result-icon.error   { background: var(--error-light);   color: var(--error); }
+.eum-result-icon.warning { background: var(--warning-light); color: #d97706; }
+
+.eum-result-message {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 340px;
+}
+
+/* Stats row */
+.eum-stats {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-3) var(--spacing-6);
+}
+
+.eum-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.eum-stat-value {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+}
+
+.eum-stat-value.success { color: #059669; }
+.eum-stat-value.error   { color: var(--error); }
+.eum-stat-value.neutral { color: var(--text-secondary); }
+
+.eum-stat-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.eum-stat-divider {
+  width: 1px;
+  height: 32px;
+  background: var(--border-primary);
+}
+
+/* Errors accordion */
+.eum-errors-wrap {
+  width: 100%;
+}
+
+.eum-errors-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--error-light);
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background var(--transition-fast);
+}
+
+.eum-errors-toggle:hover { background: #fee2e2; }
+
+.eum-errors-list {
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid var(--border-primary);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.eum-errors-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-xs);
+  text-align: left;
+}
+
+.eum-errors-table th {
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-semibold);
+  border-bottom: 1px solid var(--border-primary);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+}
+
+.eum-errors-table td {
+  padding: var(--spacing-2) var(--spacing-3);
+  border-bottom: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  vertical-align: top;
+}
+
+.eum-errors-table tr:last-child td { border-bottom: none; }
+
+.eum-errors-table code {
+  font-family: monospace;
+  background: var(--bg-tertiary);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+/* Result actions */
+.eum-result-actions {
+  display: flex;
+  gap: var(--spacing-3);
+}
