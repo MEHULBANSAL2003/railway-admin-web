@@ -19,6 +19,8 @@ export const ApiConstants = {
   updateStationStatus: '/set/active/inactive',
   updateStationDetails: '/update/details',
   deleteStation: '/delete',
+  getAllPermanentlyDeletedStations: '/get/all/permanent/deleted',
+  restoreDeletedStation: '/restore',
 
 
   //cities

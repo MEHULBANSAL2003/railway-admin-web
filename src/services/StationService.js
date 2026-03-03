@@ -40,5 +40,15 @@
       return await HttpWrapper.post(url, payload, true);
     },
 
+    getAllPermanentlyDeletedStations : async(payload) => {
+      const url = `${station_base_url}${ApiConstants.getAllPermanentlyDeletedStations}`;
+      return await HttpWrapper.get(url, payload, true);
+    },
+
+    restoreDeletedStation : async (stationCode, payload) => {
+      const url = `${station_base_url}${ApiConstants.restoreDeletedStation}/${stationCode}`;
+      return await HttpWrapper.post(url, payload, true);
+    }
+
 
   }
