@@ -51,6 +51,7 @@ export const useStatesCities = () => {
   // Mount — load states once
   useEffect(() => {
     fetchStates('');
+    fetchCities('');
   }, []);
 
   // ─────────────────────────────────────────────────────────
