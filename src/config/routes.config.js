@@ -36,6 +36,18 @@ export const searchableRoutes = [
     category: 'Admin Management'
   },
   {
+    id: 'states-city-management',
+    name: 'States and city Management',
+    path: '/states-cities',
+    description: 'View, search, filter, create states and cities',
+    keywords: [
+      'states',
+      'cities'
+    ],
+    icon: '👤',
+    category: 'States & Cities'
+  },
+  {
     id: 'station-management',
     name: 'Station Management',
     path: '/admin/stations',

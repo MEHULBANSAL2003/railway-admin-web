@@ -83,7 +83,10 @@ export const HttpWrapper = {
       formData.append(key, value);
     });
 
-    return await api.post(url, formData, { headers });
+    return await api.post(url, formData, {
+      headers,
+      timeout: 120000
+    });
   },
 
 };

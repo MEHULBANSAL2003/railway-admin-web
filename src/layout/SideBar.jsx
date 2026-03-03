@@ -17,11 +17,13 @@ import './Sidebar.css';
 
 const mainMenuItems = [
   { path: '/dashboard', label: 'Dashboard', icon: Home },
-  { path: '/trains', label: 'Trains', icon: Train },
-  { path: '/admin/stations', label: 'Stations', icon: MapPin },
-  { path: '/bookings', label: 'Bookings', icon: Ticket },
-  { path: '/schedules', label: 'Schedules', icon: Calendar },
-  { path: '/users', label: 'Users', icon: Users },
+  {path: '/admins', label: 'Admins', icon: Users},
+  {path: '/states-cities', label: 'States & Cities', icon: MapPin},
+  // { path: '/trains', label: 'Trains', icon: Train },
+  // { path: '/admin/stations', label: 'Stations', icon: MapPin },
+  // { path: '/bookings', label: 'Bookings', icon: Ticket },
+  // { path: '/schedules', label: 'Schedules', icon: Calendar },
+  // { path: '/users', label: 'Users', icon: Users },
 ];
 
 const analyticsMenuItems = [
