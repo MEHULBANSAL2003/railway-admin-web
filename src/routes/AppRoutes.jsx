@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import PublicRoute from "./PublicRoute.jsx";
 import MainLayout from "../layout/MainLayout.jsx";
+import TrainTypesPage from "../pages/TrainTypesPage/TrainTypesPage.jsx";
 
 
 const Login = lazy(() => import('../pages/LoginPage/Login.jsx'));
@@ -36,6 +37,7 @@ const AppRoutes = () => {
         <Route path="/admins" element={<AdminManagement />} />
         <Route path="/states-cities" element={<StatesCitiesManagement />} />
         <Route path="/stations" element={<StationsManagement />} />
+        <Route path="/train-types" element={<TrainTypesPage />} />
       </Route>
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />

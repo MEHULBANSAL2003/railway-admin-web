@@ -50,11 +50,20 @@ export const searchableRoutes = [
   {
     id: 'station-management',
     name: 'Station Management',
-    path: '/admin/stations',
+    path: '/stations',
     description: 'Add/fetch/edit/remove railway stations',
     keywords: ['add station', 'get stations', 'update stations', 'remove stations', 'stations'],
     icon: '👤',
     category: 'Station Management'
+  },
+  {
+    id: 'train-type-management',
+    name: 'Train Type Management',
+    path: '/train-types',
+    description: 'Manage train types',
+    keywords: ['train types', 'train type', 'train type management'],
+    icon: '👤',
+    category: 'Train Type Management'
   },
 
 ];

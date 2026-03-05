@@ -35,4 +35,11 @@ export const ApiConstants = {
 
   //zones
   getAllZones: '/get/all',
+
+  //train types
+  getAllTrainTypes: '/get/all',
+  getAllTrainTypesForAdmin: '/get/all/admin',
+  addTrainTypes: '/add/new',
+  updateTrainTypes: '/update/details',
+  changeTrainTypeStatus:"/change/status",
 }
