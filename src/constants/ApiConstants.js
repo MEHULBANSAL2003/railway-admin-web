@@ -42,4 +42,11 @@ export const ApiConstants = {
   addTrainTypes: '/add/new',
   updateTrainTypes: '/update/details',
   changeTrainTypeStatus:"/change/status",
+
+  //coach types
+  getAllCoachTypes: '/get/all',
+  getAllCoachTypesForAdmin: '/get/all/admin',
+  addCoachTypes: '/add/new',
+  updateCoachTypes: '/update/details',
+  changeCoachTypeStatus:"/change/status",
 }

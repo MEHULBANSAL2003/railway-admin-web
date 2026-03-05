@@ -46,6 +46,14 @@ const Dashboard = () => {
       icon: Train,
       link: '/train-types',
       color: '#f59e0b'
+    },
+    {
+      id: 4,
+      title: 'Coach Types',
+      description: 'Manage coach Types',
+      icon: Train,
+      link: '/coach-types',
+      color: '#8b5cf6'
     }
     // {
     //   id: 4,
