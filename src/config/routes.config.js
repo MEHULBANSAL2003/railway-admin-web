@@ -65,6 +65,24 @@ export const searchableRoutes = [
     icon: '👤',
     category: 'Train Type Management'
   },
+  {
+    id: 'coach-type-management',
+    name: 'Coach Type Management',
+    path: '/coach-types',
+    description: 'Manage coach types',
+    keywords: ['coach types', 'coach type', 'coach type management'],
+    icon: '👤',
+    category: 'Train Type Management'
+  },
+  {
+    id: 'fare-rule-management',
+    name: 'Fare Rule Management',
+    path: '/fare-rules',
+    description: 'Manage fare rules',
+    keywords: ['fare rules', 'fare', 'price'],
+    icon: '👤',
+    category: 'Fare Management'
+  },
 
 ];
 

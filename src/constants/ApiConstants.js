@@ -49,4 +49,11 @@ export const ApiConstants = {
   addCoachTypes: '/add/new',
   updateCoachTypes: '/update/details',
   changeCoachTypeStatus:"/change/status",
+
+  //fare-rules
+  getAllFareRules: '/all/admin',
+  addFareRules: '/add/new',
+   getFareRuleHistory: '/get/history',
+  changeFareRuleStatus:"/change/status",
+  getCurrentFareRule: '/get/current',
 }

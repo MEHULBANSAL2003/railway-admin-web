@@ -11,17 +11,17 @@ export const CoachTypeService = {
     return HttpWrapper.get(url, params, true);
   },
 
-  getAllForDropdown: () => {
+  getAllForDropdown: (params) => {
     const url = `${coach_type_base_url}${ApiConstants.getAllCoachTypes}`;
-    return HttpWrapper.get(url, null, true);
+    return HttpWrapper.get(url, {search: params}, true);
   },
 
-  addTrainType: (payload) => {
+  addCoachType: (payload) => {
     const url = `${coach_type_base_url}${ApiConstants.addCoachTypes}`;
     return HttpWrapper.post(url, payload, true);
   },
 
-  updateTrainType: (typeCode, payload) => {
+  updateCoachType: (typeCode, payload) => {
     const url = `${coach_type_base_url}${ApiConstants.updateCoachTypes}/${typeCode}`;
     return HttpWrapper.post(url, payload, true);
   },

@@ -10,9 +10,10 @@ export const TrainTypeService = {
     return HttpWrapper.get(url, params, true);
   },
 
-  getAllForDropdown: () => {
+  getAllForDropdown: (params) => {
+
     const url = `${train_type_base_url}${ApiConstants.getAllTrainTypes}`;
-    return HttpWrapper.get(url, null, true);
+    return HttpWrapper.get(url, {search: params}, true);
   },
 
   addTrainType: (payload) => {

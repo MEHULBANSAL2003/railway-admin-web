@@ -223,7 +223,11 @@ const CoachTypesPage = () => {
   const fetchData = useCallback(async (s = "") => {
     setLoading(true);
     try {
-      const res = await CoachTypeService.getAllForAdmin(s || undefined);
+      let params = {};
+      if(s){
+        params['search'] = s;
+      }
+      const res = await CoachTypeService.getAllForAdmin(params);
       setData(res.data.data || []);
     } catch {
       showError("Failed to load coach types.");

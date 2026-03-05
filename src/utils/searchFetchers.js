@@ -1,6 +1,8 @@
 // searchFetchers.js
 import { StatesCitiesService } from '../services/StatesCitiesService.js';
 import { ZoneService }         from '../services/ZoneService.js';
+import {CoachTypeService} from "../services/CoachTypeService.js";
+import {TrainTypeService} from "../services/TrainTypeService.js";
 
 export const fetchStates = async (searchTerm) => {
   const res = await StatesCitiesService.getAllStates({ searchTerm });
@@ -32,5 +34,25 @@ export const fetchZones = async (searchTerm) => {
     label: z.zoneName ?? z.name,
     meta:  z.zoneCode ?? z.code,
     raw:   z,
+  }));
+};
+
+export const fetchTrainTypes = async (searchTerm) => {
+  const res = await TrainTypeService.getAllForDropdown(searchTerm);
+  return (res.data.data || []).map(t => ({
+    value: t.typeCode,
+    label: t.typeName,
+    meta:  t.typeCode,
+    raw:   t,
+  }));
+};
+
+export const fetchCoachTypes = async (searchTerm) => {
+  const res = await CoachTypeService.getAllForDropdown(searchTerm);
+  return (res.data.data || []).map(c => ({
+    value: c.typeCode,
+    label: c.typeName,
+    meta:  c.typeCode,
+    raw:   c,
   }));
 };

@@ -10,6 +10,9 @@ import {
   BarChart3
 } from 'lucide-react';
 import './Dashboard.css';
+import {BiMoney} from "react-icons/bi";
+import {SiSeat} from "react-icons/si";
+import {GiCarSeat} from "react-icons/gi";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -48,13 +51,21 @@ const Dashboard = () => {
       color: '#f59e0b'
     },
     {
-      id: 4,
+      id: 5,
       title: 'Coach Types',
       description: 'Manage coach Types',
-      icon: Train,
+      icon: GiCarSeat,
       link: '/coach-types',
       color: '#8b5cf6'
-    }
+    },
+    {
+      id: 6,
+      title: 'Fare rules',
+      description: 'Fair rules management',
+      icon: BiMoney,
+      link: '/fare-rules',
+      color: '#06b6d4'
+    },
     // {
     //   id: 4,
     //   title: 'Trains',

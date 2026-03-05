@@ -1,0 +1,87 @@
+/* ── Fare Rules Page ── */
+
+/* Hints row in modal */
+.fr-hints {
+  display: flex;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+  margin-top: calc(-1 * var(--spacing-2));
+}
+
+.fr-hint {
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+.fr-hint.superfast { background: #fef3c7; color: #d97706; }
+.fr-hint.regular   { background: var(--bg-tertiary); color: var(--text-secondary); }
+.fr-hint.ac        { background: #ecfeff; color: #0891b2; }
+.fr-hint.nonac     { background: var(--bg-tertiary); color: var(--text-secondary); }
+
+/* History drawer */
+.fr-drawer {
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 480px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.fr-history-card {
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-3) var(--spacing-4);
+  margin-bottom: var(--spacing-3);
+  transition: border-color var(--transition-fast);
+}
+.fr-history-card.current {
+  border-color: #16a34a;
+  background: #f0fdf4;
+}
+
+.fr-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-3);
+}
+
+.fr-history-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+.fr-history-badge.current { background: #dcfce7; color: #16a34a; }
+.fr-history-badge.past    { background: var(--bg-tertiary); color: var(--text-secondary); }
+
+.fr-history-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-2);
+}
+.fr-history-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.fr-lbl {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.fr-val {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  font-family: monospace;
+}

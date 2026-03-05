@@ -3,8 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import PublicRoute from "./PublicRoute.jsx";
 import MainLayout from "../layout/MainLayout.jsx";
-import TrainTypesPage from "../pages/TrainTypesPage/TrainTypesPage.jsx";
-import CoachTypesPage from "../pages/CoachTypePage/CoachTypesPage.jsx";
+
 
 
 const Login = lazy(() => import('../pages/LoginPage/Login.jsx'));
@@ -12,6 +11,9 @@ const Dashboard = lazy(() => import('../pages/DashBoard/DashBoard.jsx'));
 const AdminManagement = lazy(() => import('../pages/AdminManagement/AdminManagement.jsx'));
 const StatesCitiesManagement = lazy(() => import('../pages/StatesCitiesManagement/StatesCitiesPage.jsx'));
 const StationsManagement = lazy(() => import('../pages/StationManagement/StationManagementPage.jsx'));
+const TrainTypesPage = lazy(() => import('../pages/TrainTypesPage/TrainTypesPage.jsx'));
+const CoachTypesPage = lazy(() => import('../pages/CoachTypePage/CoachTypesPage.jsx'));
+const FareRulesPage = lazy(() => import('../pages/FareRulePage/FareRulesPage.jsx'));
 
 const AppRoutes = () => {
   return (
@@ -40,6 +42,7 @@ const AppRoutes = () => {
         <Route path="/stations" element={<StationsManagement />} />
         <Route path="/train-types" element={<TrainTypesPage />} />
         <Route path="/coach-types" element={<CoachTypesPage />} />
+        <Route path="/fare-rules" element={<FareRulesPage />} />
       </Route>
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />

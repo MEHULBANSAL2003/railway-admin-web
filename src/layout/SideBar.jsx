@@ -14,13 +14,17 @@ import {
   MapPin,
 } from 'lucide-react';
 import './Sidebar.css';
+import {SiSeat} from "react-icons/si";
+import {PiMoney} from "react-icons/pi";
 
 const mainMenuItems = [
   { path: '/dashboard', label: 'Dashboard', icon: Home },
   {path: '/admins', label: 'Admins', icon: Users},
   {path: '/states-cities', label: 'States & Cities', icon: MapPin},
   { path: '/stations', label: 'Stations', icon: MapPin },
-  // { path: '/trains', label: 'Trains', icon: Train },
+  {path: '/train-types', label: 'Train Types', icon: Train},
+  {path: '/coach-types', label: 'Coach Types', icon: SiSeat},
+  { path: '/fare-rules', label: 'Fare rules', icon: PiMoney },
   // { path: '/bookings', label: 'Bookings', icon: Ticket },
   // { path: '/schedules', label: 'Schedules', icon: Calendar },
   // { path: '/users', label: 'Users', icon: Users },
