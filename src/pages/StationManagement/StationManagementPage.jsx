@@ -17,6 +17,8 @@ import { ZoneService }         from '../../services/ZoneService.js';
 import './StationManagementPage.css';
 import '../AdminManagement/AddAdminModal.css';
 import '../../components/UI/ExcelUploadModal.css';
+import {fetchStates, fetchZones} from "../../utils/searchFetchers.js";
+import SearchableSelect from "../../components/UI/SearchableSelect/SearchableSelect.jsx";
 
 // ── Constants ─────────────────────────────────────────────
 const STATION_TYPE_OPTIONS = [
@@ -113,20 +115,25 @@ const Toolbar = ({ filters, handleFilterChange, handleFilterReset,
                  value={filters.searchTerm}
                  onChange={e => handleFilterChange('searchTerm', e.target.value)} />
         </div>
-        <select className="sm-filter-select" value={filters.state}
-                onChange={e => handleFilterChange('state', e.target.value)}>
-          <option value="">All States</option>
-          {states.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
-        </select>
-        <select className="sm-filter-select" value={filters.zone}
-                onChange={e => handleFilterChange('zone', e.target.value)}>
-          <option value="">All Zones</option>
-          {zones.map(z => (
-            <option key={z.zoneId ?? z.id} value={z.zoneCode ?? z.code}>
-              {z.zoneName ?? z.name}
-            </option>
-          ))}
-        </select>
+        <div style={{ width: 300 }}>
+          <SearchableSelect
+            value={filters.state}
+            onChange={(val, raw) => handleFilterChange('state', raw?.name || '')}
+            fetchOptions={fetchStates}
+            placeholder="All States"
+            clearable
+          />
+        </div>
+
+        <div style={{ width: 300 }}>
+          <SearchableSelect
+            value={filters.zone}
+            onChange={(val, raw) => handleFilterChange('zone', raw?.zoneCode ?? raw?.code ?? '')}
+            fetchOptions={fetchZones}
+            placeholder="All Zones"
+            clearable
+          />
+        </div>
         <select className="sm-filter-select" value={filters.stationType}
                 onChange={e => handleFilterChange('stationType', e.target.value)}>
           {STATION_TYPE_OPTIONS.map(o => (

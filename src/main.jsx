@@ -14,7 +14,6 @@ import './styles/index.css';
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
     <BrowserRouter>
       <LoaderProvider>
         <ToastProvider>
@@ -26,6 +25,5 @@ createRoot(document.getElementById('root')).render(
           </AuthProvider>
         </ToastProvider>
       </LoaderProvider>
-    </BrowserRouter>
-  </StrictMode>,
+    </BrowserRouter>,
 )

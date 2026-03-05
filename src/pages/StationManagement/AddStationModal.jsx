@@ -6,6 +6,8 @@ import { StatesCitiesService } from '../../services/StatesCitiesService.js';
 import { ZoneService } from '../../services/ZoneService.js';
 import { useToast } from '../../context/Toast/useToast.js';
 import '../AdminManagement/AddAdminModal.css';
+import SearchableSelect from "../../components/UI/SearchableSelect/SearchableSelect.jsx";
+import {fetchCities, fetchStates, fetchZones} from "../../utils/searchFetchers.js";
 
 const STATION_TYPES = ['REGULAR', 'JUNCTION', 'TERMINUS', 'HALT'];
 
@@ -211,16 +213,15 @@ const AddStationModal = ({ open, onClose, onSuccess, states = [], zones = [] }) 
           <div className="aam-row">
             <div className="aam-field">
               <label className="aam-label">State <span className="aam-required">*</span></label>
-              <select
-                className={`aam-select${errors.stateId ? ' aam-input--error' : ''}`}
-                value={form.stateId}
-                onChange={e => handleChange('stateId', e.target.value)}
+              <SearchableSelect
+                value={String(form.stateId || '')}
+                onChange={(val, raw) => handleChange('stateId', val)}
+                fetchOptions={fetchStates}
+                placeholder="Search state…"
+                error={errors.stateId}
                 disabled={saving}
-              >
-                <option value="">Select state…</option>
-                {states.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
-              {errors.stateId && <p className="aam-error">{errors.stateId}</p>}
+              />
+
             </div>
 
             <div className="aam-field">
@@ -228,16 +229,17 @@ const AddStationModal = ({ open, onClose, onSuccess, states = [], zones = [] }) 
                 City <span className="aam-required">*</span>
                 {citiesLoading && <span style={{ fontSize: 11, color: 'var(--text-tertiary)', marginLeft: 6 }}>Loading…</span>}
               </label>
-              <select
-                className={`aam-select${errors.cityId ? ' aam-input--error' : ''}`}
-                value={form.cityId}
-                onChange={e => handleChange('cityId', e.target.value)}
-                disabled={saving || !form.stateId || citiesLoading}
-              >
-                <option value="">{!form.stateId ? 'Select state first…' : citiesLoading ? 'Loading cities…' : 'Select city…'}</option>
-                {cities.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-              {errors.cityId && <p className="aam-error">{errors.cityId}</p>}
+              <SearchableSelect
+                value={String(form.cityId || '')}
+                onChange={(val, raw) => handleChange('cityId', val)}
+                fetchOptions={fetchCities(
+                  states.find(s => String(s.id) === String(form.stateId))?.name || ''
+                )}
+                placeholder={!form.stateId ? 'Select state first…' : 'Search city…'}
+                error={errors.cityId}
+                disabled={saving || !form.stateId}
+              />
+
             </div>
           </div>
 
@@ -245,16 +247,14 @@ const AddStationModal = ({ open, onClose, onSuccess, states = [], zones = [] }) 
           <div className="aam-row">
             <div className="aam-field">
               <label className="aam-label">Zone <span className="aam-required">*</span></label>
-              <select
-                className={`aam-select${errors.zoneId ? ' aam-input--error' : ''}`}
-                value={form.zoneId}
-                onChange={e => handleChange('zoneId', e.target.value)}
+              <SearchableSelect
+                value={String(form.zoneId || '')}
+                onChange={(val, raw) => handleChange('zoneId', val)}
+                fetchOptions={fetchZones}
+                placeholder="Search zone…"
+                error={errors.zoneId}
                 disabled={saving}
-              >
-                <option value="">Select zone…</option>
-                {zones.map(z => <option key={z.zoneId ?? z.id} value={z.zoneId ?? z.id}>{z.zoneName ?? z.name} ({z.zoneCode ?? z.code})</option>)}
-              </select>
-              {errors.zoneId && <p className="aam-error">{errors.zoneId}</p>}
+              />
             </div>
 
             <div className="aam-field">
