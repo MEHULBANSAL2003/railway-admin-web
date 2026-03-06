@@ -84,6 +84,16 @@ export const searchableRoutes = [
     category: 'Fare Management'
   },
 
+  {
+    id: 'quota-management',
+    name: 'Quota Management',
+    path: '/quotas',
+    description: 'Manage Quotas',
+    keywords: ['quota', 'tatkal', 'price'],
+    icon: '👤',
+    category: 'Quota Management'
+  },
+
 ];
 
 /**

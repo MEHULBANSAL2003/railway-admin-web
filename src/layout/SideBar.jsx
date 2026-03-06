@@ -16,6 +16,7 @@ import {
 import './Sidebar.css';
 import {SiSeat} from "react-icons/si";
 import {PiMoney} from "react-icons/pi";
+import {MdEventSeat} from "react-icons/md";
 
 const mainMenuItems = [
   { path: '/dashboard', label: 'Dashboard', icon: Home },
@@ -25,7 +26,7 @@ const mainMenuItems = [
   {path: '/train-types', label: 'Train Types', icon: Train},
   {path: '/coach-types', label: 'Coach Types', icon: SiSeat},
   { path: '/fare-rules', label: 'Fare rules', icon: PiMoney },
-  // { path: '/bookings', label: 'Bookings', icon: Ticket },
+  { path: '/quotas', label: 'Quota Management', icon: MdEventSeat },
   // { path: '/schedules', label: 'Schedules', icon: Calendar },
   // { path: '/users', label: 'Users', icon: Users },
 ];

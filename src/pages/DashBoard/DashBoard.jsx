@@ -12,7 +12,7 @@ import {
 import './Dashboard.css';
 import {BiMoney} from "react-icons/bi";
 import {SiSeat} from "react-icons/si";
-import {GiCarSeat} from "react-icons/gi";
+import {GiCarSeat, GiSeatedMouse} from "react-icons/gi";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -65,6 +65,14 @@ const Dashboard = () => {
       icon: BiMoney,
       link: '/fare-rules',
       color: '#06b6d4'
+    },
+    {
+      id: 7,
+      title: 'Quota Management',
+      description: 'Quota management',
+      icon: GiSeatedMouse,
+      link: '/quotas',
+      color: '#ec4899'
     },
     // {
     //   id: 4,
