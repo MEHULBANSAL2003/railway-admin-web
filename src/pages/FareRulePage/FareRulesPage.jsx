@@ -263,7 +263,7 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
         <div className="aam-body" style={{ gap: "var(--spacing-4)" }}>
 
           {/* Train + Coach + Quota */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "var(--spacing-3)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--spacing-3)" }}>
             <Field label="Train Type" required error={errors.trainTypeCode}>
               <SearchableSelect value={form.trainTypeCode} onChange={handleTrainChange}
                                 fetchOptions={fetchTrainTypes} placeholder="Search…" disabled={saving} size="full" />
@@ -585,17 +585,17 @@ const FareRulesPage = () => {
 
       <div className="card">
         <div className="tt-toolbar">
-          <div style={{ width: 200 }}>
+          <div style={{ width: 250 }}>
             <SearchableSelect value={filterTrain} onChange={handleTrainFilter}
                               fetchOptions={fetchTrainTypes} placeholder="All Train Types"
                               initialLabel={filterTrainLabel} clearable />
           </div>
-          <div style={{ width: 180 }}>
+          <div style={{ width: 250 }}>
             <SearchableSelect value={filterCoach} onChange={handleCoachFilter}
                               fetchOptions={fetchCoachTypes} placeholder="All Coach Types"
                               initialLabel={filterCoachLabel} clearable />
           </div>
-          <div style={{ width: 160 }}>
+          <div style={{ width: 250 }}>
             <SearchableSelect value={filterQuota} onChange={handleQuotaFilter}
                               fetchOptions={fetchQuotas} placeholder="All Quotas"
                               initialLabel={filterQuotaLabel} clearable />
