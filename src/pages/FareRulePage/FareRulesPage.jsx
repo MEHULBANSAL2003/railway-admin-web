@@ -47,11 +47,27 @@ const fetchCoachTypes = async (searchTerm) => {
     value: c.typeCode, label: c.typeName, meta: c.typeCode, raw: c,
   }));
 };
-const fetchQuotas = async () => {
+const fetchQuotas = async (isToaAddBoth = false) => {
   const res = await QuotaService.getAllForDropdown();
-  return (res.data.data || []).map(q => ({
-    value: q.quotaCode, label: q.quotaName, meta: q.quotaCode, raw: q,
+
+  const real = (res.data.data || []).map(q => ({
+    value: q.quotaCode,
+    label: q.quotaName,
+    meta: q.quotaCode,
+    raw: q,
   }));
+
+  return [
+    ...(isToaAddBoth
+      ? [{
+        value: "BOTH",
+        label: "Both (General + Tatkal)",
+        meta: "BOTH",
+        raw: { quotaCode: "BOTH", quotaName: "Both" }
+      }]
+      : []),
+    ...real
+  ];
 };
 
 // ── Field wrapper ─────────────────────────────────────────
@@ -68,7 +84,11 @@ const Field = ({ label, required, error, hint, children }) => (
 
 // ── Quota badge ───────────────────────────────────────────
 const QuotaBadge = ({ code }) => (
-  <span className="fr-quota-badge" data-tatkal={code === "TATKAL"}>
+  <span
+    className="fr-quota-badge"
+    data-tatkal={code === "TATKAL"}
+    data-both={code === "BOTH"}
+  >
     <Tag size={10} />{code}
   </span>
 );
@@ -88,8 +108,13 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
   const [saving,      setSaving]      = useState(false);
   const [selectedRaw, setSelectedRaw] = useState({ train: null, coach: null, quota: null });
 
-  const isTatkal    = form.quotaCode === "TATKAL";
-  const coachBounds = isTatkal && form.coachTypeCode
+  const isTatkal = form.quotaCode === "TATKAL";
+  // "BOTH" = submit two entries: one GENERAL, one TATKAL
+  const isBoth   = form.quotaCode === "BOTH";
+  // Show tatkal fields when either TATKAL or BOTH is selected
+  const showTatkalFields = isTatkal || isBoth;
+
+  const coachBounds = showTatkalFields && form.coachTypeCode
     ? TATKAL_BOUNDS[form.coachTypeCode] || null
     : null;
 
@@ -126,8 +151,8 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
     setSelectedRaw(p => ({ ...p, coach: raw }));
     if (raw) {
       set("gstPct", raw.isAc ? "5" : "0");
-      // Auto-fill tatkal charge to max when coach changes in tatkal mode
-      if (isTatkal && TATKAL_BOUNDS[val]) {
+      // Auto-fill tatkal charge to max when coach changes in tatkal/both mode
+      if (showTatkalFields && TATKAL_BOUNDS[val]) {
         set("tatkalCharge", String(TATKAL_BOUNDS[val].max));
       }
     }
@@ -136,7 +161,7 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
   const handleQuotaChange = (val, raw) => {
     set("quotaCode", val);
     setSelectedRaw(p => ({ ...p, quota: raw }));
-    if (val === "TATKAL") {
+    if (val === "TATKAL" || val === "BOTH") {
       // Auto-fill tatkal charge to max for selected coach
       if (form.coachTypeCode && TATKAL_BOUNDS[form.coachTypeCode]) {
         set("tatkalCharge", String(TATKAL_BOUNDS[form.coachTypeCode].max));
@@ -168,8 +193,8 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
     if (form.effectiveUntil && form.effectiveFrom && form.effectiveUntil <= form.effectiveFrom)
       e.effectiveUntil = "Must be after effective from.";
 
-    // Tatkal charge validation
-    if (isTatkal) {
+    // Tatkal charge validation — required when TATKAL or BOTH
+    if (showTatkalFields) {
       const tc = +form.tatkalCharge;
       if (form.tatkalCharge === "" || isNaN(tc)) {
         e.tatkalCharge = "Tatkal charge is required.";
@@ -183,27 +208,55 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
     return e;
   };
 
+  const buildBasePayload = () => ({
+    trainTypeCode:     form.trainTypeCode,
+    coachTypeCode:     form.coachTypeCode,
+    baseFarePerKm:     +form.baseFarePerKm,
+    minFare:           +form.minFare,
+    reservationCharge: +form.reservationCharge,
+    superfastCharge:   +form.superfastCharge,
+    gstPct:            +form.gstPct,
+    effectiveFrom:     form.effectiveFrom,
+    effectiveUntil:    form.effectiveUntil || null,
+  });
+
   const handleSubmit = async () => {
     const e = validate();
     if (Object.keys(e).length) { setErrors(e); return; }
     setSaving(true);
     try {
-      const payload = {
-        trainTypeCode:     form.trainTypeCode,
-        coachTypeCode:     form.coachTypeCode,
-        quotaCode:         form.quotaCode,
-        baseFarePerKm:     +form.baseFarePerKm,
-        minFare:           +form.minFare,
-        reservationCharge: +form.reservationCharge,
-        superfastCharge:   +form.superfastCharge,
-        gstPct:            +form.gstPct,
-        tatkalCharge:      isTatkal ? +form.tatkalCharge : 0,
-        effectiveFrom:     form.effectiveFrom,
-        effectiveUntil:    form.effectiveUntil || null,
-      };
-      const res = await FareRuleService.addFareRule(payload);
-      showSuccess("Fare rule added successfully.");
-      onSuccess(res.data.data);
+      if (isBoth) {
+        // ── Submit two entries: GENERAL first, then TATKAL ──
+        const generalPayload = {
+          ...buildBasePayload(),
+          quotaCode:    "GENERAL",   // adjust to your actual general quota code
+          tatkalCharge: 0,
+        };
+        const tatkalPayload = {
+          ...buildBasePayload(),
+          quotaCode:    "TATKAL",
+          tatkalCharge: +form.tatkalCharge,
+        };
+
+        const [resGeneral, resTatkal] = await Promise.all([
+          FareRuleService.addFareRule(generalPayload),
+          FareRuleService.addFareRule(tatkalPayload),
+        ]);
+
+        showSuccess("Two fare rules added successfully (General + Tatkal).");
+        // Pass both new entries to parent
+        onSuccess([resGeneral.data.data, resTatkal.data.data]);
+      } else {
+        // ── Single quota submit (original behaviour) ──
+        const payload = {
+          ...buildBasePayload(),
+          quotaCode:    form.quotaCode,
+          tatkalCharge: isTatkal ? +form.tatkalCharge : 0,
+        };
+        const res = await FareRuleService.addFareRule(payload);
+        showSuccess("Fare rule added successfully.");
+        onSuccess([res.data.data]);
+      }
       onClose();
     } catch (err) {
       showError(err?.response?.data?.error?.message || "Failed to add fare rule.");
@@ -226,7 +279,11 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
             </div>
             <div>
               <h2 className="aam-title">Add Fare Rule</h2>
-              <p className="aam-subtitle">Define fare for a train type + coach type + quota combination</p>
+              <p className="aam-subtitle">
+                {isBoth
+                  ? "Creates two entries: one General + one Tatkal"
+                  : "Define fare for a train type + coach type + quota combination"}
+              </p>
             </div>
           </div>
           <button className="aam-close" onClick={onClose} disabled={saving}><X size={18} /></button>
@@ -246,9 +303,21 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
             </Field>
             <Field label="Quota" required error={errors.quotaCode}>
               <SearchableSelect value={form.quotaCode} onChange={handleQuotaChange}
-                                fetchOptions={fetchQuotas} placeholder="Select…" disabled={saving} size="full" />
+                                fetchOptions={()=> fetchQuotas(true)} placeholder="Select…" disabled={saving} size="full" />
             </Field>
           </div>
+
+          {/* "BOTH" info banner */}
+          {isBoth && (
+            <div className="fr-both-banner">
+              <AlertCircle size={14} style={{ flexShrink: 0, color: "#0891b2" }} />
+              <span>
+                Selecting <strong>Both</strong> will create <strong>two fare rule entries</strong> simultaneously —
+                one for the <strong>General</strong> quota and one for <strong>Tatkal</strong> — sharing the
+                same base fare, charges, and date range. Only the Tatkal surcharge differs.
+              </span>
+            </div>
+          )}
 
           {/* Auto-fill hints */}
           {(selectedRaw.train || selectedRaw.coach || selectedRaw.quota) && (
@@ -263,23 +332,26 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
                   {selectedRaw.coach.isAc ? "❄ AC — GST 5% filled" : "Non-AC — GST 0% filled"}
                 </span>
               )}
-              {isTatkal && coachBounds && (
+              {isBoth && (
+                <span className="fr-hint both">⚡ Creates General + Tatkal entries</span>
+              )}
+              {showTatkalFields && coachBounds && !isBoth && (
                 <span className="fr-hint tatkal">
                   ⚡ Tatkal charge: ₹{coachBounds.min}–₹{coachBounds.max} for {form.coachTypeCode}
                 </span>
               )}
-              {isTatkal && !form.coachTypeCode && (
+              {showTatkalFields && !form.coachTypeCode && (
                 <span className="fr-hint tatkal">⚡ Select coach type to see tatkal charge range</span>
               )}
             </div>
           )}
 
-          {/* Tatkal charge field — only shown when TATKAL quota selected */}
-          {isTatkal && (
+          {/* Tatkal charge field — shown when TATKAL or BOTH quota selected */}
+          {showTatkalFields && (
             <div className="fr-tatkal-box">
               <div className="fr-tatkal-header">
                 <Tag size={13} style={{ color: "#d97706" }} />
-                <span>Tatkal Surcharge</span>
+                <span>Tatkal Surcharge{isBoth ? " (for the Tatkal entry)" : ""}</span>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--spacing-4)", alignItems: "start" }}>
                 <Field label="Tatkal Charge (₹)" required error={errors.tatkalCharge}
@@ -362,13 +434,17 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
                   style={{
                     display: "flex", alignItems: "center", gap: 6, height: 36,
                     padding: "0 var(--spacing-4)",
-                    background: saving ? "var(--primary-300)" : "var(--primary-600)",
+                    background: saving ? "var(--primary-300)" : isBoth ? "#0891b2" : "var(--primary-600)",
                     color: "#fff", border: "none", borderRadius: "var(--radius-md)",
                     fontFamily: "inherit", fontSize: "var(--font-size-sm)",
                     fontWeight: "var(--font-weight-medium)",
                     cursor: saving ? "not-allowed" : "pointer",
                   }}>
-            {saving ? <><span className="aam-spinner" /> Saving…</> : "Add Fare Rule"}
+            {saving
+              ? <><span className="aam-spinner" /> Saving…</>
+              : isBoth
+                ? "Add 2 Fare Rules"
+                : "Add Fare Rule"}
           </button>
         </div>
       </div>
@@ -507,6 +583,11 @@ const FareRulesPage = () => {
     } finally {
       setTogglingId(null);
     }
+  };
+
+  // onSuccess now receives an array of 1 or 2 new entries
+  const handleAddSuccess = (addedItems) => {
+    setData(prev => [...addedItems, ...prev]);
   };
 
   const currentCount = data.filter(d => d.isCurrent).length;
@@ -693,7 +774,7 @@ const FareRulesPage = () => {
       <AddFareRuleModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        onSuccess={(added) => setData(prev => [added, ...prev])}
+        onSuccess={handleAddSuccess}
       />
 
       <HistoryDrawer

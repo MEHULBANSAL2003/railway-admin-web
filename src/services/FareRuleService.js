@@ -5,10 +5,11 @@ const fare_rule_base_url =  import.meta.env.VITE_API_FARE_RULE_URL;
 
 export const FareRuleService = {
 
-  getAllForAdmin: (trainTypeCode, coachTypeCode) => {
+  getAllForAdmin: (trainTypeCode, coachTypeCode, quotaCode) => {
     const params = {};
     if (trainTypeCode) params.trainTypeCode = trainTypeCode;
     if (coachTypeCode) params.coachTypeCode = coachTypeCode;
+    if(quotaCode) params.quotaCode = quotaCode;
 
     const url = `${fare_rule_base_url}${ApiConstants.getAllFareRules}`;
 
