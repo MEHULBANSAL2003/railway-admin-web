@@ -56,4 +56,10 @@ export const ApiConstants = {
    getFareRuleHistory: '/get/history',
   changeFareRuleStatus:"/change/status",
   getCurrentFareRule: '/get/current',
+
+  // quotas
+  getAllQuotas: '/get/all',
+  getAllQuotasForAdmin: '/get/all/admin',
+  addQuotas: '/add',
+  changeQuotaStatus:"/change/status",
 }

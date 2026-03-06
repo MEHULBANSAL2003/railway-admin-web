@@ -2,56 +2,75 @@ import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import {
   Plus, X, ToggleLeft, ToggleRight, History,
-  RotateCcw, BadgeDollarSign, CheckCircle2, Clock,
+  RotateCcw, BadgeDollarSign, CheckCircle2, Clock, Tag, AlertCircle,
 } from "lucide-react";
 import { FareRuleService }  from "../../services/FareRuleService.js";
-import { useToast }         from "../../context/Toast/useToast.js";
 import { TrainTypeService } from "../../services/TrainTypeService.js";
 import { CoachTypeService } from "../../services/CoachTypeService.js";
+import { QuotaService }     from "../../services/QuotaService.js";
+import { useToast }         from "../../context/Toast/useToast.js";
 import SearchableSelect     from "../../components/UI/SearchableSelect/SearchableSelect.jsx";
 import "../AdminManagement/AddAdminModal.css";
 import "../TrainTypesPage/TrainTypesPage.css";
-import "./FareRulesPage.css";
 import "../StationManagement/StationManagementPage.css";
+import "./FareRulesPage.css";
+
+// ── Tatkal charge bounds per coach type (mirrors backend) ─
+const TATKAL_BOUNDS = {
+  "SL": { min: 100, max: 200 },
+  "3A": { min: 300, max: 400 },
+  "2A": { min: 400, max: 500 },
+  "1A": { min: 500, max: 600 },
+  "CC": { min: 150, max: 250 },
+  "EC": { min: 300, max: 400 },
+  "3E": { min: 300, max: 400 },
+  "FC": { min: 200, max: 300 },
+};
 
 // ── Helpers ───────────────────────────────────────────────
-const fmt     = (v) => v != null ? `₹${Number(v).toFixed(2)}`  : "—";
-const fmtRate = (v) => v != null ? `₹${Number(v).toFixed(4)}`  : "—";
-const fmtDate = (d) => d
-  ? new Date(d).toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"numeric" })
+const fmt     = (val) => val != null ? `₹${Number(val).toFixed(2)}` : "—";
+const fmtRate = (val) => val != null ? `₹${Number(val).toFixed(4)}` : "—";
+const fmtDate = (d)   => d
+  ? new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
   : "—";
 
 // ── Fetchers ──────────────────────────────────────────────
-const fetchTrainTypes = async (search) => {
-  const res = await TrainTypeService.getAllForDropdown(search);
+const fetchTrainTypes = async (searchTerm) => {
+  const res = await TrainTypeService.getAllForDropdown(searchTerm);
   return (res.data.data || []).map(t => ({
-    value: t.typeCode,
-    label: t.typeName,
-    meta:  t.typeCode,
-    raw:   t,
+    value: t.typeCode, label: t.typeName, meta: t.typeCode, raw: t,
   }));
 };
-
-const fetchCoachTypes = async (search) => {
-  const res = await CoachTypeService.getAllForDropdown(search);
+const fetchCoachTypes = async (searchTerm) => {
+  const res = await CoachTypeService.getAllForDropdown(searchTerm);
   return (res.data.data || []).map(c => ({
-    value: c.typeCode,
-    label: c.typeName,
-    meta:  c.typeCode,
-    raw:   c,
+    value: c.typeCode, label: c.typeName, meta: c.typeCode, raw: c,
+  }));
+};
+const fetchQuotas = async () => {
+  const res = await QuotaService.getAllForDropdown();
+  return (res.data.data || []).map(q => ({
+    value: q.quotaCode, label: q.quotaName, meta: q.quotaCode, raw: q,
   }));
 };
 
 // ── Field wrapper ─────────────────────────────────────────
-const Field = ({ label, required, error, note, children }) => (
-  <div className="aam-field" style={{ marginBottom: 0 }}>
+const Field = ({ label, required, error, hint, children }) => (
+  <div className="aam-field" style={{ marginBottom: "var(--spacing-4)" }}>
     <label className="aam-label">
       {label}{required && <span className="aam-required"> *</span>}
     </label>
     {children}
-    {note  && <p style={{ fontSize: 11, color: "var(--text-tertiary)", marginTop: 3 }}>{note}</p>}
+    {hint  && <p style={{ fontSize: 11, color: "var(--text-tertiary)", marginTop: 3 }}>{hint}</p>}
     {error && <p className="aam-error">{error}</p>}
   </div>
+);
+
+// ── Quota badge ───────────────────────────────────────────
+const QuotaBadge = ({ code }) => (
+  <span className="fr-quota-badge" data-tatkal={code === "TATKAL"}>
+    <Tag size={10} />{code}
+  </span>
 );
 
 // ── Add Modal ─────────────────────────────────────────────
@@ -59,18 +78,27 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
   const { showSuccess, showError } = useToast();
 
   const EMPTY = {
-    trainTypeCode: "", coachTypeCode: "",
+    trainTypeCode: "", coachTypeCode: "", quotaCode: "",
     baseFarePerKm: "", minFare: "", reservationCharge: "",
-    superfastCharge: "", gstPct: "", effectiveFrom: "", effectiveUntil: "",
+    superfastCharge: "", gstPct: "", tatkalCharge: "",
+    effectiveFrom: "", effectiveUntil: "",
   };
-  const [form,      setForm]      = useState(EMPTY);
-  const [errors,    setErrors]    = useState({});
-  const [saving,    setSaving]    = useState(false);
-  const [selTrain,  setSelTrain]  = useState(null);
-  const [selCoach,  setSelCoach]  = useState(null);
+  const [form,        setForm]        = useState(EMPTY);
+  const [errors,      setErrors]      = useState({});
+  const [saving,      setSaving]      = useState(false);
+  const [selectedRaw, setSelectedRaw] = useState({ train: null, coach: null, quota: null });
+
+  const isTatkal    = form.quotaCode === "TATKAL";
+  const coachBounds = isTatkal && form.coachTypeCode
+    ? TATKAL_BOUNDS[form.coachTypeCode] || null
+    : null;
 
   useEffect(() => {
-    if (open) { setForm(EMPTY); setErrors({}); setSelTrain(null); setSelCoach(null); }
+    if (open) {
+      setForm(EMPTY);
+      setErrors({});
+      setSelectedRaw({ train: null, coach: null, quota: null });
+    }
     document.body.style.overflow = open ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [open]);
@@ -89,20 +117,42 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
 
   const handleTrainChange = (val, raw) => {
     set("trainTypeCode", val);
-    setSelTrain(raw);
+    setSelectedRaw(p => ({ ...p, train: raw }));
     if (raw && !raw.isSuperfast) set("superfastCharge", "0");
   };
 
   const handleCoachChange = (val, raw) => {
     set("coachTypeCode", val);
-    setSelCoach(raw);
-    if (raw) set("gstPct", raw.isAc ? "5" : "0");
+    setSelectedRaw(p => ({ ...p, coach: raw }));
+    if (raw) {
+      set("gstPct", raw.isAc ? "5" : "0");
+      // Auto-fill tatkal charge to max when coach changes in tatkal mode
+      if (isTatkal && TATKAL_BOUNDS[val]) {
+        set("tatkalCharge", String(TATKAL_BOUNDS[val].max));
+      }
+    }
+  };
+
+  const handleQuotaChange = (val, raw) => {
+    set("quotaCode", val);
+    setSelectedRaw(p => ({ ...p, quota: raw }));
+    if (val === "TATKAL") {
+      // Auto-fill tatkal charge to max for selected coach
+      if (form.coachTypeCode && TATKAL_BOUNDS[form.coachTypeCode]) {
+        set("tatkalCharge", String(TATKAL_BOUNDS[form.coachTypeCode].max));
+      } else {
+        set("tatkalCharge", "");
+      }
+    } else {
+      set("tatkalCharge", "0");
+    }
   };
 
   const validate = () => {
     const e = {};
     if (!form.trainTypeCode) e.trainTypeCode = "Train type is required.";
     if (!form.coachTypeCode) e.coachTypeCode = "Coach type is required.";
+    if (!form.quotaCode)     e.quotaCode     = "Quota is required.";
     if (!form.baseFarePerKm || isNaN(form.baseFarePerKm) || +form.baseFarePerKm <= 0)
       e.baseFarePerKm = "Must be greater than 0.";
     if (form.minFare === "" || isNaN(form.minFare) || +form.minFare < 0)
@@ -113,9 +163,23 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
       e.superfastCharge = "Required, cannot be negative.";
     if (form.gstPct === "" || isNaN(form.gstPct) || +form.gstPct < 0 || +form.gstPct > 100)
       e.gstPct = "Must be 0–100.";
-    if (!form.effectiveFrom) e.effectiveFrom = "Effective from is required.";
+    if (!form.effectiveFrom)
+      e.effectiveFrom = "Effective from is required.";
     if (form.effectiveUntil && form.effectiveFrom && form.effectiveUntil <= form.effectiveFrom)
       e.effectiveUntil = "Must be after effective from.";
+
+    // Tatkal charge validation
+    if (isTatkal) {
+      const tc = +form.tatkalCharge;
+      if (form.tatkalCharge === "" || isNaN(tc)) {
+        e.tatkalCharge = "Tatkal charge is required.";
+      } else if (coachBounds) {
+        if (tc < coachBounds.min || tc > coachBounds.max) {
+          e.tatkalCharge = `Must be between ₹${coachBounds.min} and ₹${coachBounds.max} for ${form.coachTypeCode}.`;
+        }
+      }
+    }
+
     return e;
   };
 
@@ -127,11 +191,13 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
       const payload = {
         trainTypeCode:     form.trainTypeCode,
         coachTypeCode:     form.coachTypeCode,
+        quotaCode:         form.quotaCode,
         baseFarePerKm:     +form.baseFarePerKm,
         minFare:           +form.minFare,
         reservationCharge: +form.reservationCharge,
         superfastCharge:   +form.superfastCharge,
         gstPct:            +form.gstPct,
+        tatkalCharge:      isTatkal ? +form.tatkalCharge : 0,
         effectiveFrom:     form.effectiveFrom,
         effectiveUntil:    form.effectiveUntil || null,
       };
@@ -151,7 +217,7 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
   return createPortal(
     <div className="aam-backdrop" onClick={saving ? undefined : onClose}>
       <div className="aam-modal" onClick={e => e.stopPropagation()}
-           role="dialog" aria-modal="true" style={{ maxWidth: 540 }}>
+           role="dialog" aria-modal="true" style={{ maxWidth: 560 }}>
 
         <div className="aam-header">
           <div className="aam-header-left">
@@ -160,7 +226,7 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
             </div>
             <div>
               <h2 className="aam-title">Add Fare Rule</h2>
-              <p className="aam-subtitle">Define fare for a train type + coach type combination</p>
+              <p className="aam-subtitle">Define fare for a train type + coach type + quota combination</p>
             </div>
           </div>
           <button className="aam-close" onClick={onClose} disabled={saving}><X size={18} /></button>
@@ -168,41 +234,75 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
 
         <div className="aam-body" style={{ gap: "var(--spacing-4)" }}>
 
-          {/* Train + Coach searchable selects */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--spacing-4)" }}>
+          {/* Train + Coach + Quota */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--spacing-3)" }}>
             <Field label="Train Type" required error={errors.trainTypeCode}>
-              <SearchableSelect
-                value={form.trainTypeCode}
-                onChange={handleTrainChange}
-                fetchOptions={fetchTrainTypes}
-                placeholder="Search train type…"
-                disabled={saving}
-              />
+              <SearchableSelect value={form.trainTypeCode} onChange={handleTrainChange}
+                                fetchOptions={fetchTrainTypes} placeholder="Search…" disabled={saving} size="full" />
             </Field>
             <Field label="Coach Type" required error={errors.coachTypeCode}>
-              <SearchableSelect
-                value={form.coachTypeCode}
-                onChange={handleCoachChange}
-                fetchOptions={fetchCoachTypes}
-                placeholder="Search coach type…"
-                disabled={saving}
-              />
+              <SearchableSelect value={form.coachTypeCode} onChange={handleCoachChange}
+                                fetchOptions={fetchCoachTypes} placeholder="Search…" disabled={saving} size="full" />
+            </Field>
+            <Field label="Quota" required error={errors.quotaCode}>
+              <SearchableSelect value={form.quotaCode} onChange={handleQuotaChange}
+                                fetchOptions={fetchQuotas} placeholder="Select…" disabled={saving} size="full" />
             </Field>
           </div>
 
-          {/* Hints */}
-          {(selTrain || selCoach) && (
+          {/* Auto-fill hints */}
+          {(selectedRaw.train || selectedRaw.coach || selectedRaw.quota) && (
             <div className="fr-hints">
-              {selTrain && (
-                <span className={`fr-hint ${selTrain.isSuperfast ? "superfast" : "regular"}`}>
-                  {selTrain.isSuperfast ? "⚡ Superfast train" : "Regular train"}
+              {selectedRaw.train && (
+                <span className={`fr-hint ${selectedRaw.train.isSuperfast ? "superfast" : "regular"}`}>
+                  {selectedRaw.train.isSuperfast ? "⚡ Superfast" : "Regular train"}
                 </span>
               )}
-              {selCoach && (
-                <span className={`fr-hint ${selCoach.isAc ? "ac" : "nonac"}`}>
-                  {selCoach.isAc ? "❄ AC coach — GST 5% auto-filled" : "Non-AC coach — GST 0% auto-filled"}
+              {selectedRaw.coach && (
+                <span className={`fr-hint ${selectedRaw.coach.isAc ? "ac" : "nonac"}`}>
+                  {selectedRaw.coach.isAc ? "❄ AC — GST 5% filled" : "Non-AC — GST 0% filled"}
                 </span>
               )}
+              {isTatkal && coachBounds && (
+                <span className="fr-hint tatkal">
+                  ⚡ Tatkal charge: ₹{coachBounds.min}–₹{coachBounds.max} for {form.coachTypeCode}
+                </span>
+              )}
+              {isTatkal && !form.coachTypeCode && (
+                <span className="fr-hint tatkal">⚡ Select coach type to see tatkal charge range</span>
+              )}
+            </div>
+          )}
+
+          {/* Tatkal charge field — only shown when TATKAL quota selected */}
+          {isTatkal && (
+            <div className="fr-tatkal-box">
+              <div className="fr-tatkal-header">
+                <Tag size={13} style={{ color: "#d97706" }} />
+                <span>Tatkal Surcharge</span>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--spacing-4)", alignItems: "start" }}>
+                <Field label="Tatkal Charge (₹)" required error={errors.tatkalCharge}
+                       hint={coachBounds ? `Valid range: ₹${coachBounds.min} – ₹${coachBounds.max}` : "Select coach type first"}>
+                  <input
+                    className={`aam-input${errors.tatkalCharge ? " aam-input--error" : ""}`}
+                    type="number" step="1" min={coachBounds?.min || 0} max={coachBounds?.max || 9999}
+                    placeholder={coachBounds ? `${coachBounds.min}–${coachBounds.max}` : "Select coach first"}
+                    value={form.tatkalCharge}
+                    onChange={e => set("tatkalCharge", e.target.value)}
+                    disabled={saving || !form.coachTypeCode}
+                  />
+                </Field>
+                {coachBounds && (
+                  <div className="fr-tatkal-info">
+                    <AlertCircle size={12} style={{ color: "#d97706", flexShrink: 0 }} />
+                    <span>
+                      Added after GST calculation.<br />
+                      Auto-filled to max (₹{coachBounds.max}). Adjust if needed.
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -210,7 +310,7 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--spacing-4)" }}>
             <Field label="Base Fare / km (₹)" required error={errors.baseFarePerKm}>
               <input className={`aam-input${errors.baseFarePerKm ? " aam-input--error" : ""}`}
-                     type="number" step="0.0001" min="0.0001" placeholder="e.g. 1.2369"
+                     type="number" step="0.0001" min="0.0001" placeholder="e.g. 2.0245"
                      value={form.baseFarePerKm} onChange={e => set("baseFarePerKm", e.target.value)}
                      disabled={saving} />
             </Field>
@@ -231,7 +331,7 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
                      type="number" step="0.01" min="0" placeholder="e.g. 45"
                      value={form.superfastCharge} onChange={e => set("superfastCharge", e.target.value)}
                      disabled={saving}
-                     style={{ background: selTrain && !selTrain.isSuperfast ? "var(--bg-tertiary)" : undefined }} />
+                     style={{ background: selectedRaw.train && !selectedRaw.train.isSuperfast ? "var(--bg-tertiary)" : undefined }} />
             </Field>
             <Field label="GST (%)" required error={errors.gstPct}>
               <input className={`aam-input${errors.gstPct ? " aam-input--error" : ""}`}
@@ -248,8 +348,7 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
                      type="date" value={form.effectiveFrom}
                      onChange={e => set("effectiveFrom", e.target.value)} disabled={saving} />
             </Field>
-            <Field label="Effective Until" error={errors.effectiveUntil}
-                   note="Leave blank for open-ended rule">
+            <Field label="Effective Until" error={errors.effectiveUntil} hint="Leave blank for open-ended rule">
               <input className={`aam-input${errors.effectiveUntil ? " aam-input--error" : ""}`}
                      type="date" value={form.effectiveUntil}
                      onChange={e => set("effectiveUntil", e.target.value)} disabled={saving} />
@@ -279,19 +378,19 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
 };
 
 // ── History Drawer ────────────────────────────────────────
-const HistoryDrawer = ({ open, onClose, trainTypeCode, coachTypeCode }) => {
+const HistoryDrawer = ({ open, onClose, trainTypeCode, coachTypeCode, quotaCode }) => {
   const { showError } = useToast();
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!open || !trainTypeCode || !coachTypeCode) return;
+    if (!open || !trainTypeCode || !coachTypeCode || !quotaCode) return;
     setLoading(true);
-    FareRuleService.getComboHistory(trainTypeCode, coachTypeCode)
+    FareRuleService.getComboHistory(trainTypeCode, coachTypeCode, quotaCode)
       .then(r => setHistory(r.data.data || []))
       .catch(() => showError("Failed to load history."))
       .finally(() => setLoading(false));
-  }, [open, trainTypeCode, coachTypeCode]);
+  }, [open, trainTypeCode, coachTypeCode, quotaCode]);
 
   if (!open) return null;
 
@@ -305,23 +404,18 @@ const HistoryDrawer = ({ open, onClose, trainTypeCode, coachTypeCode }) => {
             </div>
             <div>
               <h2 className="aam-title">Fare History</h2>
-              <p className="aam-subtitle">{trainTypeCode} + {coachTypeCode} — all revisions</p>
+              <p className="aam-subtitle">{trainTypeCode} + {coachTypeCode} + {quotaCode}</p>
             </div>
           </div>
           <button className="aam-close" onClick={onClose}><X size={18} /></button>
         </div>
         <div style={{ padding: "var(--spacing-4)", overflowY: "auto", flex: 1 }}>
-          {loading && (
-            <p style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-sm)" }}>Loading…</p>
-          )}
-          {!loading && history.map((r) => (
+          {loading && <p style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-sm)" }}>Loading…</p>}
+          {!loading && history.map(r => (
             <div key={r.ruleId} className={`fr-history-card${r.isCurrent ? " current" : ""}`}>
               <div className="fr-history-header">
                 <span className={`fr-history-badge ${r.isCurrent ? "current" : "past"}`}>
-                  {r.isCurrent
-                    ? <><CheckCircle2 size={11} /> Current</>
-                    : <><Clock size={11} /> Past</>
-                  }
+                  {r.isCurrent ? <><CheckCircle2 size={11} /> Current</> : <><Clock size={11} /> Past</>}
                 </span>
                 <span style={{ fontSize: 11, color: "var(--text-tertiary)" }}>
                   {fmtDate(r.effectiveFrom)} → {r.effectiveUntil ? fmtDate(r.effectiveUntil) : "Open"}
@@ -333,6 +427,9 @@ const HistoryDrawer = ({ open, onClose, trainTypeCode, coachTypeCode }) => {
                 <div><span className="fr-lbl">Reservation</span><span className="fr-val">{fmt(r.reservationCharge)}</span></div>
                 <div><span className="fr-lbl">Superfast</span><span className="fr-val">{fmt(r.superfastCharge)}</span></div>
                 <div><span className="fr-lbl">GST</span><span className="fr-val">{r.gstPct}%</span></div>
+                {r.quotaCode === "TATKAL" && (
+                  <div><span className="fr-lbl">Tatkal</span><span className="fr-val" style={{ color: "#d97706" }}>{fmt(r.tatkalCharge)}</span></div>
+                )}
               </div>
             </div>
           ))}
@@ -354,14 +451,19 @@ const FareRulesPage = () => {
   const [loading,     setLoading]     = useState(true);
   const [modalOpen,   setModalOpen]   = useState(false);
   const [togglingId,  setTogglingId]  = useState(null);
-  const [filterTrain, setFilterTrain] = useState("");
-  const [filterCoach, setFilterCoach] = useState("");
   const [history,     setHistory]     = useState(null);
 
-  const fetchData = useCallback(async (tc, cc) => {
+  const [filterTrain,      setFilterTrain]      = useState("");
+  const [filterTrainLabel, setFilterTrainLabel] = useState("");
+  const [filterCoach,      setFilterCoach]      = useState("");
+  const [filterCoachLabel, setFilterCoachLabel] = useState("");
+  const [filterQuota,      setFilterQuota]      = useState("");
+  const [filterQuotaLabel, setFilterQuotaLabel] = useState("");
+
+  const fetchData = useCallback(async (tc, cc, qc) => {
     setLoading(true);
     try {
-      const res = await FareRuleService.getAllForAdmin(tc || undefined, cc || undefined);
+      const res = await FareRuleService.getAllForAdmin(tc || undefined, cc || undefined, qc || undefined);
       setData(res.data.data || []);
     } catch {
       showError("Failed to load fare rules.");
@@ -370,24 +472,25 @@ const FareRulesPage = () => {
     }
   }, [showError]);
 
-  useEffect(() => { fetchData("", ""); }, []);
+  useEffect(() => { fetchData("", "", ""); }, []);
 
-  const handleFilterTrain = (val, raw) => {
-    const code = raw?.typeCode || "";
-    setFilterTrain(code);
-    fetchData(code, filterCoach);
+  const handleTrainFilter = (val, raw) => {
+    setFilterTrain(val); setFilterTrainLabel(raw?.typeName || "");
+    fetchData(val, filterCoach, filterQuota);
   };
-
-  const handleFilterCoach = (val, raw) => {
-    const code = raw?.typeCode || "";
-    setFilterCoach(code);
-    fetchData(filterTrain, code);
+  const handleCoachFilter = (val, raw) => {
+    setFilterCoach(val); setFilterCoachLabel(raw?.typeName || "");
+    fetchData(filterTrain, val, filterQuota);
   };
-
+  const handleQuotaFilter = (val, raw) => {
+    setFilterQuota(val); setFilterQuotaLabel(raw?.quotaName || "");
+    fetchData(filterTrain, filterCoach, val);
+  };
   const handleReset = () => {
-    setFilterTrain("");
-    setFilterCoach("");
-    fetchData("", "");
+    setFilterTrain(""); setFilterTrainLabel("");
+    setFilterCoach(""); setFilterCoachLabel("");
+    setFilterQuota(""); setFilterQuotaLabel("");
+    fetchData("", "", "");
   };
 
   const handleToggle = async (item) => {
@@ -407,21 +510,20 @@ const FareRulesPage = () => {
   };
 
   const currentCount = data.filter(d => d.isCurrent).length;
-  const acCount      = data.filter(d => d.isAc).length;
+  const tatkalCount  = data.filter(d => d.quotaCode === "TATKAL").length;
 
   return (
     <div className="page-container">
       <div className="page-header">
         <div>
           <h1 className="page-title">Fare Rules</h1>
-          <p className="page-subtitle">Manage fare configurations per train type and coach class</p>
+          <p className="page-subtitle">Manage fare configurations per train type, coach class, and quota</p>
         </div>
         <button className="btn btn-primary" onClick={() => setModalOpen(true)}>
           <Plus size={16} /> Add Fare Rule
         </button>
       </div>
 
-      {/* Stats */}
       <div className="tt-stats">
         <div className="tt-stat-card">
           <div className="tt-stat-label">Total Rules</div>
@@ -432,37 +534,33 @@ const FareRulesPage = () => {
           <div className="tt-stat-value" style={{ color: "#16a34a" }}>{currentCount}</div>
         </div>
         <div className="tt-stat-card">
-          <div className="tt-stat-label">AC Rules</div>
-          <div className="tt-stat-value" style={{ color: "#0891b2" }}>{acCount}</div>
+          <div className="tt-stat-label">Tatkal Rules</div>
+          <div className="tt-stat-value" style={{ color: "#d97706" }}>{tatkalCount}</div>
         </div>
         <div className="tt-stat-card">
-          <div className="tt-stat-label">Non-AC Rules</div>
-          <div className="tt-stat-value" style={{ color: "var(--text-secondary)" }}>{data.length - acCount}</div>
+          <div className="tt-stat-label">General Rules</div>
+          <div className="tt-stat-value" style={{ color: "var(--text-secondary)" }}>{data.length - tatkalCount}</div>
         </div>
       </div>
 
       <div className="card">
-        {/* Toolbar — SearchableSelect for filters */}
         <div className="tt-toolbar">
-          <div style={{ width: 220 }}>
-            <SearchableSelect
-              value={filterTrain}
-              onChange={handleFilterTrain}
-              fetchOptions={fetchTrainTypes}
-              placeholder="All Train Types"
-              clearable
-            />
+          <div style={{ width: 250 }}>
+            <SearchableSelect value={filterTrain} onChange={handleTrainFilter}
+                              fetchOptions={fetchTrainTypes} placeholder="All Train Types"
+                              initialLabel={filterTrainLabel} clearable />
           </div>
-          <div style={{ width: 220 }}>
-            <SearchableSelect
-              value={filterCoach}
-              onChange={handleFilterCoach}
-              fetchOptions={fetchCoachTypes}
-              placeholder="All Coach Types"
-              clearable
-            />
+          <div style={{ width: 250 }}>
+            <SearchableSelect value={filterCoach} onChange={handleCoachFilter}
+                              fetchOptions={fetchCoachTypes} placeholder="All Coach Types"
+                              initialLabel={filterCoachLabel} clearable />
           </div>
-          {(filterTrain || filterCoach) && (
+          <div style={{ width: 250 }}>
+            <SearchableSelect value={filterQuota} onChange={handleQuotaFilter}
+                              fetchOptions={fetchQuotas} placeholder="All Quotas"
+                              initialLabel={filterQuotaLabel} clearable />
+          </div>
+          {(filterTrain || filterCoach || filterQuota) && (
             <button className="sm-reset-btn" onClick={handleReset}>
               <RotateCcw size={12} /> Reset
             </button>
@@ -472,17 +570,18 @@ const FareRulesPage = () => {
           </span>
         </div>
 
-        {/* Table */}
         <div style={{ overflowX: "auto" }}>
           <table className="sm-table">
             <thead>
             <tr>
               <th>Train Type</th>
               <th>Coach Type</th>
+              <th>Quota</th>
               <th>Base / km</th>
               <th>Min Fare</th>
               <th>Reservation</th>
               <th>Superfast</th>
+              <th>Tatkal</th>
               <th>GST</th>
               <th>Effective Period</th>
               <th>Status</th>
@@ -492,7 +591,7 @@ const FareRulesPage = () => {
             <tbody>
             {loading && Array.from({ length: 8 }).map((_, i) => (
               <tr key={i}>
-                {Array.from({ length: 9 }).map((_, j) => (
+                {Array.from({ length: 11 }).map((_, j) => (
                   <td key={j}><div className="sm-skeleton" style={{ width: "70%" }} /></td>
                 ))}
                 <td />
@@ -519,10 +618,19 @@ const FareRulesPage = () => {
                     <span style={{ fontSize: 11, color: "var(--text-tertiary)" }}>{item.coachTypeName}</span>
                   </div>
                 </td>
+                <td><QuotaBadge code={item.quotaCode} /></td>
                 <td><span style={{ fontFamily: "monospace", fontSize: "var(--font-size-sm)" }}>{fmtRate(item.baseFarePerKm)}</span></td>
                 <td><span style={{ fontSize: "var(--font-size-sm)" }}>{fmt(item.minFare)}</span></td>
                 <td><span style={{ fontSize: "var(--font-size-sm)" }}>{fmt(item.reservationCharge)}</span></td>
                 <td><span style={{ fontSize: "var(--font-size-sm)" }}>{fmt(item.superfastCharge)}</span></td>
+                <td>
+                  {item.quotaCode === "TATKAL"
+                    ? <span style={{ fontSize: "var(--font-size-sm)", color: "#d97706", fontWeight: 600 }}>
+                          {fmt(item.tatkalCharge)}
+                        </span>
+                    : <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-sm)" }}>—</span>
+                  }
+                </td>
                 <td><span style={{ fontSize: "var(--font-size-sm)" }}>{item.gstPct}%</span></td>
                 <td>
                   <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -546,7 +654,11 @@ const FareRulesPage = () => {
                   <div className="sm-row-actions">
                     <button className="sm-action-btn" title="View history"
                             style={{ color: "#7c3aed" }}
-                            onClick={() => setHistory({ trainTypeCode: item.trainTypeCode, coachTypeCode: item.coachTypeCode })}>
+                            onClick={() => setHistory({
+                              trainTypeCode: item.trainTypeCode,
+                              coachTypeCode: item.coachTypeCode,
+                              quotaCode:     item.quotaCode,
+                            })}>
                       <History size={14} />
                     </button>
                     <button
@@ -565,7 +677,7 @@ const FareRulesPage = () => {
             ))}
 
             {!loading && data.length === 0 && (
-              <tr><td colSpan={10}>
+              <tr><td colSpan={12}>
                 <div className="sm-empty">
                   <div className="sm-empty-icon"><BadgeDollarSign size={24} /></div>
                   <div className="sm-empty-title">No fare rules found</div>
@@ -589,6 +701,7 @@ const FareRulesPage = () => {
         onClose={() => setHistory(null)}
         trainTypeCode={history?.trainTypeCode}
         coachTypeCode={history?.coachTypeCode}
+        quotaCode={history?.quotaCode}
       />
     </div>
   );

@@ -14,6 +14,7 @@ const StationsManagement = lazy(() => import('../pages/StationManagement/Station
 const TrainTypesPage = lazy(() => import('../pages/TrainTypesPage/TrainTypesPage.jsx'));
 const CoachTypesPage = lazy(() => import('../pages/CoachTypePage/CoachTypesPage.jsx'));
 const FareRulesPage = lazy(() => import('../pages/FareRulePage/FareRulesPage.jsx'));
+const QuotasPage = lazy(() => import('../pages/QuotaPage/QuotasPage.jsx'));
 
 const AppRoutes = () => {
   return (
@@ -43,6 +44,7 @@ const AppRoutes = () => {
         <Route path="/train-types" element={<TrainTypesPage />} />
         <Route path="/coach-types" element={<CoachTypesPage />} />
         <Route path="/fare-rules" element={<FareRulesPage />} />
+        <Route path="/quotas" element={<QuotasPage />} />
       </Route>
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
