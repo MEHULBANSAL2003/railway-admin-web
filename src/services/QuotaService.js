@@ -31,5 +31,10 @@ export const QuotaService = {
     return HttpWrapper.postByIdWithQueryParams(url, quotaCode, { isActive }, true);
   },
 
+  getCascadeInfo: (typeCode) => {
+    const url = `${quota_base_url}/cascade-info/${typeCode}`;
+    return HttpWrapper.get(url, null, true);
+  },
+
 
 };

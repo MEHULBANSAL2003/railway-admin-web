@@ -30,4 +30,9 @@ export const TrainTypeService = {
     const url = `${train_type_base_url}${ApiConstants.changeTrainTypeStatus}`;
     return HttpWrapper.postByIdWithQueryParams(url, typeCode, { isActive }, true);
   },
+
+  getCascadeInfo: (typeCode) => {
+    const url = `${train_type_base_url}/cascade-info/${typeCode}`;
+    return HttpWrapper.get(url, null, true);
+  },
 };

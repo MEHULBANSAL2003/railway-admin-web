@@ -16,9 +16,9 @@ export const FareRuleService = {
     return HttpWrapper.get(url, params, true);
   },
 
-  getComboHistory: (trainTypeCode, coachTypeCode) => {
+  getComboHistory: (trainTypeCode, coachTypeCode, quotaCode) => {
     const url = `${fare_rule_base_url}${ApiConstants.getFareRuleHistory}`;
-    return HttpWrapper.get(url, { trainTypeCode, coachTypeCode }, true);
+    return HttpWrapper.get(url, { trainTypeCode, coachTypeCode, quotaCode }, true);
   },
 
   addFareRule: (payload) => {

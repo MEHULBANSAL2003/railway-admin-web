@@ -6,7 +6,8 @@ import {
 } from "lucide-react";
 import { CoachTypeService } from "../../services/CoachTypeService.js";
 import { useToast } from "../../context/Toast/useToast.js";
-import "../AdminManagement/AddAdminModal.css";
+import CascadeToggleModal from "../../components/UI/CascadeToggleModal/CascadeToggleModal.jsx";
+import "../AdminManagement/AdminManagement.css";
 import "../TrainTypesPage/TrainTypesPage.css";
 import "../StationManagement/StationManagementPage.css";
 
@@ -109,7 +110,6 @@ const CoachTypeModal = ({ open, onClose, editItem, onSuccess }) => {
         </div>
 
         <div className="aam-body">
-          {/* Type Code — add only */}
           {!isEdit && (
             <div className="aam-field">
               <label className="aam-label">Type Code <span className="aam-required">*</span></label>
@@ -117,25 +117,19 @@ const CoachTypeModal = ({ open, onClose, editItem, onSuccess }) => {
                      placeholder="e.g. SL, 3A, 2A, 1A, CC"
                      value={form.typeCode}
                      onChange={e => set("typeCode", e.target.value.toUpperCase())}
-                     disabled={saving} maxLength={10}
-              />
+                     disabled={saving} maxLength={10} />
               {errors.typeCode && <p className="aam-error">{errors.typeCode}</p>}
             </div>
           )}
-
-          {/* Type Name */}
           <div className="aam-field">
             <label className="aam-label">Type Name <span className="aam-required">*</span></label>
             <input className={`aam-input${errors.typeName ? " aam-input--error" : ""}`}
                    placeholder="e.g. Sleeper Class"
                    value={form.typeName}
                    onChange={e => set("typeName", e.target.value)}
-                   disabled={saving} maxLength={100}
-            />
+                   disabled={saving} maxLength={100} />
             {errors.typeName && <p className="aam-error">{errors.typeName}</p>}
           </div>
-
-          {/* Description */}
           <div className="aam-field">
             <label className="aam-label">Description</label>
             <textarea className="aam-input" rows={2}
@@ -143,11 +137,8 @@ const CoachTypeModal = ({ open, onClose, editItem, onSuccess }) => {
                       value={form.description}
                       onChange={e => set("description", e.target.value)}
                       disabled={saving}
-                      style={{ resize: "vertical", minHeight: 60, paddingTop: 8 }}
-            />
+                      style={{ resize: "vertical", minHeight: 60, paddingTop: 8 }} />
           </div>
-
-          {/* Total Seats + AC — side by side */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--spacing-4)" }}>
             <div className="aam-field" style={{ marginBottom: 0 }}>
               <label className="aam-label">Total Seats <span className="aam-required">*</span></label>
@@ -159,12 +150,10 @@ const CoachTypeModal = ({ open, onClose, editItem, onSuccess }) => {
                        placeholder="e.g. 72"
                        value={form.totalSeats}
                        onChange={e => set("totalSeats", e.target.value)}
-                       disabled={saving}
-                />
+                       disabled={saving} />
               </div>
               {errors.totalSeats && <p className="aam-error">{errors.totalSeats}</p>}
             </div>
-
             <div className="aam-field" style={{ marginBottom: 0 }}>
               <label className="aam-label">Air Conditioned</label>
               <button type="button"
@@ -177,8 +166,7 @@ const CoachTypeModal = ({ open, onClose, editItem, onSuccess }) => {
                         borderRadius: "var(--radius-md)", background: "var(--bg-primary)",
                         cursor: saving ? "not-allowed" : "pointer",
                         fontFamily: "inherit", fontSize: "var(--font-size-sm)",
-                        color: form.isAc ? "#0891b2" : "var(--text-secondary)",
-                        width: "100%",
+                        color: form.isAc ? "#0891b2" : "var(--text-secondary)", width: "100%",
                       }}>
                 <Wind size={14} style={{ color: form.isAc ? "#0891b2" : "var(--text-tertiary)" }} />
                 {form.isAc ? "Yes — AC Coach" : "No — Non-AC"}
@@ -212,22 +200,21 @@ const CoachTypeModal = ({ open, onClose, editItem, onSuccess }) => {
 const CoachTypesPage = () => {
   const { showError, showSuccess } = useToast();
 
-  const [data,       setData]       = useState([]);
-  const [loading,    setLoading]    = useState(true);
-  const [search,     setSearch]     = useState("");
-  const [modalOpen,  setModalOpen]  = useState(false);
-  const [editItem,   setEditItem]   = useState(null);
-  const [togglingId, setTogglingId] = useState(null);
+  const [data,         setData]         = useState([]);
+  const [loading,      setLoading]      = useState(true);
+  const [search,       setSearch]       = useState("");
+  const [modalOpen,    setModalOpen]    = useState(false);
+  const [editItem,     setEditItem]     = useState(null);
+  // ── CHANGED: replaced togglingId with cascadeModal state ──
+  const [cascadeModal, setCascadeModal] = useState(null);
+  // shape: { item, targetStatus }
 
   const debounceRef = useRef(null);
 
   const fetchData = useCallback(async (s = "") => {
     setLoading(true);
     try {
-      let params = {};
-      if(s){
-        params['search'] = s;
-      }
+      const params = s ? { search: s } : {};
       const res = await CoachTypeService.getAllForAdmin(params);
       setData(res.data.data || []);
     } catch {
@@ -245,19 +232,30 @@ const CoachTypesPage = () => {
     debounceRef.current = setTimeout(() => fetchData(val), 400);
   };
 
-  const handleToggle = async (item) => {
-    if (togglingId) return;
-    setTogglingId(item.typeId);
-    const newStatus = !item.isActive;
-    setData(prev => prev.map(r => r.typeId === item.typeId ? { ...r, isActive: newStatus } : r));
+  // ── CHANGED: click now opens modal instead of toggling directly ──
+  const handleToggleClick = (item) => {
+    setCascadeModal({ item, targetStatus: !item.isActive });
+  };
+
+  // ── NEW: called by CascadeToggleModal on confirm ──
+  const handleToggleConfirm = async () => {
+    const { item, targetStatus } = cascadeModal;
+    // Optimistic update
+    setData(prev => prev.map(r =>
+      r.typeId === item.typeId ? { ...r, isActive: targetStatus } : r
+    ));
     try {
-      await CoachTypeService.toggleStatus(item.typeCode, newStatus);
-      showSuccess(`"${item.typeName}" ${newStatus ? "activated" : "deactivated"}.`);
+      const res = await CoachTypeService.toggleStatus(item.typeCode, targetStatus);
+      // Backend returns cascade message e.g. "Deactivated. 5 fare rules also deactivated."
+      showSuccess(res.data?.data?.message || `Status updated.`);
+      // Refresh to reflect any cascaded fare rule changes
+      fetchData(search);
     } catch (err) {
-      setData(prev => prev.map(r => r.typeId === item.typeId ? { ...r, isActive: item.isActive } : r));
+      // Rollback
+      setData(prev => prev.map(r =>
+        r.typeId === item.typeId ? { ...r, isActive: item.isActive } : r
+      ));
       showError(err?.response?.data?.error?.message || "Failed to update status.");
-    } finally {
-      setTogglingId(null);
     }
   };
 
@@ -269,14 +267,13 @@ const CoachTypesPage = () => {
     });
   };
 
-  const totalAc    = data.filter(d => d.isAc).length;
-  const totalNonAc = data.filter(d => !d.isAc).length;
+  const totalAc     = data.filter(d => d.isAc).length;
+  const totalNonAc  = data.filter(d => !d.isAc).length;
   const activeCount = data.filter(d => d.isActive).length;
 
   return (
     <div className="page-container">
 
-      {/* Header */}
       <div className="page-header">
         <div>
           <h1 className="page-title">Coach Types</h1>
@@ -287,7 +284,6 @@ const CoachTypesPage = () => {
         </button>
       </div>
 
-      {/* Stat cards */}
       <div className="tt-stats">
         <div className="tt-stat-card">
           <div className="tt-stat-label">Total Types</div>
@@ -307,7 +303,6 @@ const CoachTypesPage = () => {
         </div>
       </div>
 
-      {/* Table card */}
       <div className="card">
         <div className="tt-toolbar">
           <div className="sm-filter-wrap">
@@ -395,15 +390,12 @@ const CoachTypesPage = () => {
                             onClick={() => { setEditItem(item); setModalOpen(true); }}>
                       <Pencil size={14} />
                     </button>
+                    {/* ── CHANGED: onClick now opens cascade modal ── */}
                     <button
                       className={`sm-action-btn${item.isActive ? " danger" : ""}`}
                       title={item.isActive ? "Deactivate" : "Activate"}
-                      disabled={togglingId === item.typeId}
-                      onClick={() => handleToggle(item)}>
-                      {togglingId === item.typeId
-                        ? <span className="sm-spinner" />
-                        : item.isActive ? <ToggleRight size={15} /> : <ToggleLeft size={15} />
-                      }
+                      onClick={() => handleToggleClick(item)}>
+                      {item.isActive ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}
                     </button>
                   </div>
                 </td>
@@ -431,6 +423,16 @@ const CoachTypesPage = () => {
         onClose={() => { setModalOpen(false); setEditItem(null); }}
         editItem={editItem}
         onSuccess={handleModalSuccess}
+      />
+
+      {/* ── NEW: cascade modal ── */}
+      <CascadeToggleModal
+        open={!!cascadeModal}
+        onClose={() => setCascadeModal(null)}
+        onConfirm={handleToggleConfirm}
+        fetchInfo={() => CoachTypeService.getCascadeInfo(cascadeModal.item.typeCode)}
+        targetStatus={cascadeModal?.targetStatus ?? true}
+        entityLabel="Coach Type"
       />
     </div>
   );

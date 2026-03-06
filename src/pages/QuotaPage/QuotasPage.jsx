@@ -6,7 +6,8 @@ import {
 } from "lucide-react";
 import { QuotaService } from "../../services/QuotaService.js";
 import { useToast }     from "../../context/Toast/useToast.js";
-import "../AdminManagement/AddAdminModal.css";
+import CascadeToggleModal from "../../components/UI/CascadeToggleModal/CascadeToggleModal.jsx";
+import "../AdminManagement/AdminManagement.css";
 import "../TrainTypesPage/TrainTypesPage.css";
 import "../StationManagement/StationManagementPage.css";
 
@@ -47,10 +48,10 @@ const QuotaModal = ({ open, onClose, editItem, onSuccess }) => {
 
   const validate = () => {
     const e = {};
-    if (!isEdit && !form.quotaCode.trim())           e.quotaCode  = "Code is required.";
-    if (!isEdit && form.quotaCode.trim().length > 20) e.quotaCode  = "Max 20 characters.";
-    if (!form.quotaName.trim())                       e.quotaName  = "Name is required.";
-    if (form.quotaName.trim().length > 50)            e.quotaName  = "Max 50 characters.";
+    if (!isEdit && !form.quotaCode.trim())            e.quotaCode = "Code is required.";
+    if (!isEdit && form.quotaCode.trim().length > 20) e.quotaCode = "Max 20 characters.";
+    if (!form.quotaName.trim())                       e.quotaName = "Name is required.";
+    if (form.quotaName.trim().length > 50)            e.quotaName = "Max 50 characters.";
     return e;
   };
 
@@ -59,23 +60,18 @@ const QuotaModal = ({ open, onClose, editItem, onSuccess }) => {
     if (Object.keys(e).length) { setErrors(e); return; }
     setSaving(true);
     try {
-      const payload = {
-        quotaName:   form.quotaName.trim(),
-        description: form.description.trim() || null,
-      };
-
-      let res;
       if (isEdit) {
-        // update not yet implemented in service — handled via add new + deactivate old
         showError("Edit not supported — deactivate old quota and add a new one.");
         setSaving(false);
         return;
-      } else {
-        payload.quotaCode = form.quotaCode.trim().toUpperCase();
-        res = await QuotaService.addQuota(payload);
-        showSuccess("Quota added successfully.");
       }
-
+      const payload = {
+        quotaCode:   form.quotaCode.trim().toUpperCase(),
+        quotaName:   form.quotaName.trim(),
+        description: form.description.trim() || null,
+      };
+      const res = await QuotaService.addQuota(payload);
+      showSuccess("Quota added successfully.");
       onSuccess(res.data.data);
       onClose();
     } catch (err) {
@@ -91,7 +87,6 @@ const QuotaModal = ({ open, onClose, editItem, onSuccess }) => {
     <div className="aam-backdrop" onClick={saving ? undefined : onClose}>
       <div className="aam-modal" onClick={e => e.stopPropagation()}
            role="dialog" aria-modal="true" style={{ maxWidth: 440 }}>
-
         <div className="aam-header">
           <div className="aam-header-left">
             <div className="aam-header-icon" style={{ background: "#fef3c7", color: "#d97706" }}>
@@ -104,9 +99,7 @@ const QuotaModal = ({ open, onClose, editItem, onSuccess }) => {
           </div>
           <button className="aam-close" onClick={onClose} disabled={saving}><X size={18} /></button>
         </div>
-
         <div className="aam-body">
-          {/* Code — add only */}
           {!isEdit && (
             <div className="aam-field">
               <label className="aam-label">Quota Code <span className="aam-required">*</span></label>
@@ -115,8 +108,7 @@ const QuotaModal = ({ open, onClose, editItem, onSuccess }) => {
                 placeholder="e.g. GENERAL, TATKAL, LADIES"
                 value={form.quotaCode}
                 onChange={e => set("quotaCode", e.target.value.toUpperCase())}
-                disabled={saving}
-                maxLength={20}
+                disabled={saving} maxLength={20}
               />
               {errors.quotaCode && <p className="aam-error">{errors.quotaCode}</p>}
               <p style={{ fontSize: 11, color: "var(--text-tertiary)", marginTop: 3 }}>
@@ -124,8 +116,6 @@ const QuotaModal = ({ open, onClose, editItem, onSuccess }) => {
               </p>
             </div>
           )}
-
-          {/* Name */}
           <div className="aam-field">
             <label className="aam-label">Quota Name <span className="aam-required">*</span></label>
             <input
@@ -133,18 +123,14 @@ const QuotaModal = ({ open, onClose, editItem, onSuccess }) => {
               placeholder="e.g. General Quota"
               value={form.quotaName}
               onChange={e => set("quotaName", e.target.value)}
-              disabled={saving || isEdit}
-              maxLength={50}
+              disabled={saving || isEdit} maxLength={50}
             />
             {errors.quotaName && <p className="aam-error">{errors.quotaName}</p>}
           </div>
-
-          {/* Description */}
           <div className="aam-field">
             <label className="aam-label">Description</label>
             <textarea
-              className="aam-input"
-              rows={2}
+              className="aam-input" rows={2}
               placeholder="Optional description..."
               value={form.description}
               onChange={e => set("description", e.target.value)}
@@ -153,24 +139,21 @@ const QuotaModal = ({ open, onClose, editItem, onSuccess }) => {
             />
           </div>
         </div>
-
         <div className="aam-footer">
           <button className="btn btn-secondary" onClick={onClose} disabled={saving}>
             {isEdit ? "Close" : "Cancel"}
           </button>
           {!isEdit && (
-            <button
-              onClick={handleSubmit}
-              disabled={saving}
-              style={{
-                display: "flex", alignItems: "center", gap: 6, height: 36,
-                padding: "0 var(--spacing-4)",
-                background: saving ? "var(--primary-300)" : "var(--primary-600)",
-                color: "#fff", border: "none", borderRadius: "var(--radius-md)",
-                fontFamily: "inherit", fontSize: "var(--font-size-sm)",
-                fontWeight: "var(--font-weight-medium)",
-                cursor: saving ? "not-allowed" : "pointer",
-              }}>
+            <button onClick={handleSubmit} disabled={saving}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 6, height: 36,
+                      padding: "0 var(--spacing-4)",
+                      background: saving ? "var(--primary-300)" : "var(--primary-600)",
+                      color: "#fff", border: "none", borderRadius: "var(--radius-md)",
+                      fontFamily: "inherit", fontSize: "var(--font-size-sm)",
+                      fontWeight: "var(--font-weight-medium)",
+                      cursor: saving ? "not-allowed" : "pointer",
+                    }}>
               {saving ? <><span className="aam-spinner" /> Saving…</> : "Add Quota"}
             </button>
           )}
@@ -185,14 +168,12 @@ const QuotaModal = ({ open, onClose, editItem, onSuccess }) => {
 const QuotasPage = () => {
   const { showSuccess, showError } = useToast();
 
-  const [data,       setData]       = useState([]);
-  const [loading,    setLoading]    = useState(true);
-  const [search,     setSearch]     = useState("");
-  const [modalOpen,  setModalOpen]  = useState(false);
-  const [viewItem,   setViewItem]   = useState(null);
-  const [togglingId, setTogglingId] = useState(null);
-
-  const debounceRef = useRef(null);
+  const [data,         setData]         = useState([]);
+  const [loading,      setLoading]      = useState(true);
+  const [search,       setSearch]       = useState("");
+  const [modalOpen,    setModalOpen]    = useState(false);
+  const [viewItem,     setViewItem]     = useState(null);
+  const [cascadeModal, setCascadeModal] = useState(null); // { item, targetStatus }
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -208,26 +189,30 @@ const QuotasPage = () => {
 
   useEffect(() => { fetchData(); }, []);
 
-  // Client-side search since quota list is tiny (2–5 rows ever)
   const filtered = data.filter(d =>
     !search ||
     d.quotaCode.toLowerCase().includes(search.toLowerCase()) ||
     d.quotaName.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleToggle = async (item) => {
-    if (togglingId) return;
-    setTogglingId(item.quotaId);
-    const newStatus = !item.isActive;
-    setData(prev => prev.map(r => r.quotaId === item.quotaId ? { ...r, isActive: newStatus } : r));
+  const handleToggleClick = (item) => {
+    setCascadeModal({ item, targetStatus: !item.isActive });
+  };
+
+  const handleToggleConfirm = async () => {
+    const { item, targetStatus } = cascadeModal;
+    setData(prev => prev.map(r =>
+      r.quotaId === item.quotaId ? { ...r, isActive: targetStatus } : r
+    ));
     try {
-      await QuotaService.toggleStatus(item.quotaCode, newStatus);
-      showSuccess(`"${item.quotaName}" ${newStatus ? "activated" : "deactivated"}.`);
+      const res = await QuotaService.toggleStatus(item.quotaCode, targetStatus);
+      showSuccess(res.data?.data?.message || "Status updated.");
+      fetchData();
     } catch (err) {
-      setData(prev => prev.map(r => r.quotaId === item.quotaId ? { ...r, isActive: item.isActive } : r));
+      setData(prev => prev.map(r =>
+        r.quotaId === item.quotaId ? { ...r, isActive: item.isActive } : r
+      ));
       showError(err?.response?.data?.error?.message || "Failed to update status.");
-    } finally {
-      setTogglingId(null);
     }
   };
 
@@ -244,8 +229,6 @@ const QuotasPage = () => {
 
   return (
     <div className="page-container">
-
-      {/* Header */}
       <div className="page-header">
         <div>
           <h1 className="page-title">Quotas</h1>
@@ -256,7 +239,6 @@ const QuotasPage = () => {
         </button>
       </div>
 
-      {/* Stat cards */}
       <div className="tt-stats">
         <div className="tt-stat-card">
           <div className="tt-stat-label">Total Quotas</div>
@@ -272,17 +254,12 @@ const QuotasPage = () => {
         </div>
       </div>
 
-      {/* Table card */}
       <div className="card">
         <div className="tt-toolbar">
           <div className="sm-filter-wrap">
             <span className="sm-filter-icon"><Search size={13} /></span>
-            <input
-              className="sm-filter-input"
-              placeholder="Search code or name…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
+            <input className="sm-filter-input" placeholder="Search code or name…"
+                   value={search} onChange={e => setSearch(e.target.value)} />
           </div>
           {search && (
             <button className="sm-reset-btn" onClick={() => setSearch("")}>
@@ -347,21 +324,15 @@ const QuotasPage = () => {
                 </td>
                 <td>
                   <div className="sm-row-actions">
-                    <button
-                      className="sm-action-btn"
-                      title="View details"
-                      onClick={() => { setViewItem(item); setModalOpen(true); }}>
+                    <button className="sm-action-btn" title="View details"
+                            onClick={() => { setViewItem(item); setModalOpen(true); }}>
                       <Pencil size={14} />
                     </button>
                     <button
                       className={`sm-action-btn${item.isActive ? " danger" : ""}`}
                       title={item.isActive ? "Deactivate" : "Activate"}
-                      disabled={togglingId === item.quotaId}
-                      onClick={() => handleToggle(item)}>
-                      {togglingId === item.quotaId
-                        ? <span className="sm-spinner" />
-                        : item.isActive ? <ToggleRight size={15} /> : <ToggleLeft size={15} />
-                      }
+                      onClick={() => handleToggleClick(item)}>
+                      {item.isActive ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}
                     </button>
                   </div>
                 </td>
@@ -393,6 +364,15 @@ const QuotasPage = () => {
         onClose={() => { setModalOpen(false); setViewItem(null); }}
         editItem={viewItem}
         onSuccess={handleModalSuccess}
+      />
+
+      <CascadeToggleModal
+        open={!!cascadeModal}
+        onClose={() => setCascadeModal(null)}
+        onConfirm={handleToggleConfirm}
+        fetchInfo={() => QuotaService.getCascadeInfo(cascadeModal?.item.quotaCode)}
+        targetStatus={cascadeModal?.targetStatus ?? true}
+        entityLabel="Quota"
       />
     </div>
   );

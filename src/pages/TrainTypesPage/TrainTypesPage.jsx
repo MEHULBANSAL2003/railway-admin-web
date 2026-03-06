@@ -3,11 +3,11 @@ import { createPortal } from "react-dom";
 import {
   Plus, Pencil, ToggleLeft, ToggleRight,
   Search, RotateCcw, X, Train, Zap, Gauge,
-  CheckCircle, XCircle
 } from "lucide-react";
 import { TrainTypeService } from "../../services/TrainTypeService.js";
 import { useToast } from "../../context/Toast/useToast.js";
-import "../AdminManagement/AddAdminModal.css";
+import CascadeToggleModal from "../../components/UI/CascadeToggleModal/CascadeToggleModal.jsx";
+import "../AdminManagement/AdminManagement.css";
 import "./TrainTypesPage.css";
 import "../StationManagement/StationManagementPage.css";
 
@@ -17,22 +17,19 @@ const TrainTypeModal = ({ open, onClose, editItem, onSuccess }) => {
   const isEdit = !!editItem;
 
   const EMPTY = { typeCode: "", typeName: "", description: "", typicalSpeedKmh: "", isSuperfast: false };
-  const [form,    setForm]    = useState(EMPTY);
-  const [errors,  setErrors]  = useState({});
-  const [saving,  setSaving]  = useState(false);
+  const [form,   setForm]   = useState(EMPTY);
+  const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (open) {
-      setForm(editItem
-        ? {
-          typeCode:         editItem.typeCode,
-          typeName:         editItem.typeName,
-          description:      editItem.description || "",
-          typicalSpeedKmh:  editItem.typicalSpeedKmh ?? "",
-          isSuperfast:      editItem.isSuperfast ?? false,
-        }
-        : EMPTY
-      );
+      setForm(editItem ? {
+        typeCode:        editItem.typeCode,
+        typeName:        editItem.typeName,
+        description:     editItem.description || "",
+        typicalSpeedKmh: editItem.typicalSpeedKmh ?? "",
+        isSuperfast:     editItem.isSuperfast ?? false,
+      } : EMPTY);
       setErrors({});
     }
     document.body.style.overflow = open ? "hidden" : "";
@@ -98,7 +95,6 @@ const TrainTypeModal = ({ open, onClose, editItem, onSuccess }) => {
     <div className="aam-backdrop" onClick={saving ? undefined : onClose}>
       <div className="aam-modal" onClick={e => e.stopPropagation()}
            role="dialog" aria-modal="true" style={{ maxWidth: 480 }}>
-
         <div className="aam-header">
           <div className="aam-header-left">
             <div className="aam-header-icon" style={{ background: "#eff6ff", color: "#1d4ed8" }}>
@@ -111,9 +107,7 @@ const TrainTypeModal = ({ open, onClose, editItem, onSuccess }) => {
           </div>
           <button className="aam-close" onClick={onClose} disabled={saving}><X size={18} /></button>
         </div>
-
         <div className="aam-body">
-          {/* Type Code — only on add */}
           {!isEdit && (
             <div className="aam-field">
               <label className="aam-label">Type Code <span className="aam-required">*</span></label>
@@ -121,40 +115,28 @@ const TrainTypeModal = ({ open, onClose, editItem, onSuccess }) => {
                      placeholder="e.g. RAJDHANI"
                      value={form.typeCode}
                      onChange={e => set("typeCode", e.target.value.toUpperCase())}
-                     disabled={saving}
-                     maxLength={20}
-              />
+                     disabled={saving} maxLength={20} />
               {errors.typeCode && <p className="aam-error">{errors.typeCode}</p>}
             </div>
           )}
-
-          {/* Type Name */}
           <div className="aam-field">
             <label className="aam-label">Type Name <span className="aam-required">*</span></label>
             <input className={`aam-input${errors.typeName ? " aam-input--error" : ""}`}
                    placeholder="e.g. Rajdhani Express"
                    value={form.typeName}
                    onChange={e => set("typeName", e.target.value)}
-                   disabled={saving}
-                   maxLength={100}
-            />
+                   disabled={saving} maxLength={100} />
             {errors.typeName && <p className="aam-error">{errors.typeName}</p>}
           </div>
-
-          {/* Description */}
           <div className="aam-field">
             <label className="aam-label">Description</label>
-            <textarea className="aam-input"
-                      rows={2}
+            <textarea className="aam-input" rows={2}
                       placeholder="Optional description..."
                       value={form.description}
                       onChange={e => set("description", e.target.value)}
                       disabled={saving}
-                      style={{ resize: "vertical", minHeight: 60, paddingTop: 8 }}
-            />
+                      style={{ resize: "vertical", minHeight: 60, paddingTop: 8 }} />
           </div>
-
-          {/* Speed + Superfast — side by side */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--spacing-4)" }}>
             <div className="aam-field" style={{ marginBottom: 0 }}>
               <label className="aam-label">Avg Speed (km/h)</label>
@@ -162,40 +144,33 @@ const TrainTypeModal = ({ open, onClose, editItem, onSuccess }) => {
                 <Gauge size={13} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--text-tertiary)", pointerEvents: "none" }} />
                 <input className={`aam-input${errors.typicalSpeedKmh ? " aam-input--error" : ""}`}
                        style={{ paddingLeft: 30 }}
-                       type="number" min={1} max={600}
-                       placeholder="e.g. 130"
+                       type="number" min={1} max={600} placeholder="e.g. 130"
                        value={form.typicalSpeedKmh}
                        onChange={e => set("typicalSpeedKmh", e.target.value)}
-                       disabled={saving}
-                />
+                       disabled={saving} />
               </div>
               {errors.typicalSpeedKmh && <p className="aam-error">{errors.typicalSpeedKmh}</p>}
             </div>
-
             <div className="aam-field" style={{ marginBottom: 0 }}>
               <label className="aam-label">Superfast</label>
-              <button
-                type="button"
-                onClick={() => set("isSuperfast", !form.isSuperfast)}
-                disabled={saving}
-                style={{
-                  display: "flex", alignItems: "center", gap: 8,
-                  height: 36, padding: "0 var(--spacing-3)",
-                  border: "1px solid var(--border-primary)",
-                  borderRadius: "var(--radius-md)", background: "var(--bg-primary)",
-                  cursor: saving ? "not-allowed" : "pointer",
-                  fontFamily: "inherit", fontSize: "var(--font-size-sm)",
-                  color: form.isSuperfast ? "#d97706" : "var(--text-secondary)",
-                  width: "100%",
-                }}
-              >
+              <button type="button"
+                      onClick={() => set("isSuperfast", !form.isSuperfast)}
+                      disabled={saving}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 8,
+                        height: 36, padding: "0 var(--spacing-3)",
+                        border: "1px solid var(--border-primary)",
+                        borderRadius: "var(--radius-md)", background: "var(--bg-primary)",
+                        cursor: saving ? "not-allowed" : "pointer",
+                        fontFamily: "inherit", fontSize: "var(--font-size-sm)",
+                        color: form.isSuperfast ? "#d97706" : "var(--text-secondary)", width: "100%",
+                      }}>
                 <Zap size={14} style={{ color: form.isSuperfast ? "#d97706" : "var(--text-tertiary)" }} />
                 {form.isSuperfast ? "Yes — Superfast" : "No — Regular"}
               </button>
             </div>
           </div>
         </div>
-
         <div className="aam-footer">
           <button className="btn btn-secondary" onClick={onClose} disabled={saving}>Cancel</button>
           <button onClick={handleSubmit} disabled={saving}
@@ -221,22 +196,19 @@ const TrainTypeModal = ({ open, onClose, editItem, onSuccess }) => {
 const TrainTypesPage = () => {
   const { showSuccess, showError } = useToast();
 
-  const [data,        setData]        = useState([]);
-  const [loading,     setLoading]     = useState(true);
-  const [search,      setSearch]      = useState("");
-  const [modalOpen,   setModalOpen]   = useState(false);
-  const [editItem,    setEditItem]    = useState(null);
-  const [togglingId,  setTogglingId]  = useState(null);
+  const [data,         setData]         = useState([]);
+  const [loading,      setLoading]      = useState(true);
+  const [search,       setSearch]       = useState("");
+  const [modalOpen,    setModalOpen]    = useState(false);
+  const [editItem,     setEditItem]     = useState(null);
+  const [cascadeModal, setCascadeModal] = useState(null); // { item, targetStatus }
 
   const debounceRef = useRef(null);
 
   const fetchData = useCallback(async (s = "") => {
     setLoading(true);
     try {
-      let params = {}
-      if(s){
-        params['search'] = s;
-      }
+      const params = s ? { search: s } : {};
       const res = await TrainTypeService.getAllForAdmin(params);
       setData(res.data.data || []);
     } catch {
@@ -254,19 +226,24 @@ const TrainTypesPage = () => {
     debounceRef.current = setTimeout(() => fetchData(val), 400);
   };
 
-  const handleToggle = async (item) => {
-    if (togglingId) return;
-    setTogglingId(item.typeId);
-    const newStatus = !item.isActive;
-    setData(prev => prev.map(r => r.typeId === item.typeId ? { ...r, isActive: newStatus } : r));
+  const handleToggleClick = (item) => {
+    setCascadeModal({ item, targetStatus: !item.isActive });
+  };
+
+  const handleToggleConfirm = async () => {
+    const { item, targetStatus } = cascadeModal;
+    setData(prev => prev.map(r =>
+      r.typeId === item.typeId ? { ...r, isActive: targetStatus } : r
+    ));
     try {
-      await TrainTypeService.toggleStatus(item.typeCode, newStatus);
-      showSuccess(`"${item.typeName}" ${newStatus ? "activated" : "deactivated"}.`);
+      const res = await TrainTypeService.toggleStatus(item.typeCode, targetStatus);
+      showSuccess(res.data?.data?.message || "Status updated.");
+      fetchData(search);
     } catch (err) {
-      setData(prev => prev.map(r => r.typeId === item.typeId ? { ...r, isActive: item.isActive } : r));
+      setData(prev => prev.map(r =>
+        r.typeId === item.typeId ? { ...r, isActive: item.isActive } : r
+      ));
       showError(err?.response?.data?.error?.message || "Failed to update status.");
-    } finally {
-      setTogglingId(null);
     }
   };
 
@@ -278,14 +255,12 @@ const TrainTypesPage = () => {
     });
   };
 
-  const activeCount   = data.filter(d => d.isActive).length;
-  const inactiveCount = data.filter(d => !d.isActive).length;
+  const activeCount    = data.filter(d => d.isActive).length;
+  const inactiveCount  = data.filter(d => !d.isActive).length;
   const superfastCount = data.filter(d => d.isSuperfast && d.isActive).length;
 
   return (
     <div className="page-container">
-
-      {/* Header */}
       <div className="page-header">
         <div>
           <h1 className="page-title">Train Types</h1>
@@ -296,7 +271,6 @@ const TrainTypesPage = () => {
         </button>
       </div>
 
-      {/* Stat cards */}
       <div className="tt-stats">
         <div className="tt-stat-card">
           <div className="tt-stat-label">Total Types</div>
@@ -316,9 +290,7 @@ const TrainTypesPage = () => {
         </div>
       </div>
 
-      {/* Table card */}
       <div className="card">
-        {/* Toolbar */}
         <div className="tt-toolbar">
           <div className="sm-filter-wrap">
             <span className="sm-filter-icon"><Search size={13} /></span>
@@ -335,7 +307,6 @@ const TrainTypesPage = () => {
           </span>
         </div>
 
-        {/* Table */}
         <div style={{ overflowX: "auto" }}>
           <table className="sm-table">
             <thead>
@@ -410,12 +381,8 @@ const TrainTypesPage = () => {
                     <button
                       className={`sm-action-btn${item.isActive ? " danger" : ""}`}
                       title={item.isActive ? "Deactivate" : "Activate"}
-                      disabled={togglingId === item.typeId}
-                      onClick={() => handleToggle(item)}>
-                      {togglingId === item.typeId
-                        ? <span className="sm-spinner" />
-                        : item.isActive ? <ToggleRight size={15} /> : <ToggleLeft size={15} />
-                      }
+                      onClick={() => handleToggleClick(item)}>
+                      {item.isActive ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}
                     </button>
                   </div>
                 </td>
@@ -443,6 +410,15 @@ const TrainTypesPage = () => {
         onClose={() => { setModalOpen(false); setEditItem(null); }}
         editItem={editItem}
         onSuccess={handleModalSuccess}
+      />
+
+      <CascadeToggleModal
+        open={!!cascadeModal}
+        onClose={() => setCascadeModal(null)}
+        onConfirm={handleToggleConfirm}
+        fetchInfo={() => TrainTypeService.getCascadeInfo(cascadeModal?.item.typeCode)}
+        targetStatus={cascadeModal?.targetStatus ?? true}
+        entityLabel="Train Type"
       />
     </div>
   );
