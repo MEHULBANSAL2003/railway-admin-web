@@ -5,7 +5,6 @@ import PublicRoute from "./PublicRoute.jsx";
 import MainLayout from "../layout/MainLayout.jsx";
 
 
-
 const Login = lazy(() => import('../pages/LoginPage/Login.jsx'));
 const Dashboard = lazy(() => import('../pages/DashBoard/DashBoard.jsx'));
 const AdminManagement = lazy(() => import('../pages/AdminManagement/AdminManagement.jsx'));
@@ -15,6 +14,7 @@ const TrainTypesPage = lazy(() => import('../pages/TrainTypesPage/TrainTypesPage
 const CoachTypesPage = lazy(() => import('../pages/CoachTypePage/CoachTypesPage.jsx'));
 const FareRulesPage = lazy(() => import('../pages/FareRulePage/FareRulesPage.jsx'));
 const QuotasPage = lazy(() => import('../pages/QuotaPage/QuotasPage.jsx'));
+const NotFoundPage = lazy(() => import('../pages/NotFoundPage/NotFoundPage.jsx'));
 
 const AppRoutes = () => {
   return (
@@ -45,9 +45,12 @@ const AppRoutes = () => {
         <Route path="/coach-types" element={<CoachTypesPage />} />
         <Route path="/fare-rules" element={<FareRulesPage />} />
         <Route path="/quotas" element={<QuotasPage />} />
+
+
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
 
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
