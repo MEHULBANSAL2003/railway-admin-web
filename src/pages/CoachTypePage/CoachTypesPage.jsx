@@ -8,6 +8,7 @@ import { CoachTypeService } from "../../services/CoachTypeService.js";
 import { useToast } from "../../context/Toast/useToast.js";
 import "../AdminManagement/AddAdminModal.css";
 import "../TrainTypesPage/TrainTypesPage.css";
+import "../StationManagement/StationManagementPage.css";
 
 // ── Add / Edit Modal ───────────────────────────────────────
 const CoachTypeModal = ({ open, onClose, editItem, onSuccess }) => {
