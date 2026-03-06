@@ -43,9 +43,14 @@ const fetchTrainTypes = async (searchTerm) => {
 };
 const fetchCoachTypes = async (searchTerm) => {
   const res = await CoachTypeService.getAllForDropdown(searchTerm);
-  return (res.data.data || []).map(c => ({
-    value: c.typeCode, label: c.typeName, meta: c.typeCode, raw: c,
-  }));
+  return (res.data.data || [])
+    .filter(c => c.totalSeats > 0)   // only coaches with seats
+    .map(c => ({
+      value: c.typeCode,
+      label: c.typeName,
+      meta: c.typeCode,
+      raw: c,
+    }));
 };
 const fetchQuotas = async (isToaAddBoth = false) => {
   const res = await QuotaService.getAllForDropdown();
