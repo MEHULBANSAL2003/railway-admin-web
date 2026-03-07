@@ -1,12 +1,13 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Search, ChevronUp, ChevronDown, ChevronsUpDown,
   Plus, RotateCcw, Pencil, ToggleLeft, ToggleRight,
   Train, Zap, UtensilsCrossed, Hash, ArrowLeftRight,
   Upload, Download, FileSpreadsheet, AlertCircle,
-  CheckCircle2, X, Filter,
+  CheckCircle2, X, Inbox,
 } from 'lucide-react';
+import { useTrainList }     from './useTrainList.js';
 import { TrainService }     from '../../services/TrainService.js';
 import { TrainTypeService } from '../../services/TrainTypeService.js';
 import { ZoneService }      from '../../services/ZoneService.js';
@@ -26,15 +27,15 @@ const STATUS_OPTIONS = [
 ];
 
 const COLS = [
-  { key: 'trainNumber', label: 'Number'  },
-  { key: 'trainName',   label: 'Name'    },
-  { key: 'trainTypeCode', label: 'Type'  },
-  { key: 'zoneCode',    label: 'Zone'    },
-  { key: 'pantrycar',   label: 'Pantry'  },
-  { key: 'isActive',    label: 'Status'  },
+  { key: 'trainNumber',   label: 'Number'  },
+  { key: 'trainName',     label: 'Name'    },
+  { key: 'trainTypeCode', label: 'Type'    },
+  { key: 'zoneCode',      label: 'Zone'    },
+  { key: 'pantrycar',     label: 'Pantry'  },
+  { key: 'isActive',      label: 'Status'  },
 ];
 
-// ── Fetchers ──────────────────────────────────────────────
+// ── Fetchers for SearchableSelect ─────────────────────────
 const fetchTrainTypes = async (search) => {
   const res = await TrainTypeService.getAllForDropdown(search);
   return (res.data.data || []).map(t => ({
@@ -68,23 +69,18 @@ const SortIcon = ({ colKey, sort }) => {
     : <ChevronDown size={12} style={{ color: 'var(--primary-600)' }} />;
 };
 
-const SkeletonRow = () => (
+const SkeletonRow = ({ colCount }) => (
   <tr>
     <td><div className="sm-skeleton" style={{ width: '55%' }} /></td>
-    <td>
-      <div className="sm-skeleton" style={{ width: '70%', marginBottom: 4 }} />
-      <div className="sm-skeleton" style={{ width: '35%' }} />
-    </td>
-    <td><div className="sm-skeleton" style={{ width: '50%' }} /></td>
-    <td><div className="sm-skeleton" style={{ width: '45%' }} /></td>
-    <td><div className="sm-skeleton" style={{ width: '30%' }} /></td>
-    <td><div className="sm-skeleton" style={{ width: '55%' }} /></td>
+    {Array.from({ length: colCount - 1 }).map((_, i) => (
+      <td key={i}><div className="sm-skeleton" style={{ width: '60%' }} /></td>
+    ))}
     <td />
   </tr>
 );
 
 // ── Toolbar ───────────────────────────────────────────────
-const Toolbar = ({ filters, onFilterChange, onReset, totalElements, loading }) => {
+const Toolbar = ({ filters, handleFilterChange, handleFilterReset, totalElements, loading }) => {
   const hasActive = filters.search || filters.trainTypeCode ||
     filters.zoneCode || filters.isActive !== '';
 
@@ -97,24 +93,24 @@ const Toolbar = ({ filters, onFilterChange, onReset, totalElements, loading }) =
             className="sm-filter-input"
             placeholder="Search number or name…"
             value={filters.search}
-            onChange={e => onFilterChange('search', e.target.value)}
+            onChange={e => handleFilterChange('search', e.target.value)}
           />
         </div>
 
-        <div style={{ width: 220 }}>
+        <div style={{ width: 200 }}>
           <SearchableSelect
             value={filters.trainTypeCode}
-            onChange={val => onFilterChange('trainTypeCode', val || '')}
+            onChange={val => handleFilterChange('trainTypeCode', val || '')}
             fetchOptions={fetchTrainTypes}
             placeholder="All Types"
             clearable
           />
         </div>
 
-        <div style={{ width: 220 }}>
+        <div style={{ width: 200 }}>
           <SearchableSelect
             value={filters.zoneCode}
-            onChange={val => onFilterChange('zoneCode', val || '')}
+            onChange={val => handleFilterChange('zoneCode', val || '')}
             fetchOptions={fetchZones}
             placeholder="All Zones"
             clearable
@@ -124,14 +120,14 @@ const Toolbar = ({ filters, onFilterChange, onReset, totalElements, loading }) =
         <select
           className="sm-filter-select"
           value={filters.isActive}
-          onChange={e => onFilterChange('isActive', e.target.value)}>
+          onChange={e => handleFilterChange('isActive', e.target.value)}>
           {STATUS_OPTIONS.map(o => (
             <option key={o.value} value={o.value}>{o.label}</option>
           ))}
         </select>
 
         {hasActive && (
-          <button className="sm-reset-btn" onClick={onReset}>
+          <button className="sm-reset-btn" onClick={handleFilterReset}>
             <RotateCcw size={12} /> Reset
           </button>
         )}
@@ -142,45 +138,6 @@ const Toolbar = ({ filters, onFilterChange, onReset, totalElements, loading }) =
           {totalElements} train{totalElements !== 1 ? 's' : ''}
         </div>
       )}
-    </div>
-  );
-};
-
-// ── Pagination ────────────────────────────────────────────
-const Pagination = ({ page, totalPages, totalElements, pageSize, onPageChange, onSizeChange }) => {
-  if (totalPages <= 1 && totalElements <= pageSize) return null;
-
-  const pages = [];
-  const start = Math.max(1, page - 2);
-  const end   = Math.min(totalPages, page + 2);
-  for (let i = start; i <= end; i++) pages.push(i);
-
-  return (
-    <div className="trains-pagination">
-      <span className="trains-pagination-info">
-        {totalElements} total · page {page} of {totalPages}
-      </span>
-      <div className="trains-pagination-controls">
-        <button className="trains-page-btn" disabled={page === 1}
-                onClick={() => onPageChange(1)}>«</button>
-        <button className="trains-page-btn" disabled={page === 1}
-                onClick={() => onPageChange(page - 1)}>‹</button>
-        {pages.map(p => (
-          <button key={p}
-                  className={`trains-page-btn${p === page ? ' active' : ''}`}
-                  onClick={() => onPageChange(p)}>{p}</button>
-        ))}
-        <button className="trains-page-btn" disabled={page === totalPages}
-                onClick={() => onPageChange(page + 1)}>›</button>
-        <button className="trains-page-btn" disabled={page === totalPages}
-                onClick={() => onPageChange(totalPages)}>»</button>
-      </div>
-      <select className="trains-page-size" value={pageSize}
-              onChange={e => onSizeChange(Number(e.target.value))}>
-        {[10, 20, 50, 100].map(s => (
-          <option key={s} value={s}>{s} / page</option>
-        ))}
-      </select>
     </div>
   );
 };
@@ -317,19 +274,16 @@ const ExcelUploadModal = ({ open, onClose, onSuccess }) => {
             <div className="trains-upload-result">
               <div className="trains-result-stats">
                 <div className="trains-result-stat success">
-                  <CheckCircle2 size={15} />
-                  <span><strong>{result.successCount}</strong> added</span>
+                  <CheckCircle2 size={15} /><span><strong>{result.successCount}</strong> added</span>
                 </div>
                 {result.duplicateCount > 0 && (
                   <div className="trains-result-stat duplicate">
-                    <AlertCircle size={15} />
-                    <span><strong>{result.duplicateCount}</strong> duplicate</span>
+                    <AlertCircle size={15} /><span><strong>{result.duplicateCount}</strong> duplicate</span>
                   </div>
                 )}
                 {result.failureCount > 0 && (
                   <div className="trains-result-stat failure">
-                    <AlertCircle size={15} />
-                    <span><strong>{result.failureCount}</strong> failed</span>
+                    <AlertCircle size={15} /><span><strong>{result.failureCount}</strong> failed</span>
                   </div>
                 )}
               </div>
@@ -337,9 +291,7 @@ const ExcelUploadModal = ({ open, onClose, onSuccess }) => {
                 <div className="trains-error-table-wrap">
                   <p className="trains-error-table-title">Issues found:</p>
                   <table className="trains-error-table">
-                    <thead>
-                    <tr><th>Row</th><th>Number</th><th>Name</th><th>Reason</th></tr>
-                    </thead>
+                    <thead><tr><th>Row</th><th>Number</th><th>Name</th><th>Reason</th></tr></thead>
                     <tbody>
                     {result.errors.map((err, i) => (
                       <tr key={i}>
@@ -626,24 +578,15 @@ const TrainModal = ({ open, onClose, editItem, prefill, onSuccess }) => {
 const TrainsPage = () => {
   const { showSuccess, showError } = useToast();
 
-  // ── Table data ────────────────────────────────────────
-  const [data,          setData]          = useState([]);
-  const [loading,       setLoading]       = useState(true);
-  const [totalElements, setTotalElements] = useState(0);
-  const [totalPages,    setTotalPages]    = useState(0);
-
-  // ── Filters ───────────────────────────────────────────
-  const [filters, setFilters] = useState({
-    search:        '',
-    trainTypeCode: '',
-    zoneCode:      '',
-    isActive:      '',
-  });
-
-  // ── Sort + Pagination ─────────────────────────────────
-  const [sort, setSort]           = useState({ sortBy: 'trainNumber', sortDir: 'asc' });
-  const [page, setPage]           = useState(1);
-  const [pageSize, setPageSize]   = useState(20);
+  const {
+    data, loading, loadingMore, hasMore, totalElements,
+    filters, sort,
+    handleFilterChange, handleFilterReset, handleSort,
+    loadMore,
+    prependTrain, updateRowById,
+    refresh,
+    statsTotal, statsActive, statsSuperfast, statsPantry, statsInactive
+  } = useTrainList();
 
   // ── Modals ────────────────────────────────────────────
   const [modalOpen,     setModalOpen]     = useState(false);
@@ -654,98 +597,35 @@ const TrainsPage = () => {
   const [returnPrompt,  setReturnPrompt]  = useState(null);
   const [returnLoading, setReturnLoading] = useState(false);
 
-  const debounceRef  = useRef(null);
+  const sentinelRef  = useRef(null);
   const dismissTimer = useRef(null);
 
-  // ── Fetch ─────────────────────────────────────────────
-  const fetchData = useCallback(async (overrides = {}) => {
-    setLoading(true);
-    try {
-      const f = { ...filters, ...overrides.filters };
-      const s = overrides.sort    ?? sort;
-      const p = overrides.page    ?? page;
-      const sz = overrides.pageSize ?? pageSize;
-
-      const params = {
-        page:    p,
-        size:    sz,
-        sortBy:  s.sortBy,
-        sortDir: s.sortDir,
-      };
-      if (f.search)        params.search        = f.search;
-      if (f.trainTypeCode) params.trainTypeCode = f.trainTypeCode;
-      if (f.zoneCode)      params.zoneCode      = f.zoneCode;
-      if (f.isActive !== '') params.isActive    = f.isActive;
-
-      const res = await TrainService.getAllForAdmin(params);
-      const d   = res.data.data;
-      setData(d.content || []);
-      setTotalElements(d.totalElements || 0);
-      setTotalPages(d.totalPages || 0);
-    } catch {
-      showError('Failed to load trains.');
-    } finally {
-      setLoading(false);
-    }
-  }, [filters, sort, page, pageSize, showError]);
-
-  // Initial load + re-fetch when sort/page/pageSize change
-  useEffect(() => { fetchData(); }, [sort, page, pageSize]);
+  // ── Infinite scroll sentinel ──────────────────────────
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) loadMore(); },
+      { threshold: 0.1 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [loadMore]);
 
   useEffect(() => () => {
     if (dismissTimer.current) clearTimeout(dismissTimer.current);
   }, []);
 
-  // ── Filter change — debounce search, immediate for selects ──
-  const handleFilterChange = (key, value) => {
-    const newFilters = { ...filters, [key]: value };
-    setFilters(newFilters);
-    setPage(1);
-
-    if (key === 'search') {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
-        fetchData({ filters: newFilters, page: 1 });
-      }, 400);
-    } else {
-      fetchData({ filters: newFilters, page: 1 });
-    }
-  };
-
-  const handleFilterReset = () => {
-    const cleared = { search: '', trainTypeCode: '', zoneCode: '', isActive: '' };
-    setFilters(cleared);
-    setPage(1);
-    fetchData({ filters: cleared, page: 1 });
-  };
-
-  // ── Sort ──────────────────────────────────────────────
-  const handleSort = (key) => {
-    const newSort = {
-      sortBy:  key,
-      sortDir: sort.sortBy === key && sort.sortDir === 'asc' ? 'desc' : 'asc',
-    };
-    setSort(newSort);
-    setPage(1);
-    fetchData({ sort: newSort, page: 1 });
-  };
-
-  // ── Pagination ────────────────────────────────────────
-  const handlePageChange = (p) => {
-    setPage(p);
-    fetchData({ page: p });
-  };
-
-  const handleSizeChange = (s) => {
-    setPageSize(s);
-    setPage(1);
-    fetchData({ pageSize: s, page: 1 });
-  };
-
   // ── Add / Edit success ────────────────────────────────
   const handleModalSuccess = async (saved, isNewTrain = false) => {
-    fetchData();
-    if (!isNewTrain) { showSuccess('Train updated successfully.'); return; }
+    if (isNewTrain) {
+      prependTrain(saved);
+    } else {
+      updateRowById(saved.trainId, saved);
+      showSuccess('Train updated successfully.');
+    }
+
+    if (!isNewTrain) return;
 
     setReturnLoading(true);
     try {
@@ -785,23 +665,15 @@ const TrainsPage = () => {
 
   const handleToggleConfirm = async () => {
     const { item, targetStatus } = cascadeModal;
-    setData(prev => prev.map(r =>
-      r.trainId === item.trainId ? { ...r, isActive: targetStatus } : r
-    ));
+    updateRowById(item.trainId, { isActive: targetStatus });
     try {
       const res = await TrainService.toggleStatus(item.trainNumber, targetStatus);
       showSuccess(res.data?.data?.message || 'Status updated.');
-      fetchData();
     } catch (err) {
-      setData(prev => prev.map(r =>
-        r.trainId === item.trainId ? { ...r, isActive: item.isActive } : r
-      ));
+      updateRowById(item.trainId, { isActive: item.isActive });
       showError(err?.response?.data?.error?.message || 'Failed to update status.');
     }
   };
-
-  const hasFilters = filters.search || filters.trainTypeCode ||
-    filters.zoneCode || filters.isActive !== '';
 
   return (
     <div className="page-container">
@@ -823,6 +695,32 @@ const TrainsPage = () => {
         </div>
       </div>
 
+      {/* ── Stat boxes ── */}
+      <div className="trains-stat-row">
+        <div className="trains-stat-box">
+          <div className="trains-stat-label">Total</div>
+          <div className="trains-stat-value">{statsTotal}</div>
+        </div>
+        <div className="trains-stat-box">
+          <div className="trains-stat-label">Active(page wise)</div>
+          <div className="trains-stat-value" style={{ color: '#16a34a' }}>{statsActive}</div>
+        </div>
+        <div className="trains-stat-box">
+          <div className="trains-stat-label">Inactive(page wise)</div>
+          <div className="trains-stat-value" style={{ color: '#dc2626' }}>
+            {statsInactive}
+          </div>
+        </div>
+        <div className="trains-stat-box">
+          <div className="trains-stat-label">Superfast(page wise)</div>
+          <div className="trains-stat-value" style={{ color: '#d97706' }}>{statsSuperfast}</div>
+        </div>
+        <div className="trains-stat-box">
+          <div className="trains-stat-label">With Pantry(page wise)</div>
+          <div className="trains-stat-value" style={{ color: '#7c3aed' }}>{statsPantry}</div>
+        </div>
+      </div>
+
       {returnLoading && (
         <div className="trains-return-checking">
           <span className="aam-spinner" style={{ width: 13, height: 13 }} />
@@ -833,12 +731,12 @@ const TrainsPage = () => {
       {/* ── Main card ── */}
       <div className="card" style={{
         display: 'flex', flexDirection: 'column',
-        overflow: 'hidden', maxHeight: 'calc(100vh - 180px)',
+        overflow: 'hidden', maxHeight: 'calc(100vh - 280px)',
       }}>
         <Toolbar
           filters={filters}
-          onFilterChange={handleFilterChange}
-          onReset={handleFilterReset}
+          handleFilterChange={handleFilterChange}
+          handleFilterReset={handleFilterReset}
           totalElements={totalElements}
           loading={loading}
         />
@@ -862,7 +760,7 @@ const TrainsPage = () => {
             </thead>
             <tbody>
             {loading && Array.from({ length: 10 }).map((_, i) => (
-              <SkeletonRow key={i} />
+              <SkeletonRow key={i} colCount={6} />
             ))}
 
             {!loading && data.map(item => (
@@ -919,33 +817,43 @@ const TrainsPage = () => {
               </tr>
             ))}
 
-            {!loading && data.length === 0 && (
-              <tr>
-                <td colSpan={7}>
-                  <div className="sm-empty">
-                    <div className="sm-empty-icon"><Train size={24} /></div>
-                    <div className="sm-empty-title">
-                      {hasFilters ? 'No trains match your filters' : 'No trains found'}
-                    </div>
-                    <div className="sm-empty-desc">
-                      {hasFilters ? 'Try resetting filters.' : 'Add your first train to get started.'}
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            )}
+            {loadingMore && Array.from({ length: 3 }).map((_, i) => (
+              <SkeletonRow key={`lm${i}`} colCount={6} />
+            ))}
             </tbody>
           </table>
+
+          {/* Infinite scroll sentinel */}
+          {!loading && hasMore && (
+            <div ref={sentinelRef} style={{ height: 1 }} />
+          )}
+
+          {!loading && data.length === 0 && (
+            <div className="sm-empty">
+              <div className="sm-empty-icon"><Inbox size={24} /></div>
+              <div className="sm-empty-title">
+                {(filters.search || filters.trainTypeCode || filters.zoneCode || filters.isActive)
+                  ? 'No trains match your filters'
+                  : 'No trains found'}
+              </div>
+              <div className="sm-empty-desc">
+                {(filters.search || filters.trainTypeCode || filters.zoneCode || filters.isActive)
+                  ? 'Try resetting filters.'
+                  : 'Add your first train to get started.'}
+              </div>
+            </div>
+          )}
         </div>
 
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          totalElements={totalElements}
-          pageSize={pageSize}
-          onPageChange={handlePageChange}
-          onSizeChange={handleSizeChange}
-        />
+        {/* Footer — matches sm-footer pattern from stations */}
+        {!loading && data.length > 0 && (
+          <div className="sm-footer">
+            <span>
+              Showing <strong>{data.length}</strong> of <strong>{totalElements}</strong> trains
+            </span>
+            {hasMore && <span>Scroll to load more</span>}
+          </div>
+        )}
       </div>
 
       {/* ── Modals ── */}
@@ -960,7 +868,7 @@ const TrainsPage = () => {
       <ExcelUploadModal
         open={uploadOpen}
         onClose={() => setUploadOpen(false)}
-        onSuccess={fetchData}
+        onSuccess={refresh}
       />
 
       <ReturnTrainPrompt

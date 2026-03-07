@@ -491,3 +491,38 @@
   font-size: 11px; color: var(--text-tertiary);
   margin: 3px 0 0 0; line-height: 1.4;
 }
+
+/* ── Stat boxes ──────────────────────────────────────────── */
+.trains-stat-row {
+  display: flex;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-4);
+  flex-wrap: wrap;
+}
+
+.trains-stat-box {
+  flex: 1;
+  min-width: 100px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4) var(--spacing-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.trains-stat-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.trains-stat-value {
+  font-size: 26px;
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  line-height: 1;
+}
