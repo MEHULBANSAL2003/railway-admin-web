@@ -25,5 +25,10 @@ export const TrainCoachService = {
     return HttpWrapper.post(url, { isActive }, true);
   },
 
+  getAvailableTypes: (trainNumber) => {
+    const url = `${train_coach_base_url}/available-types/${trainNumber}`;
+    return HttpWrapper.get(url,  null , true);
+  }
+
 
 };

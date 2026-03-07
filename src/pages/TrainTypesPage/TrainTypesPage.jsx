@@ -3,15 +3,167 @@ import { createPortal } from "react-dom";
 import {
   Plus, Pencil, ToggleLeft, ToggleRight,
   Search, RotateCcw, X, Train, Zap, Gauge,
+  ChevronDown, ChevronUp, Armchair, Snowflake,
+  Wind, Save, Loader,
 } from "lucide-react";
 import { TrainTypeService } from "../../services/TrainTypeService.js";
+import { CoachTypeService } from "../../services/CoachTypeService.js";
 import { useToast } from "../../context/Toast/useToast.js";
 import CascadeToggleModal from "../../components/UI/CascadeToggleModal/CascadeToggleModal.jsx";
 import "../AdminManagement/AdminManagement.css";
 import "./TrainTypesPage.css";
 import "../StationManagement/StationManagementPage.css";
+import './AllowedCoachesSection.css';
 
-// ── Add / Edit Modal ───────────────────────────────────────
+// ── Allowed Coaches Section ───────────────────────────────
+const AllowedCoachesSection = ({ typeCode, colSpan }) => {
+  const { showSuccess, showError } = useToast();
+
+  const [allowed,  setAllowed]  = useState([]);
+  const [allTypes, setAllTypes] = useState([]);
+  const [selected, setSelected] = useState([]);  // working set of codes
+  const [loading,  setLoading]  = useState(true);
+  const [saving,   setSaving]   = useState(false);
+  const [dirty,    setDirty]    = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      try {
+        const [allowedRes, allRes] = await Promise.all([
+          TrainTypeService.getAllowedCoaches(typeCode),
+          CoachTypeService.getAllForDropdown(''),
+        ]);
+        const allowedList = allowedRes.data.data || [];
+        const allList     = allRes.data.data     || [];
+        setAllowed(allowedList);
+        setAllTypes(allList);
+        setSelected(allowedList.map(a => a.coachTypeCode));
+      } catch {
+        showError('Failed to load allowed coaches.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [typeCode]);
+
+  const toggle = (code) => {
+    setSelected(prev => {
+      const next = prev.includes(code)
+        ? prev.filter(c => c !== code)
+        : [...prev, code];
+      setDirty(true);
+      return next;
+    });
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res  = await TrainTypeService.setAllowedCoaches(typeCode, selected);
+      const saved = res.data.data || [];
+      setAllowed(saved);
+      setSelected(saved.map(a => a.coachTypeCode));
+      setDirty(false);
+      showSuccess(`Allowed coaches updated for ${typeCode}.`);
+    } catch (err) {
+      showError(err?.response?.data?.error?.message || 'Failed to save.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleReset = () => {
+    setSelected(allowed.map(a => a.coachTypeCode));
+    setDirty(false);
+  };
+
+  return (
+    <tr className="acs-row">
+      <td colSpan={colSpan} style={{ padding: 0, borderBottom: '2px solid var(--primary-100)' }}>
+        <div className="acs-container">
+
+          {/* Header */}
+          <div className="acs-header">
+            <div className="acs-header-left">
+              <Armchair size={14} style={{ color: 'var(--primary-600)', flexShrink: 0 }} />
+              <span className="acs-title">Allowed Coach Types</span>
+              <span className="acs-subtitle">
+                Only selected types can be added to trains of this category
+              </span>
+            </div>
+            {dirty && (
+              <div className="acs-actions">
+                <button className="acs-btn-reset" onClick={handleReset} disabled={saving}>
+                  <X size={12} /> Reset
+                </button>
+                <button className="acs-btn-save" onClick={handleSave} disabled={saving}>
+                  {saving
+                    ? <><span className="aam-spinner" style={{ width: 11, height: 11 }} /> Saving…</>
+                    : <><Save size={12} /> Save Changes</>}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Body */}
+          {loading ? (
+            <div className="acs-loading">
+              <span className="aam-spinner" style={{ width: 13, height: 13 }} />
+              Loading coach types…
+            </div>
+          ) : allTypes.length === 0 ? (
+            <div className="acs-empty">
+              No active coach types found. Add coach types first.
+            </div>
+          ) : (
+            <>
+              <div className="acs-grid">
+                {allTypes.map(ct => {
+                  const isSelected = selected.includes(ct.typeCode);
+                  return (
+                    <button
+                      key={ct.typeCode}
+                      className={`acs-coach-card${isSelected ? ' selected' : ''}`}
+                      onClick={() => toggle(ct.typeCode)}
+                      disabled={saving}>
+
+                      {isSelected && <span className="acs-check">✓</span>}
+
+                      <div className="acs-coach-top">
+                        <span className="acs-coach-code">{ct.typeCode}</span>
+                        {ct.isAc
+                          ? <span className="tc-ac-tag"><Snowflake size={9} /> AC</span>
+                          : <span className="tc-non-ac-tag"><Wind size={9} /> Non-AC</span>}
+                      </div>
+                      <div className="acs-coach-name">{ct.typeName}</div>
+                      <div className="acs-coach-seats">{ct.totalSeats} seats / coach</div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="acs-footer">
+                {selected.length === 0
+                  ? <span className="acs-footer-warn">
+                      ⚠ No coach types selected — trains of this type won't allow any coaches.
+                    </span>
+                  : <span className="acs-footer-count">
+                      <strong>{selected.length}</strong> coach type{selected.length !== 1 ? 's' : ''} allowed
+                    {!dirty && <span style={{ color: 'var(--text-tertiary)', marginLeft: 6 }}>· Saved</span>}
+                    </span>
+                }
+              </div>
+            </>
+          )}
+        </div>
+      </td>
+    </tr>
+  );
+};
+
+// ── Add / Edit Modal ──────────────────────────────────────
 const TrainTypeModal = ({ open, onClose, editItem, onSuccess }) => {
   const { showSuccess, showError } = useToast();
   const isEdit = !!editItem;
@@ -54,7 +206,8 @@ const TrainTypeModal = ({ open, onClose, editItem, onSuccess }) => {
     if (!isEdit && form.typeCode.trim().length > 20) e.typeCode = "Max 20 characters.";
     if (!form.typeName.trim()) e.typeName = "Name is required.";
     if (form.typeName.trim().length > 100) e.typeName = "Max 100 characters.";
-    if (form.typicalSpeedKmh !== "" && (isNaN(form.typicalSpeedKmh) || +form.typicalSpeedKmh < 1 || +form.typicalSpeedKmh > 600))
+    if (form.typicalSpeedKmh !== "" &&
+      (isNaN(form.typicalSpeedKmh) || +form.typicalSpeedKmh < 1 || +form.typicalSpeedKmh > 600))
       e.typicalSpeedKmh = "Speed must be between 1 and 600.";
     return e;
   };
@@ -102,11 +255,14 @@ const TrainTypeModal = ({ open, onClose, editItem, onSuccess }) => {
             </div>
             <div>
               <h2 className="aam-title">{isEdit ? "Edit Train Type" : "Add Train Type"}</h2>
-              <p className="aam-subtitle">{isEdit ? "Update train type details" : "Add a new train type to the system"}</p>
+              <p className="aam-subtitle">
+                {isEdit ? "Update train type details" : "Add a new train type to the system"}
+              </p>
             </div>
           </div>
           <button className="aam-close" onClick={onClose} disabled={saving}><X size={18} /></button>
         </div>
+
         <div className="aam-body">
           {!isEdit && (
             <div className="aam-field">
@@ -141,7 +297,11 @@ const TrainTypeModal = ({ open, onClose, editItem, onSuccess }) => {
             <div className="aam-field" style={{ marginBottom: 0 }}>
               <label className="aam-label">Avg Speed (km/h)</label>
               <div style={{ position: "relative" }}>
-                <Gauge size={13} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--text-tertiary)", pointerEvents: "none" }} />
+                <Gauge size={13} style={{
+                  position: "absolute", left: 10, top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "var(--text-tertiary)", pointerEvents: "none",
+                }} />
                 <input className={`aam-input${errors.typicalSpeedKmh ? " aam-input--error" : ""}`}
                        style={{ paddingLeft: 30 }}
                        type="number" min={1} max={600} placeholder="e.g. 130"
@@ -171,19 +331,21 @@ const TrainTypeModal = ({ open, onClose, editItem, onSuccess }) => {
             </div>
           </div>
         </div>
+
         <div className="aam-footer">
           <button className="btn btn-secondary" onClick={onClose} disabled={saving}>Cancel</button>
-          <button onClick={handleSubmit} disabled={saving}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 6, height: 36,
-                    padding: "0 var(--spacing-4)",
-                    background: saving ? "var(--primary-300)" : "var(--primary-600)",
-                    color: "#fff", border: "none", borderRadius: "var(--radius-md)",
-                    fontFamily: "inherit", fontSize: "var(--font-size-sm)",
-                    fontWeight: "var(--font-weight-medium)",
-                    cursor: saving ? "not-allowed" : "pointer",
-                  }}>
-            {saving ? <><span className="aam-spinner" /> Saving…</> : isEdit ? "Update Type" : "Add Type"}
+          <button onClick={handleSubmit} disabled={saving} style={{
+            display: "flex", alignItems: "center", gap: 6, height: 36,
+            padding: "0 var(--spacing-4)",
+            background: saving ? "var(--primary-300)" : "var(--primary-600)",
+            color: "#fff", border: "none", borderRadius: "var(--radius-md)",
+            fontFamily: "inherit", fontSize: "var(--font-size-sm)",
+            fontWeight: "var(--font-weight-medium)",
+            cursor: saving ? "not-allowed" : "pointer",
+          }}>
+            {saving
+              ? <><span className="aam-spinner" /> Saving…</>
+              : isEdit ? "Update Type" : "Add Type"}
           </button>
         </div>
       </div>
@@ -201,7 +363,8 @@ const TrainTypesPage = () => {
   const [search,       setSearch]       = useState("");
   const [modalOpen,    setModalOpen]    = useState(false);
   const [editItem,     setEditItem]     = useState(null);
-  const [cascadeModal, setCascadeModal] = useState(null); // { item, targetStatus }
+  const [cascadeModal, setCascadeModal] = useState(null);
+  const [expandedType, setExpandedType] = useState(null); // typeCode of expanded row
 
   const debounceRef = useRef(null);
 
@@ -226,9 +389,10 @@ const TrainTypesPage = () => {
     debounceRef.current = setTimeout(() => fetchData(val), 400);
   };
 
-  const handleToggleClick = (item) => {
-    setCascadeModal({ item, targetStatus: !item.isActive });
-  };
+  const toggleExpand = (typeCode) =>
+    setExpandedType(prev => prev === typeCode ? null : typeCode);
+
+  const handleToggleClick  = (item) => setCascadeModal({ item, targetStatus: !item.isActive });
 
   const handleToggleConfirm = async () => {
     const { item, targetStatus } = cascadeModal;
@@ -259,18 +423,24 @@ const TrainTypesPage = () => {
   const inactiveCount  = data.filter(d => !d.isActive).length;
   const superfastCount = data.filter(d => d.isSuperfast && d.isActive).length;
 
+  // 7 cols: Code, Name, Desc, Speed, Superfast, Status, Actions, Expand
+  const COL_COUNT = 8;
+
   return (
     <div className="page-container">
+
       <div className="page-header">
         <div>
           <h1 className="page-title">Train Types</h1>
-          <p className="page-subtitle">Manage train type classifications and their properties</p>
+          <p className="page-subtitle">Manage train type classifications and allowed coach types</p>
         </div>
-        <button className="btn btn-primary" onClick={() => { setEditItem(null); setModalOpen(true); }}>
+        <button className="btn btn-primary"
+                onClick={() => { setEditItem(null); setModalOpen(true); }}>
           <Plus size={16} /> Add Train Type
         </button>
       </div>
 
+      {/* Stats */}
       <div className="tt-stats">
         <div className="tt-stat-card">
           <div className="tt-stat-label">Total Types</div>
@@ -291,6 +461,7 @@ const TrainTypesPage = () => {
       </div>
 
       <div className="card">
+        {/* Toolbar */}
         <div className="tt-toolbar">
           <div className="sm-filter-wrap">
             <span className="sm-filter-icon"><Search size={13} /></span>
@@ -302,7 +473,10 @@ const TrainTypesPage = () => {
               <RotateCcw size={12} /> Reset
             </button>
           )}
-          <span style={{ marginLeft: "auto", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>
+          <span style={{
+            marginLeft: "auto", fontSize: "var(--font-size-xs)",
+            color: "var(--text-tertiary)",
+          }}>
             {data.length} type{data.length !== 1 ? "s" : ""}
           </span>
         </div>
@@ -318,6 +492,8 @@ const TrainTypesPage = () => {
               <th>Superfast</th>
               <th>Status</th>
               <th style={{ width: 80 }} />
+              {/* Expand column */}
+              <th style={{ width: 36 }} />
             </tr>
             </thead>
             <tbody>
@@ -326,72 +502,98 @@ const TrainTypesPage = () => {
                 {Array.from({ length: 6 }).map((_, j) => (
                   <td key={j}><div className="sm-skeleton" style={{ width: "60%" }} /></td>
                 ))}
-                <td />
+                <td /><td />
               </tr>
             ))}
 
             {!loading && data.map(item => (
-              <tr key={item.typeId}>
-                <td>
-                  <code style={{
-                    fontFamily: "monospace", fontSize: 12, fontWeight: 700,
-                    background: "#eff6ff", color: "#1d4ed8",
-                    padding: "2px 8px", borderRadius: 4,
-                  }}>
-                    {item.typeCode}
-                  </code>
-                </td>
-                <td>
-                    <span style={{ fontWeight: "var(--font-weight-medium)", fontSize: "var(--font-size-sm)" }}>
-                      {item.typeName}
-                    </span>
-                </td>
-                <td>
-                    <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>
-                      {item.description || "—"}
-                    </span>
-                </td>
-                <td>
-                  {item.typicalSpeedKmh
-                    ? <span style={{ fontSize: "var(--font-size-sm)", display: "flex", alignItems: "center", gap: 4 }}>
-                          <Gauge size={12} style={{ color: "var(--text-tertiary)" }} />
-                      {item.typicalSpeedKmh} km/h
-                        </span>
-                    : <span style={{ color: "var(--text-tertiary)" }}>—</span>
-                  }
-                </td>
-                <td>
-                  {item.isSuperfast
-                    ? <span className="tt-badge superfast"><Zap size={11} /> Superfast</span>
-                    : <span className="tt-badge regular">Regular</span>
-                  }
-                </td>
-                <td>
-                    <span className={`sm-status-badge ${item.isActive ? "active" : "inactive"}`}>
-                      <span className="sm-status-dot" />
-                      {item.isActive ? "Active" : "Inactive"}
-                    </span>
-                </td>
-                <td>
-                  <div className="sm-row-actions">
-                    <button className="sm-action-btn" title="Edit"
-                            onClick={() => { setEditItem(item); setModalOpen(true); }}>
-                      <Pencil size={14} />
-                    </button>
+              <>
+                {/* ── Data row ── */}
+                <tr key={item.typeId}
+                    className={expandedType === item.typeCode ? 'acs-expanded-row' : ''}
+                    style={{ cursor: 'default' }}>
+                  <td>
+                    <code style={{
+                      fontFamily: "monospace", fontSize: 12, fontWeight: 700,
+                      background: "#eff6ff", color: "#1d4ed8",
+                      padding: "2px 8px", borderRadius: 4,
+                    }}>
+                      {item.typeCode}
+                    </code>
+                  </td>
+                  <td>
+                      <span style={{
+                        fontWeight: "var(--font-weight-medium)",
+                        fontSize: "var(--font-size-sm)",
+                      }}>
+                        {item.typeName}
+                      </span>
+                  </td>
+                  <td>
+                      <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>
+                        {item.description || "—"}
+                      </span>
+                  </td>
+                  <td>
+                    {item.typicalSpeedKmh
+                      ? <span style={{ fontSize: "var(--font-size-sm)", display: "flex", alignItems: "center", gap: 4 }}>
+                            <Gauge size={12} style={{ color: "var(--text-tertiary)" }} />
+                        {item.typicalSpeedKmh} km/h
+                          </span>
+                      : <span style={{ color: "var(--text-tertiary)" }}>—</span>}
+                  </td>
+                  <td>
+                    {item.isSuperfast
+                      ? <span className="tt-badge superfast"><Zap size={11} /> Superfast</span>
+                      : <span className="tt-badge regular">Regular</span>}
+                  </td>
+                  <td>
+                      <span className={`sm-status-badge ${item.isActive ? "active" : "inactive"}`}>
+                        <span className="sm-status-dot" />
+                        {item.isActive ? "Active" : "Inactive"}
+                      </span>
+                  </td>
+                  <td>
+                    <div className="sm-row-actions">
+                      <button className="sm-action-btn" title="Edit"
+                              onClick={() => { setEditItem(item); setModalOpen(true); }}>
+                        <Pencil size={14} />
+                      </button>
+                      <button
+                        className={`sm-action-btn${item.isActive ? " danger" : ""}`}
+                        title={item.isActive ? "Deactivate" : "Activate"}
+                        onClick={() => handleToggleClick(item)}>
+                        {item.isActive ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}
+                      </button>
+                    </div>
+                  </td>
+                  {/* Expand / collapse button */}
+                  <td>
                     <button
-                      className={`sm-action-btn${item.isActive ? " danger" : ""}`}
-                      title={item.isActive ? "Deactivate" : "Activate"}
-                      onClick={() => handleToggleClick(item)}>
-                      {item.isActive ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}
+                      className={`sm-action-btn${expandedType === item.typeCode ? ' acs-expand-active' : ''}`}
+                      title="Manage allowed coach types"
+                      onClick={() => toggleExpand(item.typeCode)}>
+                      {expandedType === item.typeCode
+                        ? <ChevronUp size={14} />
+                        : <ChevronDown size={14} />}
                     </button>
-                  </div>
-                </td>
-              </tr>
+                  </td>
+                </tr>
+
+                {/* ── Allowed coaches section — expands inline ── */}
+                {expandedType === item.typeCode && (
+                  <AllowedCoachesSection
+                    key={`acs-${item.typeCode}`}
+                    typeCode={item.typeCode}
+                    colSpan={COL_COUNT}
+                  />
+                )}
+              </>
             ))}
 
             {!loading && data.length === 0 && (
               <tr>
-                <td colSpan={7}>
+                <td colSpan={COL_COUNT}>
                   <div className="sm-empty">
                     <div className="sm-empty-icon"><Train size={24} /></div>
                     <div className="sm-empty-title">No train types found</div>

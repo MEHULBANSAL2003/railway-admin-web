@@ -15,15 +15,8 @@ import '../StationManagement/StationManagementPage.css';
 import '../TrainPage/TrainsPage.css';
 import './TrainCoachesPage.css';
 
-// ── Fetcher ───────────────────────────────────────────────
-const fetchCoachTypes = async (search) => {
-  const res = await CoachTypeService.getAllForDropdown(search);
-  return (res.data.data || []).map(ct => ({
-    value: ct.typeCode,
-    label: `${ct.typeCode} — ${ct.typeName} (${ct.totalSeats} seats)`,
-    raw: ct,
-  }));
-};
+
+
 
 // ── Helpers ───────────────────────────────────────────────
 const Field = ({ label, required, error, hint, children }) => (
@@ -92,6 +85,21 @@ const CoachModal = ({ open, onClose, editItem, trainNumber, onSuccess }) => {
   const set = (k, v) => {
     setForm(p => ({ ...p, [k]: v }));
     setErrors(p => ({ ...p, [k]: '' }));
+  };
+
+  const fetchCoachTypes = async (search) => {
+    const res = await TrainCoachService.getAvailableTypes(trainNumber);
+    const filtered = res.data.data || [];
+    // client-side search filter since backend returns all available
+    return filtered
+      .filter(ct => !search ||
+        ct.typeCode.toLowerCase().includes(search.toLowerCase()) ||
+        ct.typeName.toLowerCase().includes(search.toLowerCase()))
+      .map(ct => ({
+        value: ct.typeCode,
+        label: `${ct.typeCode} — ${ct.typeName} (${ct.totalSeats} seats)`,
+        raw: ct,
+      }));
   };
 
   const validate = () => {

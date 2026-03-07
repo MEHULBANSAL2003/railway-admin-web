@@ -35,4 +35,15 @@ export const TrainTypeService = {
     const url = `${train_type_base_url}/cascade-info/${typeCode}`;
     return HttpWrapper.get(url, null, true);
   },
+
+  getAllowedCoaches: (typeCode) => {
+    const url = `${train_type_base_url}/allowed-coaches/${typeCode}`;
+    return HttpWrapper.get(url, null, true);
+  },
+
+  setAllowedCoaches: (typeCode, coachTypeCodes) => {
+    const url = `${train_type_base_url}/allowed-coaches/${typeCode}`;
+    return HttpWrapper.post(url, { coachTypeCodes }, true);
+  }
 };
+

@@ -1,0 +1,180 @@
+/* ── AllowedCoachesSection.css ───────────────────────────── */
+
+.acs-row { background: var(--bg-secondary); }
+
+.acs-cell {
+  padding: 0 !important;
+  border-bottom: 2px solid var(--primary-100) !important;
+}
+
+.acs-container {
+  padding: var(--spacing-4) var(--spacing-5);
+  border-left: 3px solid var(--primary-400);
+  margin: 0;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+.acs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-3);
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.acs-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.acs-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.acs-subtitle {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.acs-actions {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.acs-btn-reset {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 var(--spacing-3);
+  border: 1px solid var(--border-primary);
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  font-family: inherit;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.acs-btn-reset:hover:not(:disabled) { background: var(--bg-secondary); }
+
+.acs-btn-save {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 var(--spacing-3);
+  border: none;
+  background: var(--primary-600);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  font-family: inherit;
+  font-weight: var(--font-weight-medium);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.acs-btn-save:hover:not(:disabled) { background: var(--primary-700); }
+.acs-btn-save:disabled { background: var(--primary-300); cursor: not-allowed; }
+
+/* ── Coach type cards grid ───────────────────────────────── */
+.acs-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.acs-coach-card {
+  position: relative;
+  width: 130px;
+  padding: var(--spacing-3);
+  background: var(--bg-primary);
+  border: 1.5px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.acs-coach-card:hover:not(:disabled) {
+  border-color: var(--primary-300);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+}
+
+.acs-coach-card.selected {
+  border-color: var(--primary-500);
+  background: var(--primary-50);
+}
+
+.acs-coach-top {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 2px;
+}
+
+.acs-coach-code {
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: 800;
+  color: #1d4ed8;
+}
+
+.acs-coach-name {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+.acs-coach-seats {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.acs-selected-check {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary-600);
+}
+
+/* ── Footer ──────────────────────────────────────────────── */
+.acs-footer {
+  margin-top: var(--spacing-3);
+  font-size: var(--font-size-xs);
+}
+
+.acs-footer-count { color: var(--text-secondary); }
+.acs-footer-warn  { color: #b45309; }
+
+/* ── States ──────────────────────────────────────────────── */
+.acs-loading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  padding: var(--spacing-3) 0;
+}
+
+.acs-empty {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  padding: var(--spacing-2) 0;
+}
+
+@keyframes acs-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.acs-spin { animation: acs-spin 0.8s linear infinite; }
