@@ -74,4 +74,12 @@ export const ApiConstants = {
   uploadByExcel: '/upload/excel',
   getTemplate: '/upload/template',
 
+
+  //train caoches
+  getAllCoachesByTrain: '/get/by/train',
+  addNewCoachesByTrain: '/add/new',
+  updateCoachesByTrain: '/update',
+  changeTrainCoachStatus:"/change/status",
+
+
 }

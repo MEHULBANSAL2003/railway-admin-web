@@ -16,6 +16,7 @@ const FareRulesPage = lazy(() => import('../pages/FareRulePage/FareRulesPage.jsx
 const QuotasPage = lazy(() => import('../pages/QuotaPage/QuotasPage.jsx'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage/NotFoundPage.jsx'));
 const TrainsPage = lazy(() => import('../pages/TrainPage/TrainsPage.jsx'));
+const TrainCoachesPage = lazy(() => import('../pages/TrainCoachesPage/TrainCoachesPage.jsx'));
 
 const AppRoutes = () => {
   return (
@@ -47,6 +48,7 @@ const AppRoutes = () => {
         <Route path="/fare-rules" element={<FareRulesPage />} />
         <Route path="/quotas" element={<QuotasPage />} />
         <Route path="/trains" element={<TrainsPage />} />
+        <Route path="/trains/:trainNumber/coaches" element={<TrainCoachesPage />} />
 
 
         <Route path="*" element={<NotFoundPage />} />

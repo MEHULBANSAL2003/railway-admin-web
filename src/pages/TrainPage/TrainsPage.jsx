@@ -5,7 +5,7 @@ import {
   Plus, RotateCcw, Pencil, ToggleLeft, ToggleRight,
   Train, Zap, UtensilsCrossed, Hash, ArrowLeftRight,
   Upload, Download, FileSpreadsheet, AlertCircle,
-  CheckCircle2, X, Inbox,
+  CheckCircle2, X, Inbox,Armchair
 } from 'lucide-react';
 import { useTrainList }     from './useTrainList.js';
 import { TrainService }     from '../../services/TrainService.js';
@@ -18,6 +18,7 @@ import '../AdminManagement/AddAdminModal.css';
 import '../TrainTypesPage/TrainTypesPage.css';
 import '../StationManagement/StationManagementPage.css';
 import './TrainsPage.css';
+import {useNavigate} from "react-router-dom";
 
 // ── Constants ─────────────────────────────────────────────
 const STATUS_OPTIONS = [
@@ -578,6 +579,8 @@ const TrainModal = ({ open, onClose, editItem, prefill, onSuccess }) => {
 const TrainsPage = () => {
   const { showSuccess, showError } = useToast();
 
+  const navigate = useNavigate();
+
   const {
     data, loading, loadingMore, hasMore, totalElements,
     filters, sort,
@@ -802,6 +805,13 @@ const TrainsPage = () => {
                 </td>
                 <td>
                   <div className="sm-row-actions">
+
+                    <button className="sm-action-btn" title="Manage coaches"
+                              onClick={() => navigate(`/trains/${item.trainNumber}/coaches`)}>
+                        <Armchair size={14} />
+                      </button>
+
+
                     <button className="sm-action-btn" title="Edit"
                             onClick={() => { setEditItem(item); setPrefill(null); setModalOpen(true); }}>
                       <Pencil size={14} />
