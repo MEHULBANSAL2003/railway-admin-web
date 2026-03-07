@@ -5,7 +5,7 @@ const fare_rule_base_url =  import.meta.env.VITE_API_FARE_RULE_URL;
 
 export const FareRuleService = {
 
-  getAllForAdmin: (trainTypeCode, coachTypeCode, quotaCode) => {
+  getAllForAdmin: async (trainTypeCode, coachTypeCode, quotaCode) => {
     const params = {};
     if (trainTypeCode) params.trainTypeCode = trainTypeCode;
     if (coachTypeCode) params.coachTypeCode = coachTypeCode;
@@ -13,21 +13,21 @@ export const FareRuleService = {
 
     const url = `${fare_rule_base_url}${ApiConstants.getAllFareRules}`;
 
-    return HttpWrapper.get(url, params, true);
+    return await HttpWrapper.get(url, params, true);
   },
 
-  getComboHistory: (trainTypeCode, coachTypeCode, quotaCode) => {
+  getComboHistory: async (trainTypeCode, coachTypeCode, quotaCode) => {
     const url = `${fare_rule_base_url}${ApiConstants.getFareRuleHistory}`;
-    return HttpWrapper.get(url, { trainTypeCode, coachTypeCode, quotaCode }, true);
+    return await HttpWrapper.get(url, { trainTypeCode, coachTypeCode, quotaCode }, true);
   },
 
-  addFareRule: (payload) => {
+  addFareRule: async (payload) => {
     const url = `${fare_rule_base_url}${ApiConstants.addFareRules}`;
-    return HttpWrapper.post(url, payload, true);
+    return await HttpWrapper.post(url, payload, true);
   },
 
-  toggleStatus: (ruleId, isActive) => {
+  toggleStatus: async (ruleId, isActive) => {
     const url = `${fare_rule_base_url}${ApiConstants.changeFareRuleStatus}`;
-    return HttpWrapper.postByIdWithQueryParams(url, ruleId, { isActive }, true);
+    return await HttpWrapper.postByIdWithQueryParams(url, ruleId, { isActive }, true);
   },
 };

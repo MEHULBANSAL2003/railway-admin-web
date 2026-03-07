@@ -94,6 +94,16 @@ export const searchableRoutes = [
     category: 'Quota Management'
   },
 
+  {
+    id: 'train-management',
+    name: 'Train Management',
+    path: '/trains',
+    description: 'Manage trains',
+    keywords: ['train', 'add train', 'trains'],
+    icon: '👤',
+    category: 'Train Management'
+  },
+
 ];
 
 /**

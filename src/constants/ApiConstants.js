@@ -62,4 +62,16 @@ export const ApiConstants = {
   getAllQuotasForAdmin: '/get/all/admin',
   addQuotas: '/add',
   changeQuotaStatus:"/change/status",
+
+  //trains
+  getAllTrains: '/get/all',
+  getAllTrainsForAdmin: '/get/all/admin',
+  addTrains: '/add',
+  changeTrainStatus:"/change/status",
+  updateTrainDetails: '/update/details',
+  getTrainCascadeInfo: '/cascade-info',
+  getReturnTrainInfo: '/return/info',
+  uploadByExcel: '/upload/excel',
+  getTemplate: '/upload/template',
+
 }

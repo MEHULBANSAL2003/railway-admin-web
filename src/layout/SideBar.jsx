@@ -27,6 +27,7 @@ const mainMenuItems = [
   {path: '/coach-types', label: 'Coach Types', icon: SiSeat},
   { path: '/fare-rules', label: 'Fare rules', icon: PiMoney },
   { path: '/quotas', label: 'Quota Management', icon: MdEventSeat },
+  { path: '/trains', label: 'Train Management', icon: Train },
   // { path: '/schedules', label: 'Schedules', icon: Calendar },
   // { path: '/users', label: 'Users', icon: Users },
 ];

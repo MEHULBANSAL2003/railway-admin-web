@@ -74,54 +74,14 @@ const Dashboard = () => {
       link: '/quotas',
       color: '#ec4899'
     },
-    // {
-    //   id: 4,
-    //   title: 'Trains',
-    //   description: 'Manage train schedules',
-    //   icon: Train,
-    //   link: '/admin/trains',
-    //   color: '#f59e0b'
-    // },
-    // {
-    //   id: 5,
-    //   title: 'Routes',
-    //   description: 'Configure train routes',
-    //   icon: Route,
-    //   link: '/admin/routes',
-    //   color: '#8b5cf6'
-    // },
-    // {
-    //   id: 6,
-    //   title: 'Bookings',
-    //   description: 'View all bookings',
-    //   icon: FileText,
-    //   link: '/admin/bookings',
-    //   color: '#06b6d4'
-    // },
-    // {
-    //   id: 7,
-    //   title: 'Analytics',
-    //   description: 'View reports & stats',
-    //   icon: BarChart3,
-    //   link: '/admin/analytics',
-    //   color: '#ec4899'
-    // },
-    // {
-    //   id: 8,
-    //   title: 'Zones',
-    //   description: 'Manage railway zones',
-    //   icon: Package,
-    //   link: '/admin/zones',
-    //   color: '#14b8a6'
-    // },
-    // {
-    //   id: 9,
-    //   title: 'Settings',
-    //   description: 'System configuration',
-    //   icon: Settings,
-    //   link: '/admin/settings',
-    //   color: '#64748b'
-    // }
+    {
+      id: 8,
+      title: 'Trains Management',
+      description: 'Trains management',
+      icon: Train,
+      link: '/trains',
+      color: '#64748b'
+    },
   ];
 
   return (

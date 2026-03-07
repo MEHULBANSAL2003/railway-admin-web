@@ -6,33 +6,33 @@ const coach_type_base_url =  import.meta.env.VITE_API_COACH_TYPE_URL;
 
 export const CoachTypeService = {
 
-  getAllForAdmin: (params) => {
+  getAllForAdmin: async (params) => {
     const url = `${coach_type_base_url}${ApiConstants.getAllCoachTypesForAdmin}`;
-    return HttpWrapper.get(url, params, true);
+    return await HttpWrapper.get(url, params, true);
   },
 
-  getAllForDropdown: (params) => {
+  getAllForDropdown: async (params) => {
     const url = `${coach_type_base_url}${ApiConstants.getAllCoachTypes}`;
-    return HttpWrapper.get(url, {search: params}, true);
+    return await HttpWrapper.get(url, {search: params}, true);
   },
 
-  addCoachType: (payload) => {
+  addCoachType: async (payload) => {
     const url = `${coach_type_base_url}${ApiConstants.addCoachTypes}`;
-    return HttpWrapper.post(url, payload, true);
+    return await HttpWrapper.post(url, payload, true);
   },
 
-  updateCoachType: (typeCode, payload) => {
+  updateCoachType: async (typeCode, payload) => {
     const url = `${coach_type_base_url}${ApiConstants.updateCoachTypes}/${typeCode}`;
-    return HttpWrapper.post(url, payload, true);
+    return await HttpWrapper.post(url, payload, true);
   },
 
-  toggleStatus: (typeCode, isActive) => {
+  toggleStatus: async (typeCode, isActive) => {
     const url = `${coach_type_base_url}${ApiConstants.changeCoachTypeStatus}`;
-    return HttpWrapper.postByIdWithQueryParams(url, typeCode, { isActive }, true);
+    return await HttpWrapper.postByIdWithQueryParams(url, typeCode, { isActive }, true);
   },
 
-  getCascadeInfo: (typeCode) => {
+  getCascadeInfo: async (typeCode) => {
     const url = `${coach_type_base_url}/cascade-info/${typeCode}`;
-    return HttpWrapper.get(url, null, true);
+    return await HttpWrapper.get(url, null, true);
   },
 };
