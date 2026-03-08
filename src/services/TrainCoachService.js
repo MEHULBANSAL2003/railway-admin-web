@@ -21,8 +21,8 @@ export const TrainCoachService = {
   },
 
   toggleStatus: (trainNumber, coachId, isActive)  => {
-    const url = `${train_coach_base_url}${ApiConstants.changeTrainCoachStatus}/${trainNumber}/${coachId}`;
-    return HttpWrapper.post(url, { isActive }, true);
+    const url = `${train_coach_base_url}${ApiConstants.changeTrainCoachStatus}/${trainNumber} `;
+    return HttpWrapper.postByIdWithQueryParams(url, coachId,{ isActive }, true);
   },
 
   getAvailableTypes: (trainNumber) => {
