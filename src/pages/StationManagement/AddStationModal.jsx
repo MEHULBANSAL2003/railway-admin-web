@@ -9,7 +9,7 @@ import '../AdminManagement/AddAdminModal.css';
 import SearchableSelect from "../../components/UI/SearchableSelect/SearchableSelect.jsx";
 import {fetchCities, fetchStates, fetchZones} from "../../utils/searchFetchers.js";
 
-const STATION_TYPES = ['REGULAR', 'JUNCTION', 'TERMINUS', 'HALT'];
+const STATION_TYPES = ['REGULAR', 'JUNCTION', 'TERMINUS', 'HALT','CANTT'];
 
 const EMPTY_FORM = {
   stationCode:  '',
