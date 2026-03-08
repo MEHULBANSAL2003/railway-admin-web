@@ -13,6 +13,7 @@ import '../StationManagement/StationManagementPage.css';
 import '../TrainPage/TrainsPage.css';
 import '../TrainCoachesPage/TrainCoachesPage.css';
 import './TrainInfoPage.css';
+import SchedulesTab from './SchedulesTab.jsx';
 
 // ── Coaches Tab ───────────────────────────────────────────
 const CoachesTab = ({ coaches, loading, onManage }) => (
@@ -94,18 +95,8 @@ const CoachesTab = ({ coaches, loading, onManage }) => (
   </div>
 );
 
-// ── Schedules Tab ─────────────────────────────────────────
-const SchedulesTab = () => (
-  <div className="tip-tab-content">
-    <div className="sm-empty">
-      <div className="sm-empty-icon"><CalendarClock size={24} /></div>
-      <div className="sm-empty-title">Schedules coming soon</div>
-      <div className="sm-empty-desc">
-        Once stops and coaches are configured, you can create schedules here.
-      </div>
-    </div>
-  </div>
-);
+
+
 
 // ── Main Page ─────────────────────────────────────────────
 const TrainInfoPage = () => {
@@ -283,7 +274,7 @@ const TrainInfoPage = () => {
             onManage={() => navigate(`/trains/${trainNumber}/coaches`)}
           />
         )}
-        {activeTab === 'schedules' && <SchedulesTab />}
+        {activeTab === 'schedules' && <SchedulesTab trainNumber={trainNumber} />}
       </div>
     </div>
   );
