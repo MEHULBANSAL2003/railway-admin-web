@@ -768,9 +768,10 @@ const TrainsPage = () => {
 
             {!loading && data.map(item => (
               <tr key={item.trainId}>
-                <td>
-                  <code className="trains-number-badge">{item.trainNumber}</code>
-                </td>
+               <td onClick={() => navigate(`/trains/${item.trainNumber}`)}
+                   style={{ cursor: 'pointer' }}>
+                 <code className="trains-number-badge">{item.trainNumber}</code>
+               </td>
                 <td>
                   <div className="sm-station-name" style={{ marginBottom: 2 }}>{item.trainName}</div>
                   {item.isSuperfast && (

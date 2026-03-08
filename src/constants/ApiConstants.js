@@ -73,6 +73,7 @@ export const ApiConstants = {
   getReturnTrainInfo: '/return/info',
   uploadByExcel: '/upload/excel',
   getTemplate: '/upload/template',
+  getTrainByNumber: '/get/by/number',
 
 
   //train caoches
@@ -80,6 +81,11 @@ export const ApiConstants = {
   addNewCoachesByTrain: '/add/new',
   updateCoachesByTrain: '/update',
   changeTrainCoachStatus:"/change/status",
+
+  //stops
+  getTrainStops:   '/stops',
+  addTrainStop:    '/stops/add',
+  updateTrainStop: '/stops/update',
 
 
 }

@@ -52,6 +52,11 @@ export const TrainService = {
     return await HttpWrapper.get(url, null, true, {
       responseType: "blob",
     });
+  },
+
+  getTrainByNumber: async (trainNumber) => {
+    const url = `${train_base_url}${ApiConstants.getTrainByNumber}/${trainNumber}`;
+    return await HttpWrapper.get(url, null, true);
   }
 
 }
