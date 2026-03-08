@@ -3,6 +3,7 @@ import { StatesCitiesService } from '../services/StatesCitiesService.js';
 import { ZoneService }         from '../services/ZoneService.js';
 import {CoachTypeService} from "../services/CoachTypeService.js";
 import {TrainTypeService} from "../services/TrainTypeService.js";
+import {StationService} from "../services/StationService.js";
 
 export const fetchStates = async (searchTerm) => {
   const res = await StatesCitiesService.getAllStates({ searchTerm });
@@ -54,5 +55,25 @@ export const fetchCoachTypes = async (searchTerm) => {
     label: c.typeName,
     meta:  c.typeCode,
     raw:   c,
+  }));
+};
+
+
+// ── Add/replace fetchStations in searchFetchers.js ───────────────────────────
+// Also add this import at the top:
+// import { StationService } from '../services/StationService.js';
+
+export const fetchStations = async (searchTerm) => {
+  let payload = {};
+  if(searchTerm){
+    payload['searchTerm'] = searchTerm;
+  }
+  const res = await StationService.getAllForDropdown(payload);
+  const list = res.data.data || [];   // now returns a List, not a Page
+  return list.map(s => ({
+    value: s.stationCode,
+    label: `${s.stationCode} — ${s.stationName}`,
+    meta:  s.stationType,
+    raw:   s,
   }));
 };

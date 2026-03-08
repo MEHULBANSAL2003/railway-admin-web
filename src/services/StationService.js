@@ -16,6 +16,11 @@
       return await HttpWrapper.get(url, payload);
     },
 
+    getAllForDropdown: async (payload) => {
+      const url = `${station_base_url}${ApiConstants.getAllStationsDropdown}`;
+      return await HttpWrapper.get(url, payload);
+    },
+
     searchStations : async(payload) => {
       const url = `${station_base_url}${ApiConstants.searchStations}`;
       return await HttpWrapper.get(url, payload);
