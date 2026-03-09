@@ -14,6 +14,7 @@ import '../TrainPage/TrainsPage.css';
 import '../TrainCoachesPage/TrainCoachesPage.css';
 import './TrainInfoPage.css';
 import SchedulesTab from './SchedulesTab.jsx';
+import {TrainScheduleService} from "../../services/TrainScheduleService.js";
 
 // ── Coaches Tab ───────────────────────────────────────────
 const CoachesTab = ({ coaches, loading, onManage }) => (
@@ -111,6 +112,18 @@ const TrainInfoPage = () => {
   const [loadingStops, setLoadingStops] = useState(true);
   const [loadingCoach, setLoadingCoach] = useState(true);
   const [activeTab,    setActiveTab]    = useState('stops');
+  const [activeSchedule, setActiveSchedule] = useState(null);
+
+  const loadSchedule = useCallback(async () => {
+    try {
+      const res = await TrainScheduleService.getSummary(trainNumber);
+      const summary = res.data.data;
+      // activeSchedule = running schedule OR any upcoming one
+      setActiveSchedule(summary?.running || (summary?.upcoming?.length > 0 ? summary.upcoming[0] : null));
+    } catch {
+      setActiveSchedule(null); // silently ignore — no schedule yet
+    }
+  }, [trainNumber]);
 
   const loadTrain = useCallback(async () => {
     setLoadingTrain(true);
@@ -147,6 +160,7 @@ const TrainInfoPage = () => {
     loadTrain();
     loadStops();
     loadCoaches();
+    loadSchedule();
   }, [trainNumber]);
 
   // Derived
@@ -265,6 +279,7 @@ const TrainInfoPage = () => {
             stops={stops}
             loading={loadingStops}
             onReload={loadStops}
+            hasSchedule={!!activeSchedule}
           />
         )}
         {activeTab === 'coaches' && (

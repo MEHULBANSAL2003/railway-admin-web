@@ -23,4 +23,14 @@ export const TrainStopService = {
     const url = `${base_url}/${trainNumber}/stops/delete/${stopId}`;
     return await HttpWrapper.post(url, null, true);
   },
+  bulkAddStops: async (trainNumber, stops) => {
+    // stops: [{ stationCode, stopNumber, kmFromSource, arrivalTime, departureTime, dayNumber }]
+    const url = `${base_url}/${trainNumber}/stops/bulk`;
+    return await HttpWrapper.post(url, { stops }, true);
+  },
+
+  getCopyPreview: async (sourceTrainNumber, targetTrainNumber) => {
+    const url = `${base_url}/${sourceTrainNumber}/stops/copy-preview?targetTrain=${targetTrainNumber}`;
+    return await HttpWrapper.get(url, null, true);
+  },
 };

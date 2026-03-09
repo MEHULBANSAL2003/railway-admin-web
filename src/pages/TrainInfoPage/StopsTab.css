@@ -458,3 +458,22 @@
   .tst-row-3 > :last-child { grid-column: 1 / -1; }
   .tst-station-name { max-width: 120px; }
 }
+
+
+.tst-header-buttons { display: flex; gap: var(--spacing-2); align-items: center; }
+.tst-generate-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+     font-size: var(--font-size-sm); font-weight: 500;
+      color: #fff; background: #7c3aed; border: none;
+      border-radius: var(--radius-md); padding: 8px 14px; cursor: pointer;
+      transition: background 0.15s; white-space: nowrap;
+    }
+ .tst-generate-btn:hover { background: #6d28d9; }
+ .tst-copy-btn {
+     display: inline-flex; align-items: center; gap: 6px;
+      font-size: var(--font-size-sm); font-weight: 500;
+      color: #fff; background: #16a34a; border: none;
+      border-radius: var(--radius-md); padding: 8px 14px; cursor: pointer;
+      transition: background 0.15s; white-space: nowrap;
+    }
+.tst-copy-btn:hover { background: #15803d; }

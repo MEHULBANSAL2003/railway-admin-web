@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Plus, Pencil, Trash2, X, AlertTriangle,
-  Milestone, Clock, Train, MapPin, ChevronRight,
+  Milestone, Clock, Train, MapPin, ChevronRight,Copy, Wand2
 } from 'lucide-react';
 import { TrainStopService } from '../../services/TrainStopService.js';
 import { StationService }   from '../../services/StationService.js';
@@ -11,6 +11,8 @@ import SearchableSelect     from '../../components/UI/SearchableSelect/Searchabl
 import '../AdminManagement/AddAdminModal.css';
 import './StopsTab.css';
 import {fetchStations} from "../../utils/searchFetchers.js";
+import GenerateStopsModal from './GenerateStopsModal.jsx';
+import CopyStopsModal     from './CopyStopsModal.jsx';
 
 // ─────────────────────────────────────────────────
 // Helpers
@@ -325,12 +327,21 @@ const DeleteConfirm = ({ open, onClose, onConfirm, stop, deleting }) => {
 // ─────────────────────────────────────────────────
 // StopsTab — default export
 // ─────────────────────────────────────────────────
-const StopsTab = ({ trainNumber, stops, loading, onReload }) => {
+const StopsTab = ({ trainNumber, stops, loading, onReload, hasSchedule }) => {
   const { showSuccess, showError } = useToast();
   const [modalOpen,   setModalOpen]   = useState(false);
   const [editItem,    setEditItem]    = useState(null);
   const [deleteModal, setDeleteModal] = useState(null);
   const [deleting,    setDeleting]    = useState(false);
+  const [generateOpen, setGenerateOpen] = useState(false);
+  const [copyOpen,     setCopyOpen]     = useState(false);
+
+  const hasStops   = stops.length > 0;
+  const isRouteSet = hasStops &&
+    stops[0].arrivalTime === null &&                      // first stop has no arrival
+    stops[stops.length - 1].departureTime === null;
+
+  const showBulkButtons = !hasStops && !hasSchedule;
 
   const openAdd   = ()  => { setEditItem(null); setModalOpen(true); };
   const openEdit  = (s) => { setEditItem(s);    setModalOpen(true); };
@@ -383,10 +394,23 @@ const StopsTab = ({ trainNumber, stops, loading, onReload }) => {
             </div>
           )}
         </div>
-        <button className="tst-add-btn" onClick={openAdd}>
+          <div className="tst-header-buttons">
+          {showBulkButtons && (
+          <>
+          <button className="tst-generate-btn" onClick={() => setGenerateOpen(true)}>
+          <Wand2 size={14}/> Generate Stops
+          </button>
+          <button className="tst-copy-btn" onClick={() => setCopyOpen(true)}>
+          <Copy size={14}/> Copy from Train
+          </button>
+          </>
+          )}
+          <button className="tst-add-btn" onClick={openAdd}>
           <Plus size={14}/> Add Stop
-        </button>
-      </div>
+          </button>
+          </div>
+
+          </div>
 
       {/* Timeline */}
       {loading ? (
@@ -502,6 +526,18 @@ const StopsTab = ({ trainNumber, stops, loading, onReload }) => {
         onConfirm={handleDelete}
         stop={deleteModal}
         deleting={deleting}
+      />
+      <GenerateStopsModal
+        open={generateOpen}
+        onClose={() => setGenerateOpen(false)}
+        trainNumber={trainNumber}
+        onSuccess={() => { setGenerateOpen(false); onReload(); }}
+      />
+      <CopyStopsModal
+        open={copyOpen}
+        onClose={() => setCopyOpen(false)}
+        sourceTrainNumber={trainNumber}
+        onSuccess={() => { setCopyOpen(false); onReload(); }}
       />
     </div>
   );
