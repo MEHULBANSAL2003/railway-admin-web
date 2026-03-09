@@ -28,7 +28,12 @@ export const TrainCoachService = {
   getAvailableTypes: (trainNumber) => {
     const url = `${train_coach_base_url}/available-types/${trainNumber}`;
     return HttpWrapper.get(url,  null , true);
-  }
+  },
+
+  copyCoaches: async (sourceTrainNumber, targetTrainNumber) => {
+    const url = `${train_coach_base_url}/${sourceTrainNumber}/coaches/copy`;
+    return await HttpWrapper.post(url, { targetTrainNumber }, true);
+  },
 
 
 };

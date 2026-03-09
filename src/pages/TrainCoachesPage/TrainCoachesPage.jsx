@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Plus, Pencil, ToggleLeft, ToggleRight,
-  Train, Armchair, Zap, X, Wind, Snowflake, Users, Clock,
+  Train, Armchair, Zap, X, Wind, Snowflake,Copy
 } from 'lucide-react';
 import { TrainCoachService } from '../../services/TrainCoachService.js';
 import { TrainService }      from '../../services/TrainService.js';
@@ -14,8 +14,7 @@ import '../AdminManagement/AddAdminModal.css';
 import '../StationManagement/StationManagementPage.css';
 import '../TrainPage/TrainsPage.css';
 import './TrainCoachesPage.css';
-
-
+import CopyCoachesModal from './CopyCoachesModal.jsx';
 
 
 // ── Helpers ───────────────────────────────────────────────
@@ -312,6 +311,7 @@ const TrainCoachesPage = () => {
   const [loading,   setLoading]   = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editItem,  setEditItem]  = useState(null);
+  const [copyModalOpen, setCopyModalOpen] = useState(false);
 
   const loadAll = async () => {
     setLoading(true);
@@ -382,10 +382,19 @@ const TrainCoachesPage = () => {
             <p className="page-subtitle">{train?.trainName || '—'} · Coach Configuration</p>
           </div>
         </div>
-        <button className="btn btn-primary"
-                onClick={() => { setEditItem(null); setModalOpen(true); }}>
-          <Plus size={16} /> Add Coach Type
-        </button>
+        <div style={{ display: 'flex', gap: 'var(--spacing-3)' }}>
+          {coaches.length > 0 && (
+            <button className="btn btn-secondary"
+                    onClick={() => setCopyModalOpen(true)}>
+              <Copy size={16} /> Copy to Train
+            </button>
+          )}
+          <button className="btn btn-primary"
+                  onClick={() => { setEditItem(null); setModalOpen(true); }}>
+            <Plus size={16} /> Add Coach Type
+          </button>
+        </div>
+
       </div>
 
       {/* ── Stat boxes ── */}
@@ -528,6 +537,17 @@ const TrainCoachesPage = () => {
         editItem={editItem}
         trainNumber={trainNumber}
         onSuccess={handleSuccess}
+      />
+      <CopyCoachesModal
+        open={copyModalOpen}
+        onClose={() => setCopyModalOpen(false)}
+        sourceTrainNumber={trainNumber}
+        coachCount={coaches.length}
+        onSuccess={() => {
+          showSuccess('Coaches copied successfully.');
+          // No reload needed here since we're on the source train's page.
+          // If admin navigates to target train they will see the coaches.
+        }}
       />
     </div>
   );
