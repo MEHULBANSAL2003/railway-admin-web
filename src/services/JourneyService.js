@@ -15,7 +15,7 @@ export const JourneyService = {
   },
   bulkGenerateJourneyOfTrain: async (trainNumber) => {
     const url = `${base_url}/${trainNumber}/journeys/bulk-generate`;
-    return await HttpWrapper.post(url, null, true);
+    return await HttpWrapper.post(url, null, true,60000);
   },
 
   addJourneysOfTrain: async (trainNumber,journeyDate) => {

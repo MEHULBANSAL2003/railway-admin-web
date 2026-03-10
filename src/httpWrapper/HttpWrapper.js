@@ -60,9 +60,9 @@ export const HttpWrapper = {
     });
   },
 
-  post: async (url, body, setHeader = false) => {
+  post: async (url, body, setHeader = false,timeout = TIMEOUT_VALUE) => {
     const headers = buildHeaders(setHeader);
-    return await api.post(url, body, { headers });
+    return await api.post(url, body, { headers, timeout: timeout });
   },
 
   postByIdWithQueryParams: async (url, id, params = null, body = null, setHeader = false) => {
