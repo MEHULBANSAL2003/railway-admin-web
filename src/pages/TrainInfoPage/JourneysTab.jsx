@@ -4,11 +4,13 @@ import {
   ChevronUp, ChevronDown, ChevronsUpDown,
   Plus, RotateCcw, Inbox, Ban,
   AlertTriangle, CalendarDays, Zap, RefreshCw,
-  Radio, Train, CheckCircle2, X,
+  Radio, Train, CheckCircle2, X, LayoutGrid,
 } from 'lucide-react';
-import { useJourneyList }  from './useJourneyList.js';
-import { JourneyService }  from '../../services/JourneyService.js';
-import { useToast }        from '../../context/Toast/useToast.js';
+import { useJourneyList }   from './useJourneyList.js';
+import { JourneyService }   from '../../services/JourneyService.js';
+import { InventoryService } from '../../services/InventoryService.js';
+import { useToast }         from '../../context/Toast/useToast.js';
+import InventoryDrawer      from './InventoryDrawer.jsx';
 import '../AdminManagement/AddAdminModal.css';
 import './JourneysTab.css';
 
@@ -36,13 +38,12 @@ const STATUS_CFG = {
   COMPLETED: { cls: 'completed', icon: <CheckCircle2 size={10}/>, label: 'Completed' },
   CANCELLED: { cls: 'cancelled', icon: <Ban size={10}/>,          label: 'Cancelled' },
 };
-
 const StatusBadge = ({ status }) => {
   const cfg = STATUS_CFG[status] || { cls: '', icon: null, label: status };
   return <span className={`jt-status-badge ${cfg.cls}`}>{cfg.icon} {cfg.label}</span>;
 };
 
-// ── Sort icon — matches SortIcon in StationManagementPage ─
+// ── Sort icon ─────────────────────────────────────────────
 const SortIcon = ({ colKey, sort }) => {
   if (sort.sortBy !== colKey) return <ChevronsUpDown size={12} style={{ opacity: 0.3 }} />;
   return sort.sortDir === 'asc'
@@ -60,7 +61,7 @@ const SkeletonRow = () => (
   </tr>
 );
 
-// ── STATUS FILTER PILLS — always visible in toolbar ───────
+// ── Status filter pills ───────────────────────────────────
 const STATUS_OPTIONS = [
   { value: 'SCHEDULED', label: 'Scheduled', activeCls: 'pill-scheduled' },
   { value: 'DEPARTED',  label: 'Departed',  activeCls: 'pill-departed'  },
@@ -68,7 +69,7 @@ const STATUS_OPTIONS = [
   { value: 'CANCELLED', label: 'Cancelled', activeCls: 'pill-cancelled' },
 ];
 
-// ── Toolbar — filters always visible, like StationsPage ──
+// ── Toolbar ───────────────────────────────────────────────
 const Toolbar = ({ filters, handleFilterChange, handleFilterReset, totalElements, loading }) => {
   const hasActive = filters.dateFrom || filters.dateTo || filters.statuses.length > 0;
 
@@ -83,51 +84,31 @@ const Toolbar = ({ filters, handleFilterChange, handleFilterReset, totalElements
   return (
     <div className="sm-toolbar">
       <div className="sm-toolbar-filters">
-
-        {/* Date from */}
         <div className="jt-date-wrap">
           <label className="jt-date-label">From</label>
-          <input
-            type="date"
-            className="jt-date-input"
-            value={filters.dateFrom}
-            onChange={e => handleFilterChange('dateFrom', e.target.value)}
-          />
+          <input type="date" className="jt-date-input" value={filters.dateFrom}
+                 onChange={e => handleFilterChange('dateFrom', e.target.value)} />
         </div>
-
-        {/* Date to */}
         <div className="jt-date-wrap">
           <label className="jt-date-label">To</label>
-          <input
-            type="date"
-            className="jt-date-input"
-            value={filters.dateTo}
-            min={filters.dateFrom || undefined}
-            onChange={e => handleFilterChange('dateTo', e.target.value)}
-          />
+          <input type="date" className="jt-date-input" value={filters.dateTo}
+                 min={filters.dateFrom || undefined}
+                 onChange={e => handleFilterChange('dateTo', e.target.value)} />
         </div>
-
-        {/* Separator */}
         <div className="jt-toolbar-sep" />
-
-        {/* Status pills */}
         {STATUS_OPTIONS.map(opt => (
-          <button
-            key={opt.value}
-            className={`jt-status-pill${filters.statuses.includes(opt.value) ? ` active ${opt.activeCls}` : ''}`}
-            onClick={() => toggleStatus(opt.value)}>
+          <button key={opt.value}
+                  className={`jt-status-pill${filters.statuses.includes(opt.value) ? ` active ${opt.activeCls}` : ''}`}
+                  onClick={() => toggleStatus(opt.value)}>
             {opt.label}
           </button>
         ))}
-
-        {/* Reset */}
         {hasActive && (
           <button className="sm-reset-btn" onClick={handleFilterReset}>
             <RotateCcw size={12} /> Reset
           </button>
         )}
       </div>
-
       {!loading && (
         <div className="sm-result-count">
           {totalElements} journey{totalElements !== 1 ? 's' : ''}
@@ -140,8 +121,8 @@ const Toolbar = ({ filters, handleFilterChange, handleFilterReset, totalElements
 // ── Add Journey Modal ─────────────────────────────────────
 const AddJourneyModal = ({ open, onClose, trainNumber, onSuccess }) => {
   const { showError } = useToast();
-  const [date,   setDate]   = useState('');
-  const [error,  setError]  = useState('');
+  const [date, setDate] = useState('');
+  const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -173,7 +154,7 @@ const AddJourneyModal = ({ open, onClose, trainNumber, onSuccess }) => {
   if (!open) return null;
   return createPortal(
     <div className="aam-backdrop" onClick={saving ? undefined : onClose}>
-      <div className="aam-modal jt-modal" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true">
+      <div className="aam-modal jt-modal" onClick={e => e.stopPropagation()}>
         <div className="aam-header">
           <div className="aam-header-left">
             <div className="aam-header-icon jt-icon-blue"><CalendarDays size={17} /></div>
@@ -187,15 +168,13 @@ const AddJourneyModal = ({ open, onClose, trainNumber, onSuccess }) => {
         <div className="aam-body">
           <div className="jt-admin-note">
             <AlertTriangle size={13} />
-            Admin override — created regardless of schedule run days.
+            Journey will only be created if the date matches the schedule run days.
           </div>
           <div className="aam-field">
             <label className="aam-label">Journey Date <span className="aam-required">*</span></label>
-            <input
-              className={`aam-input${error ? ' aam-input--error' : ''}`}
-              type="date" min={addDaysStr(1)} value={date} disabled={saving}
-              onChange={e => { setDate(e.target.value); setError(''); }}
-            />
+            <input className={`aam-input${error ? ' aam-input--error' : ''}`}
+                   type="date" min={addDaysStr(1)} value={date} disabled={saving}
+                   onChange={e => { setDate(e.target.value); setError(''); }} />
             {error ? <p className="aam-error">{error}</p> : <p className="aam-hint">Must be a future date.</p>}
           </div>
         </div>
@@ -214,7 +193,7 @@ const AddJourneyModal = ({ open, onClose, trainNumber, onSuccess }) => {
 // ── Cancel Modal ──────────────────────────────────────────
 const CancelModal = ({ journey, onClose, trainNumber, onSuccess }) => {
   const { showError } = useToast();
-  const [reason,     setReason]     = useState('');
+  const [reason, setReason] = useState('');
   const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
@@ -242,7 +221,7 @@ const CancelModal = ({ journey, onClose, trainNumber, onSuccess }) => {
 
   return createPortal(
     <div className="aam-backdrop" onClick={cancelling ? undefined : onClose}>
-      <div className="aam-modal jt-cancel-modal" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true">
+      <div className="aam-modal jt-cancel-modal" onClick={e => e.stopPropagation()}>
         <div className="aam-header">
           <div className="aam-header-left">
             <div className="aam-header-icon jt-icon-red"><Ban size={17} /></div>
@@ -260,17 +239,16 @@ const CancelModal = ({ journey, onClose, trainNumber, onSuccess }) => {
           </div>
           <div className="aam-field">
             <label className="aam-label">Reason <span className="aam-required">*</span></label>
-            <textarea
-              className="aam-input jt-textarea"
-              rows={3} value={reason} disabled={cancelling}
-              placeholder="e.g. Flood — track blocked between NDLS and MTJ"
-              onChange={e => setReason(e.target.value)}
-            />
+            <textarea className="aam-input jt-textarea" rows={3} value={reason}
+                      disabled={cancelling}
+                      placeholder="e.g. Flood — track blocked between NDLS and MTJ"
+                      onChange={e => setReason(e.target.value)} />
           </div>
         </div>
         <div className="aam-footer">
           <button className="btn btn-secondary" onClick={onClose} disabled={cancelling}>Keep Journey</button>
-          <button className="jt-cancel-confirm-btn" onClick={handleConfirm} disabled={cancelling || !reason.trim()}>
+          <button className="jt-cancel-confirm-btn" onClick={handleConfirm}
+                  disabled={cancelling || !reason.trim()}>
             {cancelling ? <><span className="aam-spinner" /> Cancelling…</> : <><Ban size={14} /> Confirm Cancel</>}
           </button>
         </div>
@@ -293,15 +271,14 @@ const BulkBanner = ({ result, onDismiss }) => (
   </div>
 );
 
-// ── Columns config ────────────────────────────────────────
+// ── Columns ───────────────────────────────────────────────
 const COLS = [
-  { key: 'journeyDate', label: 'Date'},
-  { key: 'day',         label: 'Day',  noSort: true },
-  { key: 'status',      label: 'Status', noSort: true },
+  { key: 'journeyDate',   label: 'Date'          },
+  { key: 'day',           label: 'Day',  noSort: true },
+  { key: 'status',        label: 'Status'        },
   { key: 'chartPrepared', label: 'Chart', noSort: true },
   { key: 'cancelReason',  label: 'Cancel Reason', noSort: true },
-  { key: 'createdAt',   label: 'Created At', noSort: true },
-  { key: 'action',  label: 'Actions', noSort: true },
+  { key: 'createdAt',     label: 'Created At'    },
 ];
 
 // ── JourneysTab ───────────────────────────────────────────
@@ -315,13 +292,14 @@ const JourneysTab = ({ trainNumber }) => {
     loadMore, updateRow, refresh,
   } = useJourneyList(trainNumber);
 
-  const [addOpen,      setAddOpen]      = useState(false);
-  const [cancelTarget, setCancelTarget] = useState(null);
-  const [bulkResult,   setBulkResult]   = useState(null);
-  const [bulkLoading,  setBulkLoading]  = useState(false);
-  const [singleLoading,setSingleLoading]= useState(false);
+  const [addOpen,        setAddOpen]        = useState(false);
+  const [cancelTarget,   setCancelTarget]   = useState(null);
+  const [inventoryJourney, setInventoryJourney] = useState(null);
+  const [bulkResult,     setBulkResult]     = useState(null);
+  const [bulkLoading,    setBulkLoading]    = useState(false);
+  const [singleLoading,  setSingleLoading]  = useState(false);
 
-  // Infinite scroll sentinel
+  // Infinite scroll
   const sentinelRef = useRef(null);
   useEffect(() => {
     const el = sentinelRef.current;
@@ -333,12 +311,10 @@ const JourneysTab = ({ trainNumber }) => {
     return () => obs.disconnect();
   }, [loadMore]);
 
-  // ── Bulk generate ─────────────────────────────────────
   const handleBulkGenerate = async () => {
-    setBulkLoading(true);
-    setBulkResult(null);
+    setBulkLoading(true); setBulkResult(null);
     try {
-      const res    = await JourneyService.bulkGenerateJourneyOfTrain(trainNumber);
+      const res = await JourneyService.bulkGenerateJourneyOfTrain(trainNumber);
       const result = res.data.data || res.data;
       setBulkResult(result);
       if (result.created > 0) showSuccess(`${result.created} journeys generated.`);
@@ -348,12 +324,11 @@ const JourneysTab = ({ trainNumber }) => {
     } finally { setBulkLoading(false); }
   };
 
-  // ── Single generate ───────────────────────────────────
   const handleSingleGenerate = async () => {
     setSingleLoading(true);
     try {
       const res = await JourneyService.generateJourneyOfTrain(trainNumber);
-      const j   = res.data.data || res.data;
+      const j = res.data.data || res.data;
       showSuccess(`Journey created for ${fmtDate(j?.journeyDate)}.`);
       refresh();
     } catch (err) {
@@ -363,7 +338,6 @@ const JourneysTab = ({ trainNumber }) => {
 
   const handleCancelSuccess = (journeyId) => {
     showSuccess('Journey cancelled.');
-    // Optimistic update — no need to reload entire list
     updateRow(journeyId, { cancelled: true, status: 'CANCELLED' });
   };
 
@@ -372,32 +346,25 @@ const JourneysTab = ({ trainNumber }) => {
   return (
     <div className="jt-root">
 
-      {/* ── Top header with action buttons ── */}
+      {/* Header */}
       <div className="jt-tab-header">
-        <p className="jt-tab-desc">
-          All journeys for this train — filter by date range or status.
-        </p>
+        <p className="jt-tab-desc">All journeys — filter by date range or status. Click a row to view seat inventory.</p>
         <div className="jt-header-actions">
           <button className="btn btn-secondary btn-sm" onClick={() => setAddOpen(true)} disabled={anyLoading}>
             <Plus size={14} /> Add Journey
           </button>
           <button className="jt-btn-single" onClick={handleSingleGenerate} disabled={anyLoading}>
-            {singleLoading
-              ? <><span className="aam-spinner" /> Generating…</>
-              : <><RefreshCw size={13} /> Generate (120d)</>}
+            {singleLoading ? <><span className="aam-spinner" /> Generating…</> : <><RefreshCw size={13} /> Generate (120d)</>}
           </button>
           <button className="jt-btn-bulk" onClick={handleBulkGenerate} disabled={anyLoading}>
-            {bulkLoading
-              ? <><span className="aam-spinner" /> Generating…</>
-              : <><Zap size={13} /> Generate All Missing</>}
+            {bulkLoading ? <><span className="aam-spinner" /> Generating…</> : <><Zap size={13} /> Generate All Missing</>}
           </button>
         </div>
       </div>
 
-      {/* Bulk banner */}
       {bulkResult && <BulkBanner result={bulkResult} onDismiss={() => setBulkResult(null)} />}
 
-      {/* ── Main card (same pattern as StationManagementPage) ── */}
+      {/* Card */}
       <div className="card" style={{
         display: 'flex', flexDirection: 'column',
         overflow: 'hidden', maxHeight: 'calc(100vh - 300px)',
@@ -415,40 +382,33 @@ const JourneysTab = ({ trainNumber }) => {
             <thead>
             <tr>
               {COLS.map(col => (
-                <th
-                  key={col.key}
-                  className={`${!col.noSort ? 'sm-th-sortable' : ''}${sort.sortBy === col.key ? ' sm-th-sorted' : ''}`}
-                  onClick={() => !col.noSort && handleSort(col.key)}
-                  style={col.noSort ? {} : { cursor: 'pointer' }}>
+                <th key={col.key}
+                    className={`${!col.noSort ? 'sm-th-sortable' : ''}${sort.sortBy === col.key ? ' sm-th-sorted' : ''}`}
+                    onClick={() => !col.noSort && handleSort(col.key)}>
                   <div className="sm-th-inner">
                     {col.label}
                     {!col.noSort && <SortIcon colKey={col.key} sort={sort} />}
                   </div>
                 </th>
               ))}
-              <th style={{ width: 52 }} />
+              <th style={{ width: 72 }} />
             </tr>
             </thead>
             <tbody>
             {loading && Array.from({ length: 10 }).map((_, i) => <SkeletonRow key={i} />)}
 
             {!loading && data.map(j => {
-              const canCancel = !j.cancelled &&
-                !j.chartPrepared &&
-                j.status !== 'COMPLETED' &&
-                j.status !== 'DEPARTED';
+              const canCancel = !j.cancelled && !j.chartPrepared &&
+                j.status !== 'COMPLETED' && j.status !== 'DEPARTED';
 
               return (
-                <tr key={j.journeyId} className={j.cancelled ? 'jt-row-cancelled' : ''}>
-                  <td>
-                    <span className="jt-date-val">{fmtDate(j.journeyDate)}</span>
-                  </td>
-                  <td>
-                    <span className="jt-day-val">{fmtDay(j.journeyDate)}</span>
-                  </td>
-                  <td>
-                    <StatusBadge status={j.status} />
-                  </td>
+                <tr key={j.journeyId}
+                    className={`jt-row${j.cancelled ? ' jt-row-cancelled' : ''}`}
+                    onClick={() => !j.cancelled && setInventoryJourney(j)}
+                    style={{ cursor: j.cancelled ? 'default' : 'pointer' }}>
+                  <td><span className="jt-date-val">{fmtDate(j.journeyDate)}</span></td>
+                  <td><span className="jt-day-val">{fmtDay(j.journeyDate)}</span></td>
+                  <td><StatusBadge status={j.status} /></td>
                   <td>
                       <span className={`jt-chart-badge ${j.chartPrepared ? 'prepared' : 'pending'}`}>
                         {j.chartPrepared ? 'Prepared' : 'Pending'}
@@ -461,20 +421,24 @@ const JourneysTab = ({ trainNumber }) => {
                           </span>
                       : <span className="jt-empty-cell">—</span>}
                   </td>
-                  <td>
-                    <span className="jt-created-val">{j.createdAt || '—'}</span>
-                  </td>
-                  <td>
-                    {canCancel && (
-                      <div className="sm-row-actions">
-                        <button
-                          className="sm-action-btn jt-cancel-btn"
-                          title="Cancel journey"
-                          onClick={() => setCancelTarget(j)}>
+                  <td><span className="jt-created-val">{j.createdAt || '—'}</span></td>
+                  <td onClick={e => e.stopPropagation()}>
+                    <div className="sm-row-actions" style={{ opacity: 1 }}>
+                      {!j.cancelled && (
+                        <button className="sm-action-btn jt-inventory-btn"
+                                title="View seat inventory"
+                                onClick={e => { e.stopPropagation(); setInventoryJourney(j); }}>
+                          <LayoutGrid size={13} />
+                        </button>
+                      )}
+                      {canCancel && (
+                        <button className="sm-action-btn jt-cancel-btn"
+                                title="Cancel journey"
+                                onClick={e => { e.stopPropagation(); setCancelTarget(j); }}>
                           <Ban size={13} />
                         </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </td>
                 </tr>
               );
@@ -484,14 +448,11 @@ const JourneysTab = ({ trainNumber }) => {
             </tbody>
           </table>
 
-          {/* Infinite scroll sentinel */}
           {!loading && hasMore && <div ref={sentinelRef} style={{ height: 1 }} />}
 
           {!loading && data.length === 0 && (
             <div className="sm-empty">
-              <div className="sm-empty-icon" style={{ color: 'var(--text-tertiary)' }}>
-                <Inbox size={24} />
-              </div>
+              <div className="sm-empty-icon"><Inbox size={24} /></div>
               <div className="sm-empty-title">
                 {(filters.dateFrom || filters.dateTo || filters.statuses.length > 0)
                   ? 'No journeys match your filters'
@@ -506,30 +467,31 @@ const JourneysTab = ({ trainNumber }) => {
           )}
         </div>
 
-        {/* Footer — same sm-footer pattern */}
         {!loading && data.length > 0 && (
           <div className="sm-footer">
-            <span>
-              Showing <strong>{data.length}</strong> of <strong>{totalElements}</strong> journeys
-            </span>
+            <span>Showing <strong>{data.length}</strong> of <strong>{totalElements}</strong> journeys</span>
             {hasMore && <span>Scroll to load more</span>}
           </div>
         )}
       </div>
 
-      {/* ── Modals ── */}
-      <AddJourneyModal
-        open={addOpen}
-        onClose={() => setAddOpen(false)}
-        trainNumber={trainNumber}
-        onSuccess={() => { showSuccess('Journey added.'); refresh(); }}
-      />
+      {/* Modals */}
+      <AddJourneyModal open={addOpen} onClose={() => setAddOpen(false)}
+                       trainNumber={trainNumber}
+                       onSuccess={() => { showSuccess('Journey added.'); refresh(); }} />
+
       {cancelTarget && (
-        <CancelModal
-          journey={cancelTarget}
+        <CancelModal journey={cancelTarget} trainNumber={trainNumber}
+                     onClose={() => setCancelTarget(null)}
+                     onSuccess={handleCancelSuccess} />
+      )}
+
+      {/* Inventory drawer */}
+      {inventoryJourney && (
+        <InventoryDrawer
+          journey={inventoryJourney}
           trainNumber={trainNumber}
-          onClose={() => setCancelTarget(null)}
-          onSuccess={handleCancelSuccess}
+          onClose={() => setInventoryJourney(null)}
         />
       )}
     </div>
