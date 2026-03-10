@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Zap, UtensilsCrossed, Armchair,
-  Snowflake, Wind, Milestone, CalendarClock,
+  Snowflake, Wind, Milestone, CalendarClock, Train,
 } from 'lucide-react';
 import { TrainService }      from '../../services/TrainService.js';
 import { TrainCoachService } from '../../services/TrainCoachService.js';
@@ -15,6 +15,7 @@ import '../TrainCoachesPage/TrainCoachesPage.css';
 import './TrainInfoPage.css';
 import SchedulesTab from './SchedulesTab.jsx';
 import {TrainScheduleService} from "../../services/TrainScheduleService.js";
+import JourneysTab from './JourneysTab';
 
 // ── Coaches Tab ───────────────────────────────────────────
 const CoachesTab = ({ coaches, loading, onManage }) => (
@@ -174,6 +175,8 @@ const TrainInfoPage = () => {
     { key: 'stops',     label: 'Stops',     icon: <Milestone size={14} />,     count: stops.length },
     { key: 'coaches',   label: 'Coaches',   icon: <Armchair size={14} />,      count: coaches.length },
     { key: 'schedules', label: 'Schedules', icon: <CalendarClock size={14} />, count: null },
+    { key: 'journeys', label: 'Journeys', icon:  <Train size={14} />, count: null },
+
   ];
 
   return (
@@ -290,6 +293,7 @@ const TrainInfoPage = () => {
           />
         )}
         {activeTab === 'schedules' && <SchedulesTab trainNumber={trainNumber} />}
+        {activeTab === 'journeys' && <JourneysTab trainNumber={trainNumber} />}
       </div>
     </div>
   );
