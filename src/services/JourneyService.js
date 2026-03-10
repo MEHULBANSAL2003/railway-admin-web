@@ -5,9 +5,9 @@ const base_url = import.meta.env.VITE_API_TRAIN_URL;
 
 export const JourneyService = {
 
-  getAllJourneysOfTrain: async (trainNumber) => {
+  getAllJourneysOfTrain: async (trainNumber, params) => {
     const url = `${base_url}/${trainNumber}/journeys`;
-    return await HttpWrapper.get(url, null, true);
+    return await HttpWrapper.get(url, params, true);
   },
   generateJourneyOfTrain: async (trainNumber) => {
     const url = `${base_url}/${trainNumber}/journeys/generate`;
