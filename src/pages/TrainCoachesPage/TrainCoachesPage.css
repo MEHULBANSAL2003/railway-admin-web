@@ -237,3 +237,107 @@
 }
 .tc-submit-btn:hover:not(:disabled) { background: var(--primary-700); }
 .tc-submit-btn:disabled { background: var(--primary-300); cursor: not-allowed; }
+
+
+/* ── Conflict panel ──────────────────────────────────────── */
+.tc-conflict-panel {
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+.tc-conflict-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 12px;
+}
+.tc-conflict-header strong { font-size: 13px; }
+.tc-conflict-header span { color: #b91c1c; }
+
+.tc-conflict-list {
+  display: flex;
+  flex-direction: column;
+}
+.tc-conflict-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-top: 1px solid #fee2e2;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.tc-conflict-item:first-child { border-top: none; }
+
+.tc-conflict-date {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  min-width: 80px;
+}
+.tc-conflict-field {
+  flex: 1;
+  color: #b91c1c;
+  font-weight: 600;
+}
+.tc-conflict-numbers {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+.tc-conflict-numbers strong { color: #dc2626; font-size: 12px; }
+
+.tc-conflict-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 7px 14px;
+  background: #fef2f2;
+  border: none;
+  border-top: 1px solid #fee2e2;
+  color: #dc2626;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* ── Current config reminder strip ───────────────────────── */
+.tc-current-config {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+.tc-current-label {
+  font-weight: 700;
+  color: var(--text-tertiary);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.tc-current-config strong { color: var(--text-primary); }
+
+/* ── Effective date badge on coach card ──────────────────── */
+.tc-effective-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  padding: 2px 6px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  border: 1px solid var(--border-primary);
+}

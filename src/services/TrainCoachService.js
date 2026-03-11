@@ -36,4 +36,15 @@ export const TrainCoachService = {
   },
 
 
+  changeConfig: (trainNumber, coachId, payload) => {
+    const url = `${train_coach_base_url}/${trainNumber}/${coachId}/change-config`;
+    return HttpWrapper.post(url, payload, true);
+  },
+
+  deactivateCoach: (trainNumber, coachId, payload) => {
+    const url = `${train_coach_base_url}/${trainNumber}/${coachId}/deactivate`;
+    return HttpWrapper.post(url, payload, true);
+  },
+
+
 };
