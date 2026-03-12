@@ -341,3 +341,186 @@
   border-radius: 4px;
   border: 1px solid var(--border-primary);
 }
+
+/* ── History toggle button ───────────────────────────────── */
+.tc-history-wrap {
+  border-top: 1px solid var(--border-primary);
+  margin-top: var(--spacing-1);
+}
+
+.tc-history-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  padding: 8px 0 4px;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.tc-history-toggle:hover { color: var(--text-secondary); }
+.tc-history-toggle svg:last-child { margin-left: auto; }
+
+/* ── History panel ───────────────────────────────────────── */
+.tc-history-panel {
+  padding: 8px 0 4px;
+}
+
+.tc-history-loading,
+.tc-history-empty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  padding: 4px 0;
+}
+
+/* ── Timeline ────────────────────────────────────────────── */
+.tc-history-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.tc-history-row {
+  display: flex;
+  gap: 10px;
+  padding-bottom: 12px;
+}
+.tc-history-row:last-child { padding-bottom: 0; }
+
+/* Left track — dot + vertical line */
+.tc-timeline-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 14px;
+  padding-top: 3px;
+}
+
+.tc-timeline-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--era-dot);
+  flex-shrink: 0;
+  border: 2px solid var(--bg-primary);
+  box-shadow: 0 0 0 1px var(--era-dot);
+}
+
+.tc-timeline-line {
+  width: 2px;
+  flex: 1;
+  background: var(--border-primary);
+  margin-top: 4px;
+  min-height: 20px;
+}
+
+/* Right content */
+.tc-history-content {
+  flex: 1;
+  background: var(--era-bg);
+  border: 1px solid var(--era-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tc-history-header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tc-era-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--era-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tc-history-dates {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.tc-history-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.tc-history-stats strong {
+  color: var(--text-primary);
+}
+
+.tc-history-reason {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-style: italic;
+  line-height: 1.4;
+  border-top: 1px solid var(--era-border);
+  padding-top: 5px;
+  margin-top: 2px;
+}
+
+
+/* ── Deactivated coaches section ─────────────────────────── */
+.tc-inactive-section {
+  margin-top: var(--spacing-5);
+}
+
+.tc-inactive-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  text-align: left;
+}
+.tc-inactive-toggle:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.tc-inactive-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: #fee2e2;
+  color: #dc2626;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+}

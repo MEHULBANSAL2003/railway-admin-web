@@ -1,7 +1,7 @@
-import {HttpWrapper} from "../httpWrapper/HttpWrapper.js";
-import {ApiConstants} from "../constants/ApiConstants.js";
+import { HttpWrapper }  from "../httpWrapper/HttpWrapper.js";
+import { ApiConstants } from "../constants/ApiConstants.js";
 
-const train_coach_base_url =  import.meta.env.VITE_API_TRAIN_COACHES_URL;
+const train_coach_base_url = import.meta.env.VITE_API_TRAIN_COACHES_URL;
 
 export const TrainCoachService = {
 
@@ -15,26 +15,15 @@ export const TrainCoachService = {
     return HttpWrapper.post(url, payload, true);
   },
 
-  updateCoach: (trainNumber, coachId, payload)  => {
-    const url = `${train_coach_base_url}${ApiConstants.updateCoachesByTrain}/${trainNumber}/${coachId}`;
-    return HttpWrapper.post(url, payload, true);
-  },
-
-  toggleStatus: (trainNumber, coachId, isActive)  => {
-    const url = `${train_coach_base_url}${ApiConstants.changeTrainCoachStatus}/${trainNumber} `;
-    return HttpWrapper.postByIdWithQueryParams(url, coachId,{ isActive }, true);
-  },
-
   getAvailableTypes: (trainNumber) => {
     const url = `${train_coach_base_url}/available-types/${trainNumber}`;
-    return HttpWrapper.get(url,  null , true);
+    return HttpWrapper.get(url, null, true);
   },
 
-  copyCoaches: async (sourceTrainNumber, targetTrainNumber) => {
+  copyCoaches: (sourceTrainNumber, targetTrainNumber) => {
     const url = `${train_coach_base_url}/${sourceTrainNumber}/coaches/copy`;
-    return await HttpWrapper.post(url, { targetTrainNumber }, true);
+    return HttpWrapper.post(url, { targetTrainNumber }, true);
   },
-
 
   changeConfig: (trainNumber, coachId, payload) => {
     const url = `${train_coach_base_url}/${trainNumber}/${coachId}/change-config`;
@@ -46,5 +35,18 @@ export const TrainCoachService = {
     return HttpWrapper.post(url, payload, true);
   },
 
+  reactivateCoach: (trainNumber, coachId, payload) => {
+    const url = `${train_coach_base_url}/${trainNumber}/${coachId}/reactivate`;
+    return HttpWrapper.post(url, payload, true);
+  },
 
+  getCoachHistory: (trainNumber, coachTypeCode) => {
+    const url = `${train_coach_base_url}/${trainNumber}/${coachTypeCode}/history`;
+    return HttpWrapper.get(url, null, true);
+  },
+
+  getAllByTrainIncludingInactive: (trainNumber) => {
+    const url = `${train_coach_base_url}/${trainNumber}/coaches/all`;
+    return HttpWrapper.get(url, null, true);
+  },
 };
