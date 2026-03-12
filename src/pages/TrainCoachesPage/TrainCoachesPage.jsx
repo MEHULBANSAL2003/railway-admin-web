@@ -395,17 +395,13 @@ const TrainCoachesPage = () => {
   const [deactivTarget,  setDeactivTarget]  = useState(null);
   const [copyModalOpen,  setCopyModalOpen]  = useState(false);
   const [reactivTarget, setReactivTarget] = useState(null);
-  const [showInactive, setShowInactive] = useState(false);
-
 
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
       const [trainRes, coachRes] = await Promise.all([
         TrainService.getAllForDropdown(trainNumber),
-        showInactive
-          ? TrainCoachService.getAllByTrainIncludingInactive(trainNumber)
-          : TrainCoachService.getAllByTrain(trainNumber),
+        TrainCoachService.getAllByTrain(trainNumber),
       ]);
       const trainData = (trainRes.data.data || []).find(t => t.trainNumber === trainNumber);
       setTrain(trainData || null);
@@ -413,7 +409,7 @@ const TrainCoachesPage = () => {
     } catch {
       showError('Failed to load train coaches.');
     } finally { setLoading(false); }
-  }, [trainNumber, showInactive]);
+  }, [trainNumber]);
 
   useEffect(() => { loadAll(); }, [loadAll]);
 
@@ -433,7 +429,6 @@ const TrainCoachesPage = () => {
           <button className="tc-back-btn" onClick={() => navigate('/trains')}>
             <ArrowLeft size={16}/>
           </button>
-
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <h1 className="page-title" style={{ margin: 0 }}>Train {trainNumber}</h1>

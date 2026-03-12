@@ -45,6 +45,11 @@ export const TrainCoachService = {
     return HttpWrapper.get(url, null, true);
   },
 
+  getInactiveByTrain: (trainNumber) => {
+    const url = `${train_coach_base_url}/${trainNumber}/inactive`;
+    return HttpWrapper.get(url, null, true);
+  },
+
   getAllByTrainIncludingInactive: (trainNumber) => {
     const url = `${train_coach_base_url}/${trainNumber}/coaches/all`;
     return HttpWrapper.get(url, null, true);
