@@ -4,8 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Plus, Settings, Ban, Zap, X,
   Wind, Snowflake, Copy, CalendarRange, History,
-  ChevronDown, ChevronUp, Clock, CheckCircle2,
-  Circle, Armchair,
+  ChevronDown, ChevronUp, Armchair, RotateCcw,
 } from 'lucide-react';
 import { TrainCoachService } from '../../services/TrainCoachService.js';
 import { TrainService }      from '../../services/TrainService.js';
@@ -13,12 +12,12 @@ import { useToast }          from '../../context/Toast/useToast.js';
 import SearchableSelect      from '../../components/UI/SearchableSelect/SearchableSelect.jsx';
 import ChangeConfigModal     from './ChangeConfigModal.jsx';
 import DeactivateCoachModal  from './DeactivateCoachModal.jsx';
+import ReactivateCoachModal  from './ReactivateCoachModal.jsx';
 import CopyCoachesModal      from './CopyCoachesModal.jsx';
 import '../AdminManagement/AddAdminModal.css';
 import '../StationManagement/StationManagementPage.css';
 import '../TrainPage/TrainsPage.css';
 import './TrainCoachesPage.css';
-import ReactivateCoachModal from './ReactivateCoachModal.jsx';
 
 // ── Helpers ───────────────────────────────────────────────
 const Field = ({ label, required, error, hint, children }) => (
@@ -46,17 +45,11 @@ const fmtDate = (d) => {
   return `${day}/${m}/${y}`;
 };
 
-// Classify a history row relative to today
 const rowEra = (row) => {
-  const today = new Date();
-  today.setHours(0,0,0,0);
-
-  const from = new Date(row.effectiveFrom);
-  from.setHours(0,0,0,0);
-
-  const to = row.effectiveTo ? new Date(row.effectiveTo) : null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const from  = new Date(row.effectiveFrom); from.setHours(0,0,0,0);
+  const to    = row.effectiveTo ? new Date(row.effectiveTo) : null;
   if (to) to.setHours(0,0,0,0);
-
   if (from > today) return 'future';
   if (!to || to >= today) return 'current';
   return 'past';
@@ -68,7 +61,7 @@ const ERA_CONFIG = {
   past:    { label: 'Past',     color: '#6b7280', bg: '#f9fafb', border: '#e5e7eb', dot: '#9ca3af' },
 };
 
-// ── History Panel (inline expandable) ────────────────────
+// ── History Panel ─────────────────────────────────────────
 const HistoryPanel = ({ trainNumber, coach }) => {
   const [open,    setOpen]    = useState(false);
   const [rows,    setRows]    = useState([]);
@@ -78,32 +71,26 @@ const HistoryPanel = ({ trainNumber, coach }) => {
 
   const load = async () => {
     if (loaded) { setOpen(o => !o); return; }
-    setLoading(true);
-    setOpen(true);
+    setLoading(true); setOpen(true);
     try {
       const res = await TrainCoachService.getCoachHistory(trainNumber, coach.coachTypeCode);
       setRows(res.data.data || []);
       setLoaded(true);
-    } catch {
-      showError('Failed to load history.');
-      setOpen(false);
-    } finally { setLoading(false); }
+    } catch { showError('Failed to load history.'); setOpen(false); }
+    finally   { setLoading(false); }
   };
 
   return (
     <div className="tc-history-wrap">
       <button className="tc-history-toggle" onClick={load}>
-        <History size={11}/>
-        Config history
+        <History size={11}/> Config history
         {open ? <ChevronUp size={11}/> : <ChevronDown size={11}/>}
       </button>
-
       {open && (
         <div className="tc-history-panel">
           {loading ? (
             <div className="tc-history-loading">
-              <span className="aam-spinner" style={{ borderTopColor: '#6b7280' }}/>
-              Loading history…
+              <span className="aam-spinner" style={{ borderTopColor: '#6b7280' }}/> Loading history…
             </div>
           ) : rows.length === 0 ? (
             <div className="tc-history-empty">No history found.</div>
@@ -116,40 +103,26 @@ const HistoryPanel = ({ trainNumber, coach }) => {
                   <div key={row.coachId} className="tc-history-row"
                        style={{ '--era-color': cfg.color, '--era-bg': cfg.bg,
                          '--era-border': cfg.border, '--era-dot': cfg.dot }}>
-
-                    {/* Timeline line + dot */}
                     <div className="tc-timeline-track">
                       <div className="tc-timeline-dot"/>
                       {i < rows.length - 1 && <div className="tc-timeline-line"/>}
                     </div>
-
-                    {/* Content */}
                     <div className="tc-history-content">
                       <div className="tc-history-header-row">
                         <span className="tc-era-badge">{cfg.label}</span>
                         <span className="tc-history-dates">
                           <CalendarRange size={10}/>
                           {fmtDate(row.effectiveFrom)}
-                          {row.effectiveTo
-                            ? ` → ${fmtDate(row.effectiveTo)}`
-                            : ' → ongoing'}
+                          {row.effectiveTo ? ` → ${fmtDate(row.effectiveTo)}` : ' → ongoing'}
                         </span>
                       </div>
-
                       <div className="tc-history-stats">
                         <span><strong>{row.coachCount}</strong> coaches</span>
                         <span><strong>{row.coachCount * row.totalSeats}</strong> seats</span>
-                        <span style={{ color: '#d97706' }}>
-                          <strong>{row.tatkalSeats}</strong>/coach tatkal
-                        </span>
-                        <span style={{ color: '#7c3aed' }}>
-                          <strong>{row.racSeats}</strong>/coach RAC
-                        </span>
-                        <span style={{ color: '#0369a1' }}>
-                          WL <strong>{row.waitlistLimit}</strong>
-                        </span>
+                        <span style={{ color: '#d97706' }}><strong>{row.tatkalSeats}</strong>/coach tatkal</span>
+                        <span style={{ color: '#7c3aed' }}><strong>{row.racSeats}</strong>/coach RAC</span>
+                        <span style={{ color: '#0369a1' }}>WL <strong>{row.waitlistLimit}</strong></span>
                       </div>
-
                       {row.changeReason && (
                         <div className="tc-history-reason">"{row.changeReason}"</div>
                       )}
@@ -160,6 +133,155 @@ const HistoryPanel = ({ trainNumber, coach }) => {
             </div>
           )}
         </div>
+      )}
+    </div>
+  );
+};
+
+// ── Inactive Coach Card ───────────────────────────────────
+const InactiveCoachCard = ({ coach, trainNumber, onReactivate }) => (
+  <div className="tc-card tc-card-inactive">
+
+    {/* Header */}
+    <div className="tc-card-header">
+      <div className="tc-card-type">
+        <span className="tc-code-badge" style={{ color: '#6b7280', background: '#f3f4f6' }}>
+          {coach.coachTypeCode}
+        </span>
+        {coach.isAc
+          ? <span className="tc-ac-tag"><Snowflake size={10}/> AC</span>
+          : <span className="tc-non-ac-tag"><Wind size={10}/> Non-AC</span>}
+      </div>
+      <div className="tc-card-actions">
+        <button className="sm-action-btn tc-reactivate-btn" title="Reactivate"
+                onClick={() => onReactivate(coach)}>
+          <RotateCcw size={13}/>
+          <span>Reactivate</span>
+        </button>
+      </div>
+    </div>
+
+    <div className="tc-card-name">{coach.coachTypeName}</div>
+
+    {/* Deactivated range */}
+    {coach.effectiveFrom && (
+      <div className="tc-effective-badge tc-deactivated-badge">
+        <Ban size={10}/>
+        Deactivated: {fmtDate(coach.effectiveFrom)}
+        {coach.effectiveTo ? ` → ${fmtDate(coach.effectiveTo)}` : ' onwards'}
+      </div>
+    )}
+
+    {/* Last known config */}
+    <div className="tc-card-stats">
+      <div className="tc-stat">
+        <span className="tc-stat-label">Coaches</span>
+        <span className="tc-stat-value">{coach.coachCount}</span>
+      </div>
+      <div className="tc-stat">
+        <span className="tc-stat-label">Seats / coach</span>
+        <span className="tc-stat-value">{coach.totalSeats}</span>
+      </div>
+      <div className="tc-stat">
+        <span className="tc-stat-label">Total seats</span>
+        <span className="tc-stat-value" style={{ color: '#6b7280' }}>{coach.totalCoachSeats}</span>
+      </div>
+      <div className="tc-stat">
+        <span className="tc-stat-label">Tatkal / coach</span>
+        <span className="tc-stat-value" style={{ color: '#9a7b4f' }}>{coach.tatkalSeats}</span>
+      </div>
+      <div className="tc-stat">
+        <span className="tc-stat-label">RAC / coach</span>
+        <span className="tc-stat-value" style={{ color: '#7c6aad' }}>{coach.racSeats}</span>
+      </div>
+      <div className="tc-stat">
+        <span className="tc-stat-label">WL limit</span>
+        <span className="tc-stat-value" style={{ color: '#5b8cba' }}>{coach.waitlistLimit}</span>
+      </div>
+    </div>
+
+    {coach.changeReason && (
+      <div className="tc-inactive-reason">
+        Reason: <em>{coach.changeReason}</em>
+      </div>
+    )}
+
+    <div className="tc-inactive-banner">Inactive</div>
+  </div>
+);
+
+// ── Deactivated Section ───────────────────────────────────
+const DeactivatedSection = ({ trainNumber, onReactivate, refreshKey }) => {
+  const [open,    setOpen]    = useState(false);
+  const [coaches, setCoaches] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loaded,  setLoaded]  = useState(false);
+  const { showError } = useToast();
+
+  // Re-fetch when parent signals a reload (refreshKey changes)
+  useEffect(() => {
+    if (!loaded) return;
+    fetchInactive();
+  }, [refreshKey]);
+
+  const fetchInactive = async () => {
+    setLoading(true);
+    try {
+      const res = await TrainCoachService.getInactiveByTrain(trainNumber);
+      setCoaches(res.data.data || []);
+      setLoaded(true);
+    } catch { showError('Failed to load inactive coaches.'); }
+    finally   { setLoading(false); }
+  };
+
+  const handleToggle = async () => {
+    if (!open && !loaded) await fetchInactive();
+    setOpen(o => !o);
+  };
+
+  if (!open && loaded && coaches.length === 0) return null;
+
+  return (
+    <div className="tc-inactive-section">
+      <button className="tc-inactive-toggle" onClick={handleToggle}>
+        <Ban size={14} style={{ color: '#dc2626' }}/>
+        Deactivated Coaches
+        {loaded && coaches.length > 0 && (
+          <span className="tc-inactive-count">{coaches.length}</span>
+        )}
+        <span style={{ marginLeft: 'auto', color: 'var(--text-tertiary)', display: 'flex' }}>
+          {loading
+            ? <span className="aam-spinner" style={{ width: 14, height: 14, borderTopColor: '#9ca3af' }}/>
+            : open ? <ChevronUp size={14}/> : <ChevronDown size={14}/>}
+        </span>
+      </button>
+
+      {open && !loading && (
+        coaches.length === 0 ? (
+          <div style={{
+            padding: '20px 16px',
+            textAlign: 'center',
+            fontSize: 13,
+            color: 'var(--text-tertiary)',
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-primary)',
+            borderTop: 'none',
+            borderRadius: '0 0 var(--radius-lg) var(--radius-lg)',
+          }}>
+            No deactivated coaches.
+          </div>
+        ) : (
+          <div className="tc-grid" style={{ marginTop: 'var(--spacing-3)' }}>
+            {coaches.map(coach => (
+              <InactiveCoachCard
+                key={coach.coachId}
+                coach={coach}
+                trainNumber={trainNumber}
+                onReactivate={onReactivate}
+              />
+            ))}
+          </div>
+        )
       )}
     </div>
   );
@@ -199,8 +321,7 @@ const AddCoachModal = ({ open, onClose, trainNumber, onSuccess }) => {
 
   const fetchCoachTypes = async (search) => {
     const res = await TrainCoachService.getAvailableTypes(trainNumber);
-    const filtered = res.data.data || [];
-    return filtered
+    return (res.data.data || [])
       .filter(ct => !search ||
         ct.typeCode.toLowerCase().includes(search.toLowerCase()) ||
         ct.typeName.toLowerCase().includes(search.toLowerCase()))
@@ -265,7 +386,6 @@ const AddCoachModal = ({ open, onClose, trainNumber, onSuccess }) => {
   const tatkal = Number(form.tatkalSeats)   || 0;
   const rac    = Number(form.racSeats)      || 0;
   const wl     = Number(form.waitlistLimit) || 0;
-  const showPreview = count > 0 && total > 0;
 
   return createPortal(
     <div className="aam-backdrop" onClick={saving ? undefined : onClose}>
@@ -288,10 +408,7 @@ const AddCoachModal = ({ open, onClose, trainNumber, onSuccess }) => {
         <div className="aam-body">
           <Field label="Coach Type" required error={errors.coachTypeCode}>
             <SearchableSelect value={form.coachTypeCode}
-                              onChange={(val, raw) => {
-                                set('coachTypeCode', val || '');
-                                setSelectedRaw(raw?.raw || null);
-                              }}
+                              onChange={(val, raw) => { set('coachTypeCode', val || ''); setSelectedRaw(raw?.raw || null); }}
                               fetchOptions={fetchCoachTypes} placeholder="Select coach type…"
                               disabled={saving} size="full" />
           </Field>
@@ -320,31 +437,27 @@ const AddCoachModal = ({ open, onClose, trainNumber, onSuccess }) => {
             </Field>
           </div>
 
-          {/* Effective dates */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-4)' }}>
-            <Field label="Effective From" required error={errors.effectiveFrom}
-                   hint="Config starts from this date">
+            <Field label="Effective From" required error={errors.effectiveFrom} hint="Config starts from this date">
               <input className={`aam-input${errors.effectiveFrom ? ' aam-input--error' : ''}`}
                      type="date" value={form.effectiveFrom}
                      onChange={e => set('effectiveFrom', e.target.value)} disabled={saving} />
             </Field>
             <Field label="Effective To" error={errors.effectiveTo} hint="Leave blank for no end date">
               <input className={`aam-input${errors.effectiveTo ? ' aam-input--error' : ''}`}
-                     type="date" value={form.effectiveTo}
-                     min={form.effectiveFrom || todayStr()}
+                     type="date" value={form.effectiveTo} min={form.effectiveFrom || todayStr()}
                      onChange={e => set('effectiveTo', e.target.value)} disabled={saving} />
             </Field>
           </div>
 
-          <Field label="Reason" error={errors.changeReason} hint="Optional — why is this coach being added?">
-            <textarea className="aam-input" rows={2} value={form.changeReason}
-                      disabled={saving}
+          <Field label="Reason" hint="Optional — why is this coach being added?">
+            <textarea className="aam-input" rows={2} value={form.changeReason} disabled={saving}
                       placeholder="e.g. Added for festive season demand"
                       onChange={e => set('changeReason', e.target.value)}
                       style={{ resize: 'vertical', fontFamily: 'inherit' }} />
           </Field>
 
-          {showPreview && (
+          {count > 0 && total > 0 && (
             <div className="tc-preview">
               <div className="tc-preview-title">Totals for this train</div>
               <div className="tc-preview-grid">
@@ -384,17 +497,19 @@ const AddCoachModal = ({ open, onClose, trainNumber, onSuccess }) => {
 // ── Main Page ─────────────────────────────────────────────
 const TrainCoachesPage = () => {
   const { trainNumber } = useParams();
-  const navigate = useNavigate();
+  const navigate        = useNavigate();
   const { showSuccess, showError } = useToast();
 
-  const [train,          setTrain]          = useState(null);
-  const [coaches,        setCoaches]        = useState([]);
-  const [loading,        setLoading]        = useState(true);
-  const [addOpen,        setAddOpen]        = useState(false);
-  const [changeTarget,   setChangeTarget]   = useState(null);
-  const [deactivTarget,  setDeactivTarget]  = useState(null);
-  const [copyModalOpen,  setCopyModalOpen]  = useState(false);
-  const [reactivTarget, setReactivTarget] = useState(null);
+  const [train,            setTrain]            = useState(null);
+  const [coaches,          setCoaches]          = useState([]);
+  const [loading,          setLoading]          = useState(true);
+  const [addOpen,          setAddOpen]          = useState(false);
+  const [changeTarget,     setChangeTarget]     = useState(null);
+  const [deactivTarget,    setDeactivTarget]    = useState(null);
+  const [reactivateTarget, setReactivateTarget] = useState(null);
+  const [copyModalOpen,    setCopyModalOpen]    = useState(false);
+  // Incrementing this key tells DeactivatedSection to re-fetch
+  const [inactiveRefresh,  setInactiveRefresh]  = useState(0);
 
   const loadAll = useCallback(async () => {
     setLoading(true);
@@ -406,19 +521,31 @@ const TrainCoachesPage = () => {
       const trainData = (trainRes.data.data || []).find(t => t.trainNumber === trainNumber);
       setTrain(trainData || null);
       setCoaches(coachRes.data.data || []);
-    } catch {
-      showError('Failed to load train coaches.');
-    } finally { setLoading(false); }
+    } catch { showError('Failed to load train coaches.'); }
+    finally   { setLoading(false); }
   }, [trainNumber]);
 
   useEffect(() => { loadAll(); }, [loadAll]);
 
-  const active          = coaches.filter(c => c.isActive);
+  // Stats — only currently active coaches
+  const active          = coaches.filter(c => c.isCurrentlyActive);
   const totalCoachCount = active.reduce((s, c) => s + c.coachCount, 0);
   const totalSeats      = active.reduce((s, c) => s + c.totalCoachSeats, 0);
   const totalTatkal     = active.reduce((s, c) => s + c.totalTatkalSeats, 0);
   const totalRac        = active.reduce((s, c) => s + c.totalRacSeats, 0);
   const totalWaitlist   = active.reduce((s, c) => s + c.waitlistLimit, 0);
+
+  const handleDeactivateSuccess = (result) => {
+    showSuccess(result.message);
+    loadAll();
+    setInactiveRefresh(k => k + 1); // refresh inactive section too
+  };
+
+  const handleReactivateSuccess = (result) => {
+    showSuccess(result.message);
+    loadAll();
+    setInactiveRefresh(k => k + 1);
+  };
 
   return (
     <div className="page-container">
@@ -454,12 +581,12 @@ const TrainCoachesPage = () => {
       {/* Stat boxes */}
       <div className="trains-stat-row">
         {[
-          { label: 'Coach Types',   value: coaches.length,    color: undefined },
-          { label: 'Total Coaches', value: totalCoachCount,   color: '#1d4ed8' },
-          { label: 'Total Seats',   value: totalSeats,        color: '#16a34a' },
-          { label: 'Tatkal Seats',  value: totalTatkal,       color: '#d97706' },
-          { label: 'RAC Seats',     value: totalRac,          color: '#7c3aed' },
-          { label: 'WL Capacity',   value: totalWaitlist,     color: '#0369a1' },
+          { label: 'Active Types',  value: active.length,   color: undefined },
+          { label: 'Total Coaches', value: totalCoachCount, color: '#1d4ed8' },
+          { label: 'Total Seats',   value: totalSeats,      color: '#16a34a' },
+          { label: 'Tatkal Seats',  value: totalTatkal,     color: '#d97706' },
+          { label: 'RAC Seats',     value: totalRac,        color: '#7c3aed' },
+          { label: 'WL Capacity',   value: totalWaitlist,   color: '#0369a1' },
         ].map(s => (
           <div key={s.label} className="trains-stat-box">
             <div className="trains-stat-label">{s.label}</div>
@@ -470,7 +597,7 @@ const TrainCoachesPage = () => {
         ))}
       </div>
 
-      {/* Coach cards */}
+      {/* Active coach cards */}
       {loading ? (
         <div className="tc-grid">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -493,10 +620,7 @@ const TrainCoachesPage = () => {
       ) : (
         <div className="tc-grid">
           {coaches.map(coach => (
-            <div key={coach.coachId}
-                 className={`tc-card${!coach.isActive ? ' tc-card-inactive' : ''}`}>
-
-              {/* Card header */}
+            <div key={coach.coachId} className="tc-card">
               <div className="tc-card-header">
                 <div className="tc-card-type">
                   <span className="tc-code-badge">{coach.coachTypeCode}</span>
@@ -505,31 +629,19 @@ const TrainCoachesPage = () => {
                     : <span className="tc-non-ac-tag"><Wind size={10}/> Non-AC</span>}
                 </div>
                 <div className="tc-card-actions">
-                  {coach.isActive && (
-                    <button className="sm-action-btn" title="Change config"
-                            onClick={() => setChangeTarget(coach)}>
-                      <Settings size={13}/>
-                    </button>
-                  )}
-                  {coach.isActive && (
-                    <button className="sm-action-btn danger" title="Deactivate"
-                            onClick={() => setDeactivTarget(coach)}>
-                      <Ban size={13}/>
-                    </button>
-                  )}
-                  {!coach.isActive && (
-                    <button className="sm-action-btn" title="Reactivate"
-                            style={{ color: '#16a34a', borderColor: '#bbf7d0', background: '#f0fdf4' }}
-                            onClick={() => setReactivTarget(coach)}>
-                      <CheckCircle2 size={13}/>
-                    </button>
-                  )}
+                  <button className="sm-action-btn" title="Change config"
+                          onClick={() => setChangeTarget(coach)}>
+                    <Settings size={13}/>
+                  </button>
+                  <button className="sm-action-btn danger" title="Deactivate"
+                          onClick={() => setDeactivTarget(coach)}>
+                    <Ban size={13}/>
+                  </button>
                 </div>
               </div>
 
               <div className="tc-card-name">{coach.coachTypeName}</div>
 
-              {/* Effective date badge */}
               {coach.effectiveFrom && (
                 <div className="tc-effective-badge">
                   <CalendarRange size={10}/>
@@ -538,19 +650,15 @@ const TrainCoachesPage = () => {
                 </div>
               )}
 
-              {/* Coach pills */}
               <div className="tc-coach-pills">
                 {Array.from({ length: Math.min(coach.coachCount, 12) }).map((_, i) => (
-                  <span key={i} className="tc-coach-pill">
-                    {coach.coachTypeCode}{i + 1}
-                  </span>
+                  <span key={i} className="tc-coach-pill">{coach.coachTypeCode}{i + 1}</span>
                 ))}
                 {coach.coachCount > 12 && (
                   <span className="tc-coach-pill more">+{coach.coachCount - 12}</span>
                 )}
               </div>
 
-              {/* Stats grid */}
               <div className="tc-card-stats">
                 <div className="tc-stat">
                   <span className="tc-stat-label">Coaches</span>
@@ -578,18 +686,23 @@ const TrainCoachesPage = () => {
                 </div>
               </div>
 
-              {/* History panel */}
               <HistoryPanel trainNumber={trainNumber} coach={coach} />
-
-              {!coach.isActive && <div className="tc-inactive-banner">Inactive</div>}
             </div>
           ))}
         </div>
       )}
 
+      {/* ── Deactivated coaches section ─────────────────── */}
+      <DeactivatedSection
+        trainNumber={trainNumber}
+        refreshKey={inactiveRefresh}
+        onReactivate={(coach) => setReactivateTarget(coach)}
+      />
+
+      {/* Modals */}
       <AddCoachModal open={addOpen} onClose={() => setAddOpen(false)}
                      trainNumber={trainNumber}
-                     onSuccess={(saved) => { loadAll(); showSuccess('Coach added successfully.'); }} />
+                     onSuccess={() => { loadAll(); showSuccess('Coach added successfully.'); }} />
 
       <ChangeConfigModal
         open={!!changeTarget} coach={changeTarget}
@@ -601,18 +714,18 @@ const TrainCoachesPage = () => {
         open={!!deactivTarget} coach={deactivTarget}
         trainNumber={trainNumber}
         onClose={() => setDeactivTarget(null)}
-        onSuccess={(result) => { showSuccess(result.message); loadAll(); }} />
+        onSuccess={handleDeactivateSuccess} />
+
+      <ReactivateCoachModal
+        open={!!reactivateTarget} coach={reactivateTarget}
+        trainNumber={trainNumber}
+        onClose={() => setReactivateTarget(null)}
+        onSuccess={handleReactivateSuccess} />
 
       <CopyCoachesModal
         open={copyModalOpen} onClose={() => setCopyModalOpen(false)}
         sourceTrainNumber={trainNumber} coachCount={coaches.length}
         onSuccess={() => showSuccess('Coaches copied successfully.')} />
-
-      <ReactivateCoachModal
-        open={!!reactivTarget} coach={reactivTarget}
-        trainNumber={trainNumber}
-        onClose={() => setReactivTarget(null)}
-        onSuccess={(result) => { showSuccess(result.message); loadAll(); }} />
     </div>
   );
 };
