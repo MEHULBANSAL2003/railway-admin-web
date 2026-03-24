@@ -238,14 +238,14 @@ const CoachTypesPage = () => {
   };
 
   // ── NEW: called by CascadeToggleModal on confirm ──
-  const handleToggleConfirm = async () => {
+  const handleToggleConfirm = async (payload) => {
     const { item, targetStatus } = cascadeModal;
     // Optimistic update
     setData(prev => prev.map(r =>
       r.typeId === item.typeId ? { ...r, isActive: targetStatus } : r
     ));
     try {
-      const res = await CoachTypeService.toggleStatus(item.typeCode, targetStatus);
+      const res = await CoachTypeService.toggleStatus(item.typeCode, payload);
       // Backend returns cascade message e.g. "Deactivated. 5 fare rules also deactivated."
       showSuccess(res.data?.data?.message || `Status updated.`);
       // Refresh to reflect any cascaded fare rule changes

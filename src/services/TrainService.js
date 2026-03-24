@@ -27,9 +27,9 @@ export const TrainService = {
     return await HttpWrapper.post(url, payload, true);
   },
 
-  toggleStatus: async (trainNumber, isActive) => {
-    const url = `${train_base_url}${ApiConstants.changeTrainStatus}`;
-    return await HttpWrapper.postByIdWithQueryParams(url, trainNumber, { isActive }, true);
+  toggleStatus: async (trainNumber, payload) => {
+    const url = `${train_base_url}${ApiConstants.changeTrainStatus}/${trainNumber}`;
+    return await HttpWrapper.post(url, payload, true);
   },
 
   getCascadeInfo: async(trainNumber) => {

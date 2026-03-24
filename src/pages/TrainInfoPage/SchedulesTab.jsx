@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import {
   CalendarClock, Plus, X, AlertTriangle,
   CheckCircle2, Clock, ChevronDown,
-  Calendar, Radio, Hourglass, Ban, RotateCcw,
+  Calendar, Radio, Hourglass, Ban, RotateCcw, ToggleLeft, ToggleRight,
 } from 'lucide-react';
 import { TrainScheduleService } from '../../services/TrainScheduleService.js';
 import { useToast }             from '../../context/Toast/useToast.js';
@@ -301,15 +301,148 @@ const Section = ({ label, icon, count, children, defaultOpen = false }) => {
 };
 
 // ─────────────────────────────────────────────────
+// Schedule Status Change Modal
+// ─────────────────────────────────────────────────
+const ScheduleStatusModal = ({ open, onClose, schedule, onConfirm }) => {
+  const { showError } = useToast();
+  const isDeactivated = schedule?.status === 'DEACTIVATED';
+  const targetActive  = isDeactivated; // reactivate if deactivated, deactivate otherwise
+
+  const [effectiveFrom, setEffectiveFrom] = useState(todayStr());
+  const [effectiveTill, setEffectiveTill] = useState('');
+  const [reason,        setReason]        = useState('');
+  const [errors,        setErrors]        = useState({});
+  const [saving,        setSaving]        = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setEffectiveFrom(todayStr());
+      setEffectiveTill('');
+      setReason('');
+      setErrors({});
+    }
+    document.body.style.overflow = open ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const h = (e) => { if (e.key === 'Escape' && !saving) onClose(); };
+    document.addEventListener('keydown', h);
+    return () => document.removeEventListener('keydown', h);
+  }, [open, saving, onClose]);
+
+  const validate = () => {
+    const e = {};
+    if (!effectiveFrom) e.effectiveFrom = 'Required.';
+    else if (effectiveFrom < todayStr()) e.effectiveFrom = 'Must be today or future.';
+    if (effectiveTill && effectiveTill <= effectiveFrom)
+      e.effectiveTill = 'Must be after effective from.';
+    if (!reason.trim()) e.reason = 'Reason is required.';
+    else if (reason.trim().length > 500) e.reason = 'Max 500 characters.';
+    return e;
+  };
+
+  const handleSubmit = async () => {
+    const e = validate();
+    if (Object.keys(e).length) { setErrors(e); return; }
+    setSaving(true);
+    try {
+      await onConfirm(schedule, {
+        status: targetActive ? 'ACTIVE' : 'INACTIVE',
+        effectiveFrom,
+        effectiveTill: effectiveTill || null,
+        reason: reason.trim(),
+      });
+      onClose();
+    } catch {
+      // error handled by caller
+    } finally { setSaving(false); }
+  };
+
+  if (!open || !schedule) return null;
+
+  return createPortal(
+    <div className="aam-backdrop" onClick={saving ? undefined : onClose}>
+      <div className="aam-modal sct-modal" onClick={e => e.stopPropagation()}
+           role="dialog" aria-modal="true">
+        <div className="aam-header">
+          <div className="aam-header-left">
+            <div className="aam-header-icon" style={{
+              background: targetActive ? '#f0fdf4' : '#fef2f2',
+              color: targetActive ? '#16a34a' : '#dc2626',
+            }}>
+              {targetActive ? <RotateCcw size={17} /> : <Ban size={17} />}
+            </div>
+            <div>
+              <h2 className="aam-title">
+                {targetActive ? 'Reactivate Schedule' : 'Deactivate Schedule'}
+              </h2>
+              <p className="aam-subtitle">
+                {schedule.runDays?.join(', ')} · from {fmtDate(schedule.startDate)}
+              </p>
+            </div>
+          </div>
+          <button className="aam-close" onClick={onClose} disabled={saving}><X size={18}/></button>
+        </div>
+
+        <div className="aam-body">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-4)' }}>
+            <div className="aam-field">
+              <label className="aam-label">Effective From <span className="aam-required">*</span></label>
+              <input className={`aam-input${errors.effectiveFrom ? ' aam-input--error' : ''}`}
+                     type="date" value={effectiveFrom} min={todayStr()} disabled={saving}
+                     onChange={e => { setEffectiveFrom(e.target.value); setErrors(p => ({...p, effectiveFrom: ''})); }} />
+              {errors.effectiveFrom && <p className="aam-error">{errors.effectiveFrom}</p>}
+            </div>
+            <div className="aam-field">
+              <label className="aam-label">Effective Till</label>
+              <input className={`aam-input${errors.effectiveTill ? ' aam-input--error' : ''}`}
+                     type="date" value={effectiveTill} min={effectiveFrom || todayStr()} disabled={saving}
+                     onChange={e => { setEffectiveTill(e.target.value); setErrors(p => ({...p, effectiveTill: ''})); }} />
+              {errors.effectiveTill && <p className="aam-error">{errors.effectiveTill}</p>}
+              <p className="aam-hint">Leave blank for indefinite</p>
+            </div>
+          </div>
+          <div className="aam-field">
+            <label className="aam-label">Reason <span className="aam-required">*</span></label>
+            <textarea className={`aam-input${errors.reason ? ' aam-input--error' : ''}`}
+                      rows={2} value={reason} disabled={saving} maxLength={500}
+                      placeholder={targetActive ? 'e.g. Resuming service after track work' : 'e.g. Suspending due to low demand'}
+                      onChange={e => { setReason(e.target.value); setErrors(p => ({...p, reason: ''})); }}
+                      style={{ resize: 'vertical', fontFamily: 'inherit' }} />
+            {errors.reason && <p className="aam-error">{errors.reason}</p>}
+            <p style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 3, textAlign: 'right' }}>{reason.length}/500</p>
+          </div>
+        </div>
+
+        <div className="aam-footer">
+          <button className="btn btn-secondary" onClick={onClose} disabled={saving}>Cancel</button>
+          <button className="sct-submit-btn" onClick={handleSubmit} disabled={saving}
+                  style={{
+                    background: saving ? 'var(--bg-tertiary)' : targetActive ? '#16a34a' : '#dc2626',
+                    color: saving ? 'var(--text-tertiary)' : '#fff',
+                  }}>
+            {saving ? <><span className="aam-spinner"/> Processing…</> : targetActive ? 'Reactivate' : 'Deactivate'}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+};
+
+// ─────────────────────────────────────────────────
 // SchedulesTab — default export
 // ─────────────────────────────────────────────────
 const SchedulesTab = ({ trainNumber }) => {
   const { showSuccess, showError } = useToast();
 
-  const [summary,     setSummary]     = useState(null);
-  const [loading,     setLoading]     = useState(true);
-  const [modalOpen,   setModalOpen]   = useState(false);
-  const [toggling,    setToggling]    = useState(null); // scheduleId being toggled
+  const [summary,        setSummary]        = useState(null);
+  const [loading,        setLoading]        = useState(true);
+  const [modalOpen,      setModalOpen]      = useState(false);
+  const [toggling,       setToggling]       = useState(null); // scheduleId being toggled
+  const [statusTarget,   setStatusTarget]   = useState(null); // schedule to toggle status
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -323,10 +456,14 @@ const SchedulesTab = ({ trainNumber }) => {
 
   useEffect(() => { load(); }, [trainNumber]);
 
-  const handleToggle = async (schedule) => {
+  const handleToggleClick = (schedule) => {
+    setStatusTarget(schedule);
+  };
+
+  const handleToggleConfirm = async (schedule, payload) => {
     setToggling(schedule.scheduleId);
     try {
-      const res = await TrainScheduleService.toggleSchedule(trainNumber, schedule.scheduleId);
+      const res = await TrainScheduleService.toggleSchedule(trainNumber, schedule.scheduleId, payload);
       const updated = res.data.data;
       showSuccess(updated?.message || 'Schedule updated.');
       load();
@@ -375,7 +512,7 @@ const SchedulesTab = ({ trainNumber }) => {
             {summary?.running ? (
               <ScheduleCard
                 schedule={summary.running}
-                onToggle={handleToggle}
+                onToggle={handleToggleClick}
                 toggling={toggling}
               />
             ) : (
@@ -398,7 +535,7 @@ const SchedulesTab = ({ trainNumber }) => {
               defaultOpen={true}>
               {summary.upcoming.map(s => (
                 <ScheduleCard key={s.scheduleId} schedule={s}
-                              onToggle={handleToggle} toggling={toggling}/>
+                              onToggle={handleToggleClick} toggling={toggling}/>
               ))}
             </Section>
           )}
@@ -412,7 +549,7 @@ const SchedulesTab = ({ trainNumber }) => {
               defaultOpen={false}>
               {summary.past.map(s => (
                 <ScheduleCard key={s.scheduleId} schedule={s}
-                              onToggle={handleToggle} toggling={toggling}/>
+                              onToggle={handleToggleClick} toggling={toggling}/>
               ))}
             </Section>
           )}
@@ -426,7 +563,7 @@ const SchedulesTab = ({ trainNumber }) => {
               defaultOpen={false}>
               {summary.deactivated.map(s => (
                 <ScheduleCard key={s.scheduleId} schedule={s}
-                              onToggle={handleToggle} toggling={toggling}/>
+                              onToggle={handleToggleClick} toggling={toggling}/>
               ))}
             </Section>
           )}
@@ -439,6 +576,13 @@ const SchedulesTab = ({ trainNumber }) => {
         trainNumber={trainNumber}
         running={summary?.running || null}
         onSuccess={handleCreateSuccess}
+      />
+
+      <ScheduleStatusModal
+        open={!!statusTarget}
+        onClose={() => setStatusTarget(null)}
+        schedule={statusTarget}
+        onConfirm={handleToggleConfirm}
       />
     </div>
   );

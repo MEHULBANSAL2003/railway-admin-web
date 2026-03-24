@@ -26,9 +26,9 @@ export const TrainTypeService = {
     return HttpWrapper.post(url, payload, true);
   },
 
-  toggleStatus: (typeCode, isActive) => {
-    const url = `${train_type_base_url}${ApiConstants.changeTrainTypeStatus}`;
-    return HttpWrapper.postByIdWithQueryParams(url, typeCode, { isActive }, true);
+  toggleStatus: (typeCode, payload) => {
+    const url = `${train_type_base_url}${ApiConstants.changeTrainTypeStatus}/${typeCode}`;
+    return HttpWrapper.post(url, payload, true);
   },
 
   getCascadeInfo: (typeCode) => {

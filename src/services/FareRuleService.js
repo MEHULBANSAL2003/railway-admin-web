@@ -26,8 +26,8 @@ export const FareRuleService = {
     return await HttpWrapper.post(url, payload, true);
   },
 
-  toggleStatus: async (ruleId, isActive) => {
-    const url = `${fare_rule_base_url}${ApiConstants.changeFareRuleStatus}`;
-    return await HttpWrapper.postByIdWithQueryParams(url, ruleId, { isActive }, true);
+  toggleStatus: async (ruleId, payload) => {
+    const url = `${fare_rule_base_url}${ApiConstants.changeFareRuleStatus}/${ruleId}`;
+    return await HttpWrapper.post(url, payload, true);
   },
 };

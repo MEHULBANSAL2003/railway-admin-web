@@ -48,7 +48,7 @@ const ReactivateCoachModal = ({ open, onClose, coach, trainNumber, onSuccess }) 
     try {
       const res = await TrainCoachService.reactivateCoach(trainNumber, coach.coachId, {
         effectiveFrom,
-        changeReason: reason.trim(),
+        reason: reason.trim(),
       });
       onSuccess(res.data.data);
       onClose();

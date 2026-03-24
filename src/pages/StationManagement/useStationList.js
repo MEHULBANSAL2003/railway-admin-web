@@ -137,11 +137,11 @@ export const useStationList = () => {
     }
   }, [loadingMore, hasMore, buildParams, showError]);
 
-  const handleStatusToggle = useCallback(async (station) => {
+  const handleStatusToggle = useCallback(async (station, payload) => {
     if (!station.canUpdatedByCurrentAdmin) return;
     if (statusLoadingCode) return;
 
-    const newStatus = !station.isActive;
+    const newStatus = payload.status === 'ACTIVE';
     setStatusLoadingCode(station.stationCode);
 
     setData(prev =>
@@ -149,7 +149,7 @@ export const useStationList = () => {
     );
 
     try {
-      await StationService.updateStationStatus(station.stationCode, newStatus);
+      await StationService.updateStationStatus(station.stationCode, payload);
       showSuccess(`${station.stationName} ${newStatus ? 'activated' : 'deactivated'} successfully.`);
     } catch (err) {
       setData(prev =>

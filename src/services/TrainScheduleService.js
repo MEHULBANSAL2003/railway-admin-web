@@ -18,8 +18,8 @@ export const TrainScheduleService = {
   },
 
   // Toggle isActive (deactivate/reactivate)
-  toggleSchedule: async (trainNumber, scheduleId) => {
-    const url = `${base_url}/${trainNumber}/schedule/${scheduleId}/toggle`;
-    return await HttpWrapper.post(url, null, true);
+  toggleSchedule: async (trainNumber, scheduleId, payload) => {
+    const url = `${base_url}/${trainNumber}/schedule/${scheduleId}/change/status`;
+    return await HttpWrapper.post(url, payload, true);
   },
 };

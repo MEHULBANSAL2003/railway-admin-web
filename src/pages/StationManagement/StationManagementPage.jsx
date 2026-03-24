@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Search, ChevronUp, ChevronDown, ChevronsUpDown,
   Plus, RotateCcw, Inbox, ToggleLeft, ToggleRight,
-  FileSpreadsheet, Pencil, Trash2, Train, History,
+  FileSpreadsheet, Pencil, Trash2, Train, History, X,
 } from 'lucide-react';
 import { useStationList }         from './useStationList.js';
 import { useDeletedStationList }  from './useDeletedStationList.js';
@@ -163,6 +164,137 @@ const Toolbar = ({ filters, handleFilterChange, handleFilterReset,
   );
 };
 
+// ── Station Status Change Modal ───────────────────────────
+const todayStr = () => new Date().toISOString().split('T')[0];
+
+const StationStatusModal = ({ open, onClose, station, onConfirm }) => {
+  const isDeactivating = station?.isActive;
+  const [effectiveFrom, setEffectiveFrom] = useState(todayStr());
+  const [effectiveTill, setEffectiveTill] = useState('');
+  const [reason,        setReason]        = useState('');
+  const [errors,        setErrors]        = useState({});
+  const [saving,        setSaving]        = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setEffectiveFrom(todayStr());
+      setEffectiveTill('');
+      setReason('');
+      setErrors({});
+    }
+    document.body.style.overflow = open ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const h = (e) => { if (e.key === 'Escape' && !saving) onClose(); };
+    document.addEventListener('keydown', h);
+    return () => document.removeEventListener('keydown', h);
+  }, [open, saving, onClose]);
+
+  const validate = () => {
+    const e = {};
+    if (!effectiveFrom) e.effectiveFrom = 'Required.';
+    else if (effectiveFrom < todayStr()) e.effectiveFrom = 'Must be today or future.';
+    if (effectiveTill && effectiveTill <= effectiveFrom)
+      e.effectiveTill = 'Must be after effective from.';
+    if (!reason.trim()) e.reason = 'Reason is required.';
+    else if (reason.trim().length > 500) e.reason = 'Max 500 characters.';
+    return e;
+  };
+
+  const handleSubmit = async () => {
+    const e = validate();
+    if (Object.keys(e).length) { setErrors(e); return; }
+    setSaving(true);
+    try {
+      await onConfirm(station, {
+        status: isDeactivating ? 'INACTIVE' : 'ACTIVE',
+        effectiveFrom,
+        effectiveTill: effectiveTill || null,
+        reason: reason.trim(),
+      });
+      onClose();
+    } catch {
+      // error handled by caller
+    } finally { setSaving(false); }
+  };
+
+  if (!open || !station) return null;
+
+  return createPortal(
+    <div className="aam-backdrop" onClick={saving ? undefined : onClose}>
+      <div className="aam-modal" onClick={e => e.stopPropagation()}
+           role="dialog" aria-modal="true" style={{ maxWidth: 460 }}>
+        <div className="aam-header">
+          <div className="aam-header-left">
+            <div className="aam-header-icon" style={{
+              background: isDeactivating ? '#fef2f2' : '#f0fdf4',
+              color: isDeactivating ? '#dc2626' : '#16a34a',
+            }}>
+              {isDeactivating ? <ToggleLeft size={17} /> : <ToggleRight size={17} />}
+            </div>
+            <div>
+              <h2 className="aam-title">
+                {isDeactivating ? 'Deactivate Station' : 'Activate Station'}
+              </h2>
+              <p className="aam-subtitle">{station.stationCode} — {station.stationName}</p>
+            </div>
+          </div>
+          <button className="aam-close" onClick={onClose} disabled={saving}><X size={18} /></button>
+        </div>
+
+        <div className="aam-body">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-4)' }}>
+            <div className="aam-field">
+              <label className="aam-label">Effective From <span className="aam-required">*</span></label>
+              <input className={`aam-input${errors.effectiveFrom ? ' aam-input--error' : ''}`}
+                     type="date" value={effectiveFrom} min={todayStr()} disabled={saving}
+                     onChange={e => { setEffectiveFrom(e.target.value); setErrors(p => ({ ...p, effectiveFrom: '' })); }} />
+              {errors.effectiveFrom && <p className="aam-error">{errors.effectiveFrom}</p>}
+            </div>
+            <div className="aam-field">
+              <label className="aam-label">Effective Till</label>
+              <input className={`aam-input${errors.effectiveTill ? ' aam-input--error' : ''}`}
+                     type="date" value={effectiveTill} min={effectiveFrom || todayStr()} disabled={saving}
+                     onChange={e => { setEffectiveTill(e.target.value); setErrors(p => ({ ...p, effectiveTill: '' })); }} />
+              {errors.effectiveTill && <p className="aam-error">{errors.effectiveTill}</p>}
+              <p style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 3 }}>Leave blank for indefinite</p>
+            </div>
+          </div>
+          <div className="aam-field">
+            <label className="aam-label">Reason <span className="aam-required">*</span></label>
+            <textarea className={`aam-input${errors.reason ? ' aam-input--error' : ''}`}
+                      rows={2} value={reason} disabled={saving} maxLength={500}
+                      placeholder={isDeactivating ? 'e.g. Station closed for renovation' : 'e.g. Renovation complete, reopening'}
+                      onChange={e => { setReason(e.target.value); setErrors(p => ({ ...p, reason: '' })); }}
+                      style={{ resize: 'vertical', fontFamily: 'inherit' }} />
+            {errors.reason && <p className="aam-error">{errors.reason}</p>}
+            <p style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 3, textAlign: 'right' }}>{reason.length}/500</p>
+          </div>
+        </div>
+
+        <div className="aam-footer">
+          <button className="btn btn-secondary" onClick={onClose} disabled={saving}>Cancel</button>
+          <button onClick={handleSubmit} disabled={saving} style={{
+            display: 'flex', alignItems: 'center', gap: 6, height: 36,
+            padding: '0 var(--spacing-4)', border: 'none',
+            borderRadius: 'var(--radius-md)', fontFamily: 'inherit',
+            fontSize: 'var(--font-size-sm)', fontWeight: 'var(--font-weight-medium)',
+            cursor: saving ? 'not-allowed' : 'pointer',
+            background: saving ? 'var(--bg-tertiary)' : isDeactivating ? '#dc2626' : '#16a34a',
+            color: saving ? 'var(--text-tertiary)' : '#fff',
+          }}>
+            {saving ? <><span className="aam-spinner" /> Processing…</> : isDeactivating ? 'Deactivate' : 'Activate'}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+};
+
 // ── Main page ─────────────────────────────────────────────
 const StationManagementPage = () => {
   const [activeTab, setActiveTab] = useState('active'); // 'active' | 'deleted'
@@ -201,11 +333,12 @@ const StationManagementPage = () => {
   } = useDeletedStationList();
 
   // ── Modals ───────────────────────────────────────────────
-  const [addModalOpen,   setAddModalOpen]   = useState(false);
-  const [excelModalOpen, setExcelModalOpen] = useState(false);
-  const [editStation,    setEditStation]    = useState(null);
-  const [deleteStation,  setDeleteStation]  = useState(null);
-  const [restoreStation, setRestoreStation] = useState(null);
+  const [addModalOpen,     setAddModalOpen]     = useState(false);
+  const [excelModalOpen,   setExcelModalOpen]   = useState(false);
+  const [editStation,      setEditStation]      = useState(null);
+  const [deleteStation,    setDeleteStation]    = useState(null);
+  const [restoreStation,   setRestoreStation]   = useState(null);
+  const [statusToggleItem, setStatusToggleItem] = useState(null); // station to toggle
 
   // ── Infinite scroll sentinels ────────────────────────────
   const activeSentinelRef  = useRef(null);
@@ -399,7 +532,7 @@ const StationManagementPage = () => {
                           className={`sm-action-btn${station.isActive ? ' danger' : ''}`}
                           title={station.isActive ? 'Deactivate' : 'Activate'}
                           disabled={statusLoadingCode === station.stationCode}
-                          onClick={() => handleStatusToggle(station)}>
+                          onClick={() => setStatusToggleItem(station)}>
                           {statusLoadingCode === station.stationCode
                             ? <span className="sm-spinner" />
                             : station.isActive
@@ -626,6 +759,13 @@ const StationManagementPage = () => {
           setRestoreStation(null);
           refreshActive(); // so it immediately appears in active tab
         }}
+      />
+
+      <StationStatusModal
+        open={!!statusToggleItem}
+        onClose={() => setStatusToggleItem(null)}
+        station={statusToggleItem}
+        onConfirm={handleStatusToggle}
       />
 
     </div>

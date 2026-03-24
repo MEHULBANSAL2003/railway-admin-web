@@ -26,9 +26,9 @@ export const QuotaService = {
   //   return HttpWrapper.patch(BASE + '/update/' + quotaCode, payload, null, true);
   // },
 
-  toggleStatus: async (quotaCode, isActive) => {
-    const url = `${quota_base_url}${ApiConstants.changeQuotaStatus}`;
-    return await HttpWrapper.postByIdWithQueryParams(url, quotaCode, { isActive }, true);
+  toggleStatus: async (quotaCode, payload) => {
+    const url = `${quota_base_url}${ApiConstants.changeQuotaStatus}/${quotaCode}`;
+    return await HttpWrapper.post(url, payload, true);
   },
 
   getCascadeInfo: async (typeCode) => {

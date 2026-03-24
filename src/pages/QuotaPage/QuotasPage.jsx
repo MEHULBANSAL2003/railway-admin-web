@@ -199,13 +199,13 @@ const QuotasPage = () => {
     setCascadeModal({ item, targetStatus: !item.isActive });
   };
 
-  const handleToggleConfirm = async () => {
+  const handleToggleConfirm = async (payload) => {
     const { item, targetStatus } = cascadeModal;
     setData(prev => prev.map(r =>
       r.quotaId === item.quotaId ? { ...r, isActive: targetStatus } : r
     ));
     try {
-      const res = await QuotaService.toggleStatus(item.quotaCode, targetStatus);
+      const res = await QuotaService.toggleStatus(item.quotaCode, payload);
       showSuccess(res.data?.data?.message || "Status updated.");
       fetchData();
     } catch (err) {

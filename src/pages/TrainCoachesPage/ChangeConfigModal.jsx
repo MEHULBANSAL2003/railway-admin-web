@@ -122,8 +122,8 @@ const ChangeConfigModal = ({ open, onClose, coach, trainNumber, onSuccess }) => 
         racSeats:      Number(form.racSeats),
         waitlistLimit: Number(form.waitlistLimit),
         effectiveFrom: form.effectiveFrom,
-        effectiveTo:   form.effectiveTo || null,
-        changeReason:  form.changeReason.trim(),
+        effectiveTill: form.effectiveTo || null,
+        reason:        form.changeReason.trim(),
       });
 
       // Temporarily add this right after the API call in handleSubmit:

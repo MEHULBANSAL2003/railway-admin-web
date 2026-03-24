@@ -86,3 +86,10 @@
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
 }
+
+/* Form section for date/reason */
+.ctm-form {
+  margin-top: var(--spacing-4);
+  padding-top: var(--spacing-4);
+  border-top: 1px solid var(--border-primary);
+}

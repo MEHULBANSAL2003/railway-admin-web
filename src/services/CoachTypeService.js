@@ -26,9 +26,9 @@ export const CoachTypeService = {
     return await HttpWrapper.post(url, payload, true);
   },
 
-  toggleStatus: async (typeCode, isActive) => {
-    const url = `${coach_type_base_url}${ApiConstants.changeCoachTypeStatus}`;
-    return await HttpWrapper.postByIdWithQueryParams(url, typeCode, { isActive }, true);
+  toggleStatus: async (typeCode, payload) => {
+    const url = `${coach_type_base_url}${ApiConstants.changeCoachTypeStatus}/${typeCode}`;
+    return await HttpWrapper.post(url, payload, true);
   },
 
   getCascadeInfo: async (typeCode) => {

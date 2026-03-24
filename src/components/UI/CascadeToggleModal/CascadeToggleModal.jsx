@@ -4,16 +4,18 @@ import { AlertTriangle, Info, X, ToggleLeft, ToggleRight } from "lucide-react";
 import "../../../pages/AdminManagement/AddAdminModal.css";
 import "./CascadeToggleModal.css";
 
+const todayStr = () => new Date().toISOString().split("T")[0];
+
 /**
- * Reusable cascade warning modal.
+ * Reusable cascade warning modal with date-based activation form.
  *
  * Props:
  *   open          — boolean
  *   onClose       — fn
- *   onConfirm     — fn called after user confirms (async ok)
+ *   onConfirm     — fn({ status, effectiveFrom, effectiveTill, reason }) called after user confirms (async ok)
  *   fetchInfo     — async fn() → axios response with data.data = CascadeInfoResponse
  *   targetStatus  — boolean — what we're toggling TO (true=activate, false=deactivate)
- *   entityLabel   — string  — "Coach Type" / "Train Type" / "Quota"
+ *   entityLabel   — string  — "Coach Type" / "Train Type" / "Quota" / "Train" etc.
  */
 const CascadeToggleModal = ({
                               open, onClose, onConfirm, fetchInfo,
@@ -24,6 +26,12 @@ const CascadeToggleModal = ({
   const [saving,  setSaving]  = useState(false);
   const isDeactivating = !targetStatus;
 
+  // Form fields
+  const [effectiveFrom, setEffectiveFrom] = useState(todayStr());
+  const [effectiveTill, setEffectiveTill] = useState("");
+  const [reason,        setReason]        = useState("");
+  const [errors,        setErrors]        = useState({});
+
   // Fetch cascade info whenever modal opens
   useEffect(() => {
     if (!open) {
@@ -31,11 +39,16 @@ const CascadeToggleModal = ({
       setLoading(false);
       return;
     }
+    // Reset form
+    setEffectiveFrom(todayStr());
+    setEffectiveTill("");
+    setReason("");
+    setErrors({});
+
     setLoading(true);
     setInfo(null);
     fetchInfo()
       .then(res => {
-        // Handle both { data: { data: {...} } } and { data: {...} }
         const payload = res?.data?.data ?? res?.data ?? null;
         setInfo(payload);
       })
@@ -57,10 +70,29 @@ const CascadeToggleModal = ({
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
+  const validate = () => {
+    const e = {};
+    if (!effectiveFrom) e.effectiveFrom = "Effective from date is required.";
+    else if (effectiveFrom < todayStr()) e.effectiveFrom = "Must be today or a future date.";
+    if (effectiveTill && effectiveTill <= effectiveFrom)
+      e.effectiveTill = "Must be after effective from.";
+    if (!reason.trim()) e.reason = "Reason is required.";
+    else if (reason.trim().length > 500) e.reason = "Maximum 500 characters.";
+    return e;
+  };
+
   const handleConfirm = async () => {
+    const e = validate();
+    if (Object.keys(e).length) { setErrors(e); return; }
+
     setSaving(true);
     try {
-      await onConfirm();
+      await onConfirm({
+        status: targetStatus ? "ACTIVE" : "INACTIVE",
+        effectiveFrom,
+        effectiveTill: effectiveTill || null,
+        reason: reason.trim(),
+      });
     } finally {
       setSaving(false);
       onClose();
@@ -223,6 +255,71 @@ const CascadeToggleModal = ({
               </p>
             </div>
           )}
+
+          {/* ── Date & Reason form ── */}
+          <div className="ctm-form">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--spacing-4)" }}>
+              <div className="aam-field">
+                <label className="aam-label">
+                  Effective From <span className="aam-required">*</span>
+                </label>
+                <input
+                  className={`aam-input${errors.effectiveFrom ? " aam-input--error" : ""}`}
+                  type="date"
+                  value={effectiveFrom}
+                  min={todayStr()}
+                  disabled={saving}
+                  onChange={e => {
+                    setEffectiveFrom(e.target.value);
+                    setErrors(p => ({ ...p, effectiveFrom: "" }));
+                  }}
+                />
+                {errors.effectiveFrom && <p className="aam-error">{errors.effectiveFrom}</p>}
+              </div>
+              <div className="aam-field">
+                <label className="aam-label">Effective Till</label>
+                <input
+                  className={`aam-input${errors.effectiveTill ? " aam-input--error" : ""}`}
+                  type="date"
+                  value={effectiveTill}
+                  min={effectiveFrom || todayStr()}
+                  disabled={saving}
+                  onChange={e => {
+                    setEffectiveTill(e.target.value);
+                    setErrors(p => ({ ...p, effectiveTill: "" }));
+                  }}
+                />
+                {errors.effectiveTill && <p className="aam-error">{errors.effectiveTill}</p>}
+                <p className="aam-hint" style={{ fontSize: 11, color: "var(--text-tertiary)", marginTop: 3 }}>
+                  Leave blank for indefinite
+                </p>
+              </div>
+            </div>
+            <div className="aam-field">
+              <label className="aam-label">
+                Reason <span className="aam-required">*</span>
+              </label>
+              <textarea
+                className={`aam-input${errors.reason ? " aam-input--error" : ""}`}
+                rows={2}
+                value={reason}
+                disabled={saving}
+                maxLength={500}
+                placeholder={isDeactivating
+                  ? "e.g. Temporarily removing due to maintenance"
+                  : "e.g. Reinstated after maintenance"}
+                onChange={e => {
+                  setReason(e.target.value);
+                  setErrors(p => ({ ...p, reason: "" }));
+                }}
+                style={{ resize: "vertical", fontFamily: "inherit" }}
+              />
+              {errors.reason && <p className="aam-error">{errors.reason}</p>}
+              <p style={{ fontSize: 11, color: "var(--text-tertiary)", marginTop: 3, textAlign: "right" }}>
+                {reason.length}/500
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* ── Footer ── */}

@@ -31,9 +31,9 @@
       return await HttpWrapper.postFormData(url, { file }, true);
     },
 
-    updateStationStatus: async (stationCode, activeStatus) => {
-      const url = `${station_base_url}${ApiConstants.updateStationStatus}`;
-      return await HttpWrapper.postByIdWithQueryParams(url, stationCode, { activeStatus }, true);
+    updateStationStatus: async (stationCode, payload) => {
+      const url = `${station_base_url}${ApiConstants.updateStationStatus}/${stationCode}`;
+      return await HttpWrapper.post(url, payload, true);
     },
 
     updateStationDetails: async (stationCode, payload) => {

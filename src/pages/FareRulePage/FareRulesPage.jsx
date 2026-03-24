@@ -109,7 +109,7 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
     trainTypeCode: "", coachTypeCode: "", quotaCode: "",
     baseFarePerKm: "", minFare: "", reservationCharge: "",
     superfastCharge: "", gstPct: "", tatkalCharge: "",
-    effectiveFrom: "", effectiveUntil: "",
+    effectiveFrom: "", effectiveTill: "",
   };
   const [form,        setForm]        = useState(EMPTY);
   const [errors,      setErrors]      = useState({});
@@ -193,8 +193,8 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
       e.gstPct = "Must be 0–100.";
     if (!form.effectiveFrom)
       e.effectiveFrom = "Effective from is required.";
-    if (form.effectiveUntil && form.effectiveFrom && form.effectiveUntil <= form.effectiveFrom)
-      e.effectiveUntil = "Must be after effective from.";
+    if (form.effectiveTill && form.effectiveFrom && form.effectiveTill <= form.effectiveFrom)
+      e.effectiveTill = "Must be after effective from.";
 
     // Tatkal charge validation
     if (isTatkal) {
@@ -227,7 +227,7 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
         gstPct:            +form.gstPct,
         tatkalCharge:      isTatkal ? +form.tatkalCharge : 0,
         effectiveFrom:     form.effectiveFrom,
-        effectiveUntil:    form.effectiveUntil || null,
+        effectiveTill:    form.effectiveTill || null,
       };
       const res = await FareRuleService.addFareRule(payload);
       showSuccess("Fare rule added successfully.");
@@ -376,10 +376,10 @@ const AddFareRuleModal = ({ open, onClose, onSuccess }) => {
                      type="date" value={form.effectiveFrom}
                      onChange={e => set("effectiveFrom", e.target.value)} disabled={saving} />
             </Field>
-            <Field label="Effective Until" error={errors.effectiveUntil} hint="Leave blank for open-ended rule">
-              <input className={`aam-input${errors.effectiveUntil ? " aam-input--error" : ""}`}
-                     type="date" value={form.effectiveUntil}
-                     onChange={e => set("effectiveUntil", e.target.value)} disabled={saving} />
+            <Field label="Effective Till" error={errors.effectiveTill} hint="Leave blank for open-ended rule">
+              <input className={`aam-input${errors.effectiveTill ? " aam-input--error" : ""}`}
+                     type="date" value={form.effectiveTill}
+                     onChange={e => set("effectiveTill", e.target.value)} disabled={saving} />
             </Field>
           </div>
         </div>
@@ -446,7 +446,7 @@ const HistoryDrawer = ({ open, onClose, trainTypeCode, coachTypeCode, quotaCode 
                   {r.isCurrent ? <><CheckCircle2 size={11} /> Current</> : <><Clock size={11} /> Past</>}
                 </span>
                 <span style={{ fontSize: 11, color: "var(--text-tertiary)" }}>
-                  {fmtDate(r.effectiveFrom)} → {r.effectiveUntil ? fmtDate(r.effectiveUntil) : "Open"}
+                  {fmtDate(r.effectiveFrom)} → {r.effectiveTill ? fmtDate(r.effectiveTill) : "Open"}
                 </span>
               </div>
               <div className="fr-history-grid">
@@ -471,6 +471,139 @@ const HistoryDrawer = ({ open, onClose, trainTypeCode, coachTypeCode, quotaCode 
   );
 };
 
+// ── Status Change Modal (for fare rule toggle) ──────────────
+const todayStr = () => new Date().toISOString().split("T")[0];
+
+const FareRuleStatusModal = ({ open, onClose, item, targetStatus, onConfirm }) => {
+  const [effectiveFrom, setEffectiveFrom] = useState(todayStr());
+  const [effectiveTill, setEffectiveTill] = useState("");
+  const [reason,        setReason]        = useState("");
+  const [errors,        setErrors]        = useState({});
+  const [saving,        setSaving]        = useState(false);
+  const isDeactivating = !targetStatus;
+
+  useEffect(() => {
+    if (open) {
+      setEffectiveFrom(todayStr());
+      setEffectiveTill("");
+      setReason("");
+      setErrors({});
+    }
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const h = (e) => { if (e.key === "Escape" && !saving) onClose(); };
+    document.addEventListener("keydown", h);
+    return () => document.removeEventListener("keydown", h);
+  }, [open, saving, onClose]);
+
+  const validate = () => {
+    const e = {};
+    if (!effectiveFrom) e.effectiveFrom = "Required.";
+    else if (effectiveFrom < todayStr()) e.effectiveFrom = "Must be today or future.";
+    if (effectiveTill && effectiveTill <= effectiveFrom)
+      e.effectiveTill = "Must be after effective from.";
+    if (!reason.trim()) e.reason = "Reason is required.";
+    else if (reason.trim().length > 500) e.reason = "Max 500 characters.";
+    return e;
+  };
+
+  const handleSubmit = async () => {
+    const e = validate();
+    if (Object.keys(e).length) { setErrors(e); return; }
+    setSaving(true);
+    try {
+      await onConfirm({
+        status: targetStatus ? "ACTIVE" : "INACTIVE",
+        effectiveFrom,
+        effectiveTill: effectiveTill || null,
+        reason: reason.trim(),
+      });
+      onClose();
+    } catch {
+      // error handled by caller
+    } finally { setSaving(false); }
+  };
+
+  if (!open || !item) return null;
+
+  return createPortal(
+    <div className="aam-backdrop" onClick={saving ? undefined : onClose}>
+      <div className="aam-modal" onClick={e => e.stopPropagation()}
+           role="dialog" aria-modal="true" style={{ maxWidth: 460 }}>
+        <div className="aam-header">
+          <div className="aam-header-left">
+            <div className="aam-header-icon" style={{
+              background: isDeactivating ? "#fef2f2" : "#f0fdf4",
+              color: isDeactivating ? "#dc2626" : "#16a34a",
+            }}>
+              {isDeactivating ? <ToggleLeft size={17} /> : <ToggleRight size={17} />}
+            </div>
+            <div>
+              <h2 className="aam-title">
+                {isDeactivating ? "Deactivate Fare Rule" : "Activate Fare Rule"}
+              </h2>
+              <p className="aam-subtitle">
+                {item.trainTypeCode} + {item.coachTypeCode} + {item.quotaCode}
+              </p>
+            </div>
+          </div>
+          <button className="aam-close" onClick={onClose} disabled={saving}><X size={18} /></button>
+        </div>
+
+        <div className="aam-body">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--spacing-4)" }}>
+            <div className="aam-field">
+              <label className="aam-label">Effective From <span className="aam-required">*</span></label>
+              <input className={`aam-input${errors.effectiveFrom ? " aam-input--error" : ""}`}
+                     type="date" value={effectiveFrom} min={todayStr()} disabled={saving}
+                     onChange={e => { setEffectiveFrom(e.target.value); setErrors(p => ({ ...p, effectiveFrom: "" })); }} />
+              {errors.effectiveFrom && <p className="aam-error">{errors.effectiveFrom}</p>}
+            </div>
+            <div className="aam-field">
+              <label className="aam-label">Effective Till</label>
+              <input className={`aam-input${errors.effectiveTill ? " aam-input--error" : ""}`}
+                     type="date" value={effectiveTill} min={effectiveFrom || todayStr()} disabled={saving}
+                     onChange={e => { setEffectiveTill(e.target.value); setErrors(p => ({ ...p, effectiveTill: "" })); }} />
+              {errors.effectiveTill && <p className="aam-error">{errors.effectiveTill}</p>}
+              <p style={{ fontSize: 11, color: "var(--text-tertiary)", marginTop: 3 }}>Leave blank for indefinite</p>
+            </div>
+          </div>
+          <div className="aam-field">
+            <label className="aam-label">Reason <span className="aam-required">*</span></label>
+            <textarea className={`aam-input${errors.reason ? " aam-input--error" : ""}`}
+                      rows={2} value={reason} disabled={saving} maxLength={500}
+                      placeholder={isDeactivating ? "e.g. Fare structure revised" : "e.g. Reinstating previous fare"}
+                      onChange={e => { setReason(e.target.value); setErrors(p => ({ ...p, reason: "" })); }}
+                      style={{ resize: "vertical", fontFamily: "inherit" }} />
+            {errors.reason && <p className="aam-error">{errors.reason}</p>}
+            <p style={{ fontSize: 11, color: "var(--text-tertiary)", marginTop: 3, textAlign: "right" }}>{reason.length}/500</p>
+          </div>
+        </div>
+
+        <div className="aam-footer">
+          <button className="btn btn-secondary" onClick={onClose} disabled={saving}>Cancel</button>
+          <button onClick={handleSubmit} disabled={saving} style={{
+            display: "flex", alignItems: "center", gap: 6, height: 36,
+            padding: "0 var(--spacing-4)", border: "none",
+            borderRadius: "var(--radius-md)", fontFamily: "inherit",
+            fontSize: "var(--font-size-sm)", fontWeight: "var(--font-weight-medium)",
+            cursor: saving ? "not-allowed" : "pointer",
+            background: saving ? "var(--bg-tertiary)" : isDeactivating ? "#dc2626" : "#16a34a",
+            color: saving ? "var(--text-tertiary)" : "#fff",
+          }}>
+            {saving ? <><span className="aam-spinner" /> Processing…</> : isDeactivating ? "Deactivate" : "Activate"}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+};
+
 // ── Main Page ─────────────────────────────────────────────
 const FareRulesPage = () => {
   const { showSuccess, showError } = useToast();
@@ -478,8 +611,8 @@ const FareRulesPage = () => {
   const [data,        setData]        = useState([]);
   const [loading,     setLoading]     = useState(true);
   const [modalOpen,   setModalOpen]   = useState(false);
-  const [togglingId,  setTogglingId]  = useState(null);
-  const [history,     setHistory]     = useState(null);
+  const [toggleTarget, setToggleTarget] = useState(null); // { item, targetStatus }
+  const [history,      setHistory]     = useState(null);
 
   const [sortCol, setSortCol] = useState("");
   const [sortDir, setSortDir] = useState("asc");
@@ -533,19 +666,20 @@ const FareRulesPage = () => {
     fetchData("", "", "");
   };
 
-  const handleToggle = async (item) => {
-    if (togglingId) return;
-    setTogglingId(item.ruleId);
-    const newStatus = !item.isActive;
-    setData(prev => prev.map(r => r.ruleId === item.ruleId ? { ...r, isActive: newStatus } : r));
+  const handleToggleClick = (item) => {
+    setToggleTarget({ item, targetStatus: !item.isActive });
+  };
+
+  const handleToggleConfirm = async (payload) => {
+    const { item, targetStatus } = toggleTarget;
+    setData(prev => prev.map(r => r.ruleId === item.ruleId ? { ...r, isActive: targetStatus } : r));
     try {
-      await FareRuleService.toggleStatus(item.ruleId, newStatus);
-      showSuccess(`Fare rule ${newStatus ? "activated" : "deactivated"}.`);
+      const res = await FareRuleService.toggleStatus(item.ruleId, payload);
+      showSuccess(res.data?.data?.message || `Fare rule ${targetStatus ? "activated" : "deactivated"}.`);
+      fetchData(filterTrain, filterCoach, filterQuota);
     } catch (err) {
       setData(prev => prev.map(r => r.ruleId === item.ruleId ? { ...r, isActive: item.isActive } : r));
       showError(err?.response?.data?.error?.message || "Failed to update status.");
-    } finally {
-      setTogglingId(null);
     }
   };
 
@@ -690,7 +824,7 @@ const FareRulesPage = () => {
                   <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                     <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>{fmtDate(item.effectiveFrom)}</span>
                     <span style={{ fontSize: 11, color: "var(--text-tertiary)" }}>
-                        → {item.effectiveUntil ? fmtDate(item.effectiveUntil) : "Open"}
+                        → {item.effectiveTill ? fmtDate(item.effectiveTill) : "Open"}
                       </span>
                   </div>
                 </td>
@@ -718,12 +852,8 @@ const FareRulesPage = () => {
                     <button
                       className={`sm-action-btn${item.isActive ? " danger" : ""}`}
                       title={item.isActive ? "Deactivate" : "Activate"}
-                      disabled={togglingId === item.ruleId}
-                      onClick={() => handleToggle(item)}>
-                      {togglingId === item.ruleId
-                        ? <span className="sm-spinner" />
-                        : item.isActive ? <ToggleRight size={15} /> : <ToggleLeft size={15} />
-                      }
+                      onClick={() => handleToggleClick(item)}>
+                      {item.isActive ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}
                     </button>
                   </div>
                 </td>
@@ -756,6 +886,14 @@ const FareRulesPage = () => {
         trainTypeCode={history?.trainTypeCode}
         coachTypeCode={history?.coachTypeCode}
         quotaCode={history?.quotaCode}
+      />
+
+      <FareRuleStatusModal
+        open={!!toggleTarget}
+        onClose={() => setToggleTarget(null)}
+        item={toggleTarget?.item}
+        targetStatus={toggleTarget?.targetStatus ?? true}
+        onConfirm={handleToggleConfirm}
       />
     </div>
   );

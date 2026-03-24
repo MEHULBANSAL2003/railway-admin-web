@@ -666,11 +666,11 @@ const TrainsPage = () => {
   // ── Toggle ────────────────────────────────────────────
   const handleToggleClick = (item) => setCascadeModal({ item, targetStatus: !item.isActive });
 
-  const handleToggleConfirm = async () => {
+  const handleToggleConfirm = async (payload) => {
     const { item, targetStatus } = cascadeModal;
     updateRowById(item.trainId, { isActive: targetStatus });
     try {
-      const res = await TrainService.toggleStatus(item.trainNumber, targetStatus);
+      const res = await TrainService.toggleStatus(item.trainNumber, payload);
       showSuccess(res.data?.data?.message || 'Status updated.');
     } catch (err) {
       updateRowById(item.trainId, { isActive: item.isActive });

@@ -57,8 +57,8 @@ const DeactivateCoachModal = ({ open, onClose, coach, trainNumber, onSuccess }) 
     try {
       const res    = await TrainCoachService.deactivateCoach(trainNumber, coach.coachId, {
         effectiveFrom,
-        effectiveTo: effectiveTo || null,
-        changeReason: reason.trim(),
+        effectiveTill: effectiveTo || null,
+        reason: reason.trim(),
       });
       const result = res.data.data;
       if (!result.success) {

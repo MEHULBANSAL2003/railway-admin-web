@@ -394,13 +394,13 @@ const TrainTypesPage = () => {
 
   const handleToggleClick  = (item) => setCascadeModal({ item, targetStatus: !item.isActive });
 
-  const handleToggleConfirm = async () => {
+  const handleToggleConfirm = async (payload) => {
     const { item, targetStatus } = cascadeModal;
     setData(prev => prev.map(r =>
       r.typeId === item.typeId ? { ...r, isActive: targetStatus } : r
     ));
     try {
-      const res = await TrainTypeService.toggleStatus(item.typeCode, targetStatus);
+      const res = await TrainTypeService.toggleStatus(item.typeCode, payload);
       showSuccess(res.data?.data?.message || "Status updated.");
       fetchData(search);
     } catch (err) {
