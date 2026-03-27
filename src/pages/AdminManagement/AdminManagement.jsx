@@ -3,7 +3,8 @@ import {
   Search, Mail, Phone, Shield, Building2,
   ChevronUp, ChevronDown, ChevronsUpDown,
   UserPlus, RotateCcw, Users, Pencil,
-  ToggleLeft, ToggleRight, Inbox
+  ToggleLeft, ToggleRight, Inbox,
+  CheckCircle, XCircle
 } from 'lucide-react';
 import { useAdminList } from './useAdminList.js';
 import AddAdminModal from './AddAdminModal.jsx';
@@ -28,8 +29,9 @@ const SORTABLE_COLUMNS = [
   { key: 'role',       label: 'Role' },
   { key: 'department', label: 'Department' },
   { key: 'phone',      label: 'Phone' },
-  { key: 'enabled',    label: 'Status' },
-  { key: 'lastLoginAt', label: 'Last Login' },
+  { key: 'enabled',       label: 'Status' },
+  { key: 'emailVerified', label: 'Email Verified' },
+  { key: 'lastLoginAt',   label: 'Last Login' },
   { key: 'createdAt',  label: 'Created' },
 ];
 
@@ -95,6 +97,7 @@ const SkeletonRow = () => (
     <td><div className="skeleton-cell" style={{ width: '60%' }} /></td>
     <td><div className="skeleton-cell" style={{ width: '80%' }} /></td>
     <td><div className="skeleton-cell" style={{ width: '50%' }} /></td>
+    <td><div className="skeleton-cell" style={{ width: '55%' }} /></td>
     <td><div className="skeleton-cell" style={{ width: '65%' }} /></td>
     <td><div className="skeleton-cell" style={{ width: '60%' }} /></td>
     <td />
@@ -290,6 +293,15 @@ const AdminManagementPage = () => {
                 </td>
 
                 <td><StatusBadge enabled={admin.enabled} /></td>
+
+                <td>
+                  <span className={`status-badge ${admin.emailVerified ? 'active' : 'inactive'}`}>
+                    {admin.emailVerified
+                      ? <><CheckCircle size={12} /> Verified</>
+                      : <><XCircle size={12} /> Unverified</>
+                    }
+                  </span>
+                </td>
 
                 <td><span className="date-cell">{formatDate(admin.lastLoginAt)}</span></td>
 
