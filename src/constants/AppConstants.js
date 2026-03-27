@@ -9,6 +9,12 @@ export const ROLES = {
   ADMIN: 'ADMIN',
 };
 
+export const DEPARTMENTS = {
+  OPERATIONS: 'OPERATIONS',
+  TECH: 'TECH',
+  FINANCE: 'FINANCE',
+};
+
 export const STATUS = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE',

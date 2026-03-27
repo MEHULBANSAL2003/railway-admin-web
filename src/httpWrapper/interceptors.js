@@ -1,11 +1,26 @@
-import storage from '@/utils/storage';
-import { STORAGE_KEYS } from '@/constants/AppConstants';
+import { STORAGE_KEYS } from '../constants/AppConstants.js';
+import { Storage } from '../utils/storage.js';
+import ApiConstants from '../constants/ApiConstants.js';
 
-export function setupInterceptors(httpClient) {
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+export const setupInterceptors = (apiInstance, refreshClient) => {
   // Request interceptor — attach auth token
-  httpClient.interceptors.request.use(
+  apiInstance.interceptors.request.use(
     (config) => {
-      const token = storage.get(STORAGE_KEYS.ACCESS_TOKEN);
+      const token = Storage.get(STORAGE_KEYS.ACCESS_TOKEN);
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -14,30 +29,71 @@ export function setupInterceptors(httpClient) {
     (error) => Promise.reject(error)
   );
 
-  // Response interceptor — handle errors globally
-  httpClient.interceptors.response.use(
+  // Response interceptor — 401 refresh flow
+  apiInstance.interceptors.response.use(
     (response) => response,
-    (error) => {
-      if (!error.response) {
-        return Promise.reject({ message: 'Network error. Please check your connection.' });
+    async (error) => {
+      const originalRequest = error.config;
+
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        if (isRefreshing) {
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          })
+            .then(token => {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+              return apiInstance(originalRequest);
+            })
+            .catch(err => Promise.reject(err));
+        }
+
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        const refreshToken = Storage.get(STORAGE_KEYS.REFRESH_TOKEN);
+        if (!refreshToken) {
+          Storage.remove(STORAGE_KEYS.ACCESS_TOKEN);
+          Storage.remove(STORAGE_KEYS.REFRESH_TOKEN);
+          Storage.remove(STORAGE_KEYS.USER);
+          window.location.href = '/login';
+          return Promise.reject(error);
+        }
+
+        try {
+          const response = await refreshClient.post(
+            ApiConstants.AUTH.REFRESH,
+            { refreshToken }
+          );
+
+          if (response?.data?.status === 'success') {
+            const newAccessToken = response.data.data.accessToken;
+            const newRefreshToken = response.data.data.refreshToken;
+
+            Storage.set(STORAGE_KEYS.ACCESS_TOKEN, newAccessToken);
+            if (newRefreshToken) {
+              Storage.set(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken);
+            }
+
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            processQueue(null, newAccessToken);
+
+            return apiInstance(originalRequest);
+          } else {
+            throw new Error('Token refresh failed');
+          }
+        } catch (refreshError) {
+          processQueue(refreshError, null);
+          Storage.remove(STORAGE_KEYS.ACCESS_TOKEN);
+          Storage.remove(STORAGE_KEYS.REFRESH_TOKEN);
+          Storage.remove(STORAGE_KEYS.USER);
+          window.location.href = '/login';
+          return Promise.reject(refreshError);
+        } finally {
+          isRefreshing = false;
+        }
       }
 
-      const { status, data } = error.response;
-
-      if (status === 401) {
-        storage.remove(STORAGE_KEYS.ACCESS_TOKEN);
-        storage.remove(STORAGE_KEYS.REFRESH_TOKEN);
-        storage.remove(STORAGE_KEYS.USER);
-        window.location.href = '/login';
-        return Promise.reject({ message: 'Session expired. Please login again.' });
-      }
-
-      if (status === 403) {
-        return Promise.reject({ message: 'You do not have permission to perform this action.' });
-      }
-
-      const message = data?.message || data?.error || `Request failed (${status})`;
-      return Promise.reject({ message, status, data });
+      return Promise.reject(error);
     }
   );
-}
+};

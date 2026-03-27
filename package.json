@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "start": "node scripts/start.js",
+    "start:dev": "vite --mode development",
+    "start:prod": "vite --mode production",
     "build:dev": "vite build --mode development",
     "build:prod": "vite build --mode production",
     "build": "vite build",

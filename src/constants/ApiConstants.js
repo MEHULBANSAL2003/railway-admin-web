@@ -5,10 +5,18 @@ const ApiConstants = {
 
   // Auth
   AUTH: {
-    LOGIN: `${BASE}/auth/login`,
-    LOGOUT: `${BASE}/auth/logout`,
-    REFRESH: `${BASE}/auth/refresh`,
-    ME: `${BASE}/auth/me`,
+    LOGIN_GOOGLE: `${BASE}/auth/admin/login/google`,
+    REFRESH: `${BASE}/auth/admin/refresh`,
+  },
+
+  // Admin
+  ADMIN: {
+    BASE: `${BASE}/admin`,
+    ME: `${BASE}/admin/me`,
+    BY_ID: (id) => `${BASE}/admin/${id}`,
+    TOGGLE_STATUS: (id) => `${BASE}/admin/${id}/toggle-status`,
+    CHANGE_ROLE: (id) => `${BASE}/admin/${id}/change-role`,
+    LOGOUT: `${BASE}/admin/logout`,
   },
 
   // Trains
