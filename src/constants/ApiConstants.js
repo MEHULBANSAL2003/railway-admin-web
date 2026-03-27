@@ -1,92 +1,68 @@
-export const ApiConstants = {
+const BASE = import.meta.env.VITE_API_BASE_URL;
 
-  //admin
-  adminEmailLogin: '/admin/login/by/email',
-  refreshAccessToken: '/refresh/access/token',
-  logoutCurrentDevice: '/admin/logout',
-  createNewAdmin: '/new/admin/create',
-  getAllAdminList: '/admin/list',
-  updateAdminActiveStatus: '/admin/update/status',
-  updateAdminRole: '/admin/role/update',
+const ApiConstants = {
+  BASE_URL: BASE,
 
+  // Auth
+  AUTH: {
+    LOGIN: `${BASE}/auth/login`,
+    LOGOUT: `${BASE}/auth/logout`,
+    REFRESH: `${BASE}/auth/refresh`,
+    ME: `${BASE}/auth/me`,
+  },
 
+  // Trains
+  TRAINS: {
+    BASE: `${BASE}/trains`,
+    BY_ID: (id) => `${BASE}/trains/${id}`,
+    STATUS: (id) => `${BASE}/trains/${id}/status`,
+  },
 
-  //stations
-  createNewStation: '/admin/add/new/station',
-  getAllStations: '/get/all/list',
-  getAllStationsDropdown: '/get/all/dropdown',
-  searchStations: '/search/by/name',
-  uploadStationExcel: '/upload/excel',
-  updateStationStatus: '/set/active/inactive',
-  updateStationDetails: '/update/details',
-  deleteStation: '/delete',
-  getAllPermanentlyDeletedStations: '/get/all/permanent/deleted',
-  restoreDeletedStation: '/restore',
+  // Train Types
+  TRAIN_TYPES: {
+    BASE: `${BASE}/train-types`,
+    BY_ID: (id) => `${BASE}/train-types/${id}`,
+    STATUS: (id) => `${BASE}/train-types/${id}/status`,
+  },
 
+  // Coach Types
+  COACH_TYPES: {
+    BASE: `${BASE}/coach-types`,
+    BY_ID: (id) => `${BASE}/coach-types/${id}`,
+    STATUS: (id) => `${BASE}/coach-types/${id}/status`,
+  },
 
-  //cities
-  getAllCities: '/get/all',
-  getAllCitiesByState: '/by/state/name',
-  addNewCity: '/add/new',
-  addCitiesByExcel: '/upload/excel',
+  // Stations
+  STATIONS: {
+    BASE: `${BASE}/stations`,
+    BY_ID: (id) => `${BASE}/stations/${id}`,
+    SEARCH: `${BASE}/stations/search`,
+  },
 
-  //states
-  getAllStates: '/get/all/list',
-  addStatesByExcel: '/upload/excel',
+  // Quotas
+  QUOTAS: {
+    BASE: `${BASE}/quotas`,
+    BY_ID: (id) => `${BASE}/quotas/${id}`,
+    STATUS: (id) => `${BASE}/quotas/${id}/status`,
+  },
 
-  //zones
-  getAllZones: '/get/all',
+  // Fare Rules
+  FARE_RULES: {
+    BASE: `${BASE}/fare-rules`,
+    BY_ID: (id) => `${BASE}/fare-rules/${id}`,
+  },
 
-  //train types
-  getAllTrainTypes: '/get/all',
-  getAllTrainTypesForAdmin: '/get/all/admin',
-  addTrainTypes: '/add/new',
-  updateTrainTypes: '/update/details',
-  changeTrainTypeStatus:"/change/status",
+  // Schedules
+  SCHEDULES: {
+    BASE: `${BASE}/schedules`,
+    BY_TRAIN: (trainId) => `${BASE}/trains/${trainId}/schedules`,
+  },
 
-  //coach types
-  getAllCoachTypes: '/get/all',
-  getAllCoachTypesForAdmin: '/get/all/admin',
-  addCoachTypes: '/add/new',
-  updateCoachTypes: '/update/details',
-  changeCoachTypeStatus:"/change/status",
+  // Journeys
+  JOURNEYS: {
+    BASE: `${BASE}/journeys`,
+    BY_TRAIN: (trainId) => `${BASE}/trains/${trainId}/journeys`,
+  },
+};
 
-  //fare-rules
-  getAllFareRules: '/all/admin',
-  addFareRules: '/add/new',
-   getFareRuleHistory: '/get/history',
-  changeFareRuleStatus:"/change/status",
-  getCurrentFareRule: '/get/current',
-
-  // quotas
-  getAllQuotas: '/get/all',
-  getAllQuotasForAdmin: '/get/all/admin',
-  addQuotas: '/add',
-  changeQuotaStatus:"/change/status",
-
-  //trains
-  getAllTrains: '/get/all',
-  getAllTrainsForAdmin: '/get/all/admin',
-  addTrains: '/add',
-  changeTrainStatus:"/change/status",
-  updateTrainDetails: '/update/details',
-  getTrainCascadeInfo: '/cascade-info',
-  getReturnTrainInfo: '/return/info',
-  uploadByExcel: '/upload/excel',
-  getTemplate: '/upload/template',
-  getTrainByNumber: '/get/by/number',
-
-
-  //train caoches
-  getAllCoachesByTrain: '/get/by/train',
-  addNewCoachesByTrain: '/add/new',
-  updateCoachesByTrain: '/update',
-  changeTrainCoachStatus:"/change/status",
-
-  //stops
-  getTrainStops:   '/stops',
-  addTrainStop:    '/stops/add',
-  updateTrainStop: '/stops/update',
-
-
-}
+export default ApiConstants;

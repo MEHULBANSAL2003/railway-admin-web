@@ -1,20 +1,11 @@
-import React, { Suspense } from "react";
-import AppRoutes from "./routes/AppRoutes.jsx";
-import LoadingSpinner from "./components/LoadingSpinner/LoadingSpinner.jsx";
-import { useAuthInit } from "./hooks/useAuthInit.js";
+import React from "react";
+
 
 function App() {
-  const { isValidating } = useAuthInit();
 
-  // Show loading spinner while validating tokens
-  if (isValidating) {
-    return <LoadingSpinner />;
-  }
 
   return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <AppRoutes />
-    </Suspense>
+     <></>
   );
 }
 

@@ -1,75 +1,20 @@
-.layout-container {
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
-  background: var(--bg-secondary);
+.layout {
+  min-height: 100vh;
 }
 
 .layout-main {
-  flex: 1;
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+  transition: margin-left var(--transition-slow);
 }
 
-.layout-header {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
-  height: var(--header-height);
-  flex-shrink: 0;
+.layout-collapsed .layout-main {
+  margin-left: var(--sidebar-collapsed-width);
 }
 
-.layout-body {
+.layout-content {
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: var(--spacing-6);
-  background: var(--bg-secondary);
-}
-
-/* Custom scrollbar for main content */
-.layout-body::-webkit-scrollbar {
-  width: 6px;
-}
-
-.layout-body::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.layout-body::-webkit-scrollbar-thumb {
-  background: var(--gray-300);
-  border-radius: var(--radius-full);
-}
-
-.layout-body::-webkit-scrollbar-thumb:hover {
-  background: var(--gray-400);
-}
-
-.layout-footer {
-  flex-shrink: 0;
-  height: var(--footer-height);
-  border-top: 1px solid var(--border-primary);
-  background: var(--bg-primary);
-}
-
-/* Content wrapper for max-width */
-.layout-content-wrapper {
-  max-width: var(--page-max-width);
-  margin: 0 auto;
-  width: 100%;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .layout-body {
-    padding: var(--spacing-4);
-  }
-}
-
-@media (max-width: 480px) {
-  .layout-body {
-    padding: var(--spacing-3);
-  }
+  padding: 24px;
 }
