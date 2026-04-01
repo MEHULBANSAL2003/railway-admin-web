@@ -19,11 +19,11 @@ export const AdminService = {
   },
 
   toggleStatus: async (id) => {
-    return await HttpWrapper.patch(ApiConstants.ADMIN.TOGGLE_STATUS(id), null, true);
+    return await HttpWrapper.post(ApiConstants.ADMIN.TOGGLE_STATUS(id), null, true);
   },
 
   changeRole: async (id) => {
-    return await HttpWrapper.patch(ApiConstants.ADMIN.CHANGE_ROLE(id), null, true);
+    return await HttpWrapper.post(ApiConstants.ADMIN.CHANGE_ROLE(id), null, true);
   },
 
   getMySession: async () => {

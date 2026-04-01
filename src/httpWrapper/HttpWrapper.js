@@ -45,6 +45,11 @@ export const HttpWrapper = {
     return await api.post(url, body, { headers, timeout: TIMEOUT_VALUE });
   },
 
+  put: async (url, body = null, setHeader = false) => {
+    const headers = buildHeaders(setHeader);
+    return await api.put(url, body, { headers, timeout: TIMEOUT_VALUE });
+  },
+
   patch: async (url, body = null, setHeader = false) => {
     const headers = buildHeaders(setHeader);
     return await api.patch(url, body, { headers, timeout: TIMEOUT_VALUE });
