@@ -25,4 +25,8 @@ export const AdminService = {
   changeRole: async (id) => {
     return await HttpWrapper.patch(ApiConstants.ADMIN.CHANGE_ROLE(id), null, true);
   },
+
+  getMySession: async () => {
+    return await HttpWrapper.get(ApiConstants.ADMIN.MY_SESSION, null, true);
+  },
 };

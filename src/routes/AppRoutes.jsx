@@ -9,6 +9,7 @@ const Login = lazy(() => import('../pages/LoginPage/Login.jsx'));
 const Dashboard = lazy(() => import('../pages/DashBoard/DashBoard.jsx'));
 const AdminManagement = lazy(() => import('../pages/AdminManagement/AdminManagement.jsx'));
 const ProfilePage = lazy(() => import('../pages/ProfilePage/ProfilePage.jsx'));
+const UserInfoPage = lazy(() => import('../pages/UserInfo/UserInfoPage.jsx'));
 
 const AppRoutes = () => {
   return (
@@ -34,6 +35,7 @@ const AppRoutes = () => {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="admins" element={<AdminManagement />} />
         <Route path="profile" element={<ProfilePage />} />
+        <Route path="userinfo/:id" element={<UserInfoPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
 

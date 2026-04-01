@@ -17,6 +17,13 @@ const ApiConstants = {
     TOGGLE_STATUS: (id) => `${BASE}/admin/${id}/toggle-status`,
     CHANGE_ROLE: (id) => `${BASE}/admin/${id}/change-role`,
     LOGOUT: `${BASE}/admin/logout`,
+    MY_SESSION: `${BASE}/admin/me/session`,
+  },
+
+  // Users (Admin View)
+  USER: {
+    BY_ID: (id) => `${BASE}/admin/user/${id}`,
+    STATUS_HISTORY: (id) => `${BASE}/admin/user/${id}/status-history`,
   },
 
   // Trains

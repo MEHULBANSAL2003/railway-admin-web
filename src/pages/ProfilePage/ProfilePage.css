@@ -9,8 +9,17 @@
   font-size: var(--font-size-sm);
 }
 
+/* -- Two-column layout -- */
+.profile-layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: var(--spacing-6);
+  align-items: start;
+}
+
+/* -- Profile Card -- */
 .profile-card {
-  max-width: 600px;
+  min-width: 0;
 }
 
 .profile-header {
@@ -79,6 +88,182 @@
   font-size: var(--font-size-sm);
   color: var(--text-primary);
   font-weight: var(--font-weight-medium);
+}
+
+/* -- Session Card -- */
+.session-card {
+  position: sticky;
+  top: var(--spacing-6);
+}
+
+.session-card-header {
+  padding: var(--spacing-5) var(--spacing-5) var(--spacing-3);
+}
+
+.session-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.session-card-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.session-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-full);
+  background: #10b981;
+  animation: session-pulse 2s ease-in-out infinite;
+}
+
+@keyframes session-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.session-card-subtitle {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin: 2px 0 0;
+}
+
+.session-card-body {
+  padding: 0 var(--spacing-5) var(--spacing-5);
+}
+
+.session-loading {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4) 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.session-fetch-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  width: 100%;
+  padding: var(--spacing-3);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--primary-600);
+  background: var(--primary-100);
+  border: 1px dashed var(--primary-300, #a5b4fc);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.session-fetch-btn:hover:not(:disabled) {
+  background: var(--primary-200, #c7d2fe);
+  border-style: solid;
+}
+
+.session-fetch-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.session-detail-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.session-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+}
+
+.session-detail-icon {
+  color: var(--text-tertiary);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.session-detail-label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-bottom: 1px;
+}
+
+.session-detail-value {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+  word-break: break-word;
+}
+
+.session-expiry-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-4);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-md);
+  background: var(--success-light);
+  color: #065f46;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.session-expiry-bar.expired {
+  background: var(--error-light);
+  color: #991b1b;
+}
+
+.session-copy-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  width: 100%;
+  margin-top: var(--spacing-4);
+  padding: var(--spacing-3);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.session-copy-btn:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-secondary);
+}
+
+.session-empty {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4) 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+/* -- Responsive -- */
+@media (max-width: 900px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .session-card {
+    position: static;
+  }
 }
 
 @media (max-width: 640px) {
