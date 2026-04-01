@@ -1,0 +1,272 @@
+/* ==========================================
+   USER INFO PAGE
+   ========================================== */
+
+/* -- Loading / Error states -- */
+.ui-loading-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-16);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+/* -- Page header with back button -- */
+.ui-page-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+/* -- User Banner -- */
+.ui-user-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-5) var(--spacing-6);
+  margin-bottom: var(--spacing-6);
+}
+
+.ui-user-banner-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.ui-user-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  flex-shrink: 0;
+}
+
+.ui-user-avatar-img {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.ui-user-banner-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ui-user-banner-name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.ui-user-banner-username {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.ui-user-banner-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.ui-user-banner-id {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+/* -- Tabs -- */
+.ui-tabs {
+  display: flex;
+  flex-direction: column;
+}
+
+.ui-tabs-nav {
+  display: flex;
+  gap: var(--spacing-1);
+  border-bottom: 2px solid var(--border-primary);
+  margin-bottom: var(--spacing-6);
+  overflow-x: auto;
+}
+
+.ui-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-5);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.ui-tab-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+.ui-tab-btn.active {
+  color: var(--primary-600);
+  border-bottom-color: var(--primary-600);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* -- Tab panels -- */
+.ui-tab-panel {
+  display: none;
+}
+
+.ui-tab-panel.active {
+  display: block;
+}
+
+/* -- Profile Tab grid -- */
+.ui-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-6);
+}
+
+.ui-profile-section .card-title {
+  font-size: var(--font-size-sm);
+}
+
+.ui-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-5);
+}
+
+.ui-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+}
+
+.ui-info-icon {
+  color: var(--text-tertiary);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.ui-info-label {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin-bottom: 2px;
+}
+
+.ui-info-value {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+  word-break: break-word;
+}
+
+/* -- Status History Tab -- */
+.ui-sh-actor-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+}
+
+.ui-sh-actor-type {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin-top: 1px;
+}
+
+.ui-sh-reason {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  max-width: 250px;
+  display: block;
+}
+
+.ui-sh-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-3) var(--spacing-5);
+  border-top: 1px solid var(--border-primary);
+  background: var(--bg-secondary);
+}
+
+.ui-sh-pagination-info {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.ui-sh-pagination-info strong {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.ui-sh-pagination-btns {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+/* -- Responsive -- */
+@media (max-width: 1024px) {
+  .ui-profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .ui-user-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-4);
+  }
+
+  .ui-user-banner-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .ui-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ui-tabs-nav {
+    gap: 0;
+  }
+
+  .ui-tab-btn {
+    padding: var(--spacing-3);
+    font-size: var(--font-size-xs);
+  }
+
+  .ui-sh-pagination {
+    flex-direction: column;
+    gap: var(--spacing-3);
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .ui-sh-pagination-btns {
+    justify-content: center;
+  }
+}
