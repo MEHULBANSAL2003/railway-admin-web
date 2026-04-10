@@ -27,14 +27,14 @@ const Login = () => {
         </p>
 
         <div className="login-google-btn">
-        <GoogleLogin
-          onSuccess={(credentialResponse) => {
-            handleGoogleLogin(credentialResponse);
-          }}
-          onError={() => {
-            console.log('Login Failed');
-          }}
-        />
+          <GoogleLogin
+            onSuccess={(credentialResponse) => {
+              handleGoogleLogin(credentialResponse);
+            }}
+            onError={() => {
+              console.log('Login Failed');
+            }}
+          />
         </div>
       </div>
     </div>
