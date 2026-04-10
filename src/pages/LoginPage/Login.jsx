@@ -26,6 +26,7 @@ const Login = () => {
           Sign in to start session
         </p>
 
+        <div className="login-google-btn">
         <GoogleLogin
           onSuccess={(credentialResponse) => {
             handleGoogleLogin(credentialResponse);
@@ -34,6 +35,7 @@ const Login = () => {
             console.log('Login Failed');
           }}
         />
+        </div>
       </div>
     </div>
   );

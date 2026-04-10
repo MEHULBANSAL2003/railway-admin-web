@@ -7,6 +7,11 @@
   align-items: center;
   font-family: 'Segoe UI', sans-serif;
 }
+.login-google-btn{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 /* Card */
 .login-card {
