@@ -1,9 +1,5 @@
 name: Deploy Frontend
 
-# WHY workflow_dispatch?
-# This means the workflow ONLY runs when you manually trigger it
-# from GitHub UI — never automatically on push.
-# You get full control over when and what to deploy.
 on:
   workflow_dispatch:
     inputs:
@@ -21,36 +17,39 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest  # GitHub spins up a fresh Ubuntu machine
+    runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the branch you specified
-      # WHY? The runner has no code yet — we need to pull it from GitHub
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.branch }}  # uses the branch you entered
+          ref: ${{ inputs.branch }}
 
-      # Step 2: Setup Node.js
-      # WHY? The Ubuntu runner has Node but we pin a specific version
-      # to avoid surprises from version differences
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'  # caches node_modules between runs = faster builds
+          cache: 'npm'
 
-      # Step 3: Install dependencies
       - name: Install dependencies
         run: npm ci
-        # WHY npm ci instead of npm install?
-        # npm ci is faster and stricter — uses exact versions from
-        # package-lock.json. Better for CI environments.
 
-      # Step 4: Build with correct environment
-      # WHY this if/else?
-      # Your .env.development and .env.production have different API URLs.
-      # Vite automatically picks up .env.production when you pass --mode production
+      # WHY hardcode GOOGLE_CLIENT_ID here?
+      # It's the same for dev and prod, and it's not sensitive —
+      # it's a public client ID that's visible in the browser anyway.
+      # No need to store it as a secret.
+      - name: Create env file
+        run: |
+          if [ "${{ inputs.environment }}" = "prod" ]; then
+            echo "VITE_APP_ENV=production" > .env.production
+            echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL_PROD }}" >> .env.production
+            echo "VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}" >> .env.production
+          else
+            echo "VITE_APP_ENV=development" > .env.development
+            echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL_DEV }}" >> .env.development
+            echo "VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}" >> .env.development
+          fi
+
       - name: Build
         run: |
           if [ "${{ inputs.environment }}" = "prod" ]; then
@@ -59,9 +58,6 @@ jobs:
             npm run build:dev
           fi
 
-      # Step 5: Configure AWS credentials
-      # WHY? The runner needs AWS credentials to upload to S3
-      # We use the secrets you added in Step 2 — never hardcoded!
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -69,9 +65,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # Step 6: Upload to correct S3 bucket based on environment
-      # WHY --delete? Removes old files from S3 that no longer exist
-      # in your build — keeps the bucket clean and in sync with dist/
       - name: Upload to S3
         run: |
           if [ "${{ inputs.environment }}" = "prod" ]; then
@@ -80,10 +73,6 @@ jobs:
             aws s3 sync ./dist s3://${{ secrets.S3_BUCKET_DEV }} --delete
           fi
 
-      # Step 7: Invalidate CloudFront cache
-      # WHY? CloudFront caches your files at edge locations worldwide.
-      # Without invalidation, users would see the OLD version for hours.
-      # /* means invalidate everything — all files in the distribution.
       - name: Invalidate CloudFront cache
         run: |
           if [ "${{ inputs.environment }}" = "prod" ]; then
@@ -96,7 +85,6 @@ jobs:
               --paths "/*"
           fi
 
-      # Step 8: Print success message
       - name: Done
         run: |
           if [ "${{ inputs.environment }}" = "prod" ]; then
