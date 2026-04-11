@@ -40,14 +40,15 @@ jobs:
       # No need to store it as a secret.
       - name: Create env file
         run: |
+          mkdir -p environment
           if [ "${{ inputs.environment }}" = "prod" ]; then
-            echo "VITE_APP_ENV=production" > .env.production
-            echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL_PROD }}" >> .env.production
-            echo "VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}" >> .env.production
+            echo "VITE_APP_ENV=production" > environment/.env.production
+            echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL_PROD }}" >> environment/.env.production
+            echo "VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}" >> environment/.env.production
           else
-            echo "VITE_APP_ENV=development" > .env.development
-            echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL_DEV }}" >> .env.development
-            echo "VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}" >> .env.development
+            echo "VITE_APP_ENV=development" > environment/.env.development
+            echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL_DEV }}" >> environment/.env.development
+            echo "VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}" >> environment/.env.development
           fi
 
       - name: Build
