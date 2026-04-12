@@ -108,7 +108,7 @@ const AddAdminModal = ({ open, onClose, onSuccess }) => {
       handleClose();
       onSuccess?.();
     } catch (err) {
-      const msg = err?.response?.data?.error?.message || '';
+      const msg = err?.response?.data?.reason || '';
       if (msg.toLowerCase().includes('email')) {
         setErrors(prev => ({ ...prev, email: msg }));
       } else if (msg.toLowerCase().includes('phone')) {

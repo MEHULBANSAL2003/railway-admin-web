@@ -95,7 +95,7 @@ const StatusHistoryTab = ({ userId }) => {
       setTotalElements(payload.totalElements);
     } catch (err) {
       if (err?.code !== 'ERR_CANCELED') {
-        showError(err?.response?.data?.error?.message || 'Failed to load status history.');
+        showError(err?.response?.data?.reason || 'Failed to load status history.');
       }
     } finally {
       setLoading(false);

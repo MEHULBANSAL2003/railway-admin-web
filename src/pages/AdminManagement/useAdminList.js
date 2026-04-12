@@ -79,7 +79,7 @@ export const useAdminList = () => {
       setTotalElements(total);
     } catch (err) {
       if (err?.code === 'ERR_CANCELED') return;
-      showError(err?.response?.data?.error?.message || 'Failed to load admins.');
+      showError(err?.response?.data?.reason || 'Failed to load admins.');
     } finally {
       setLoading(false);
     }
@@ -167,7 +167,7 @@ export const useAdminList = () => {
       setData(prev =>
         prev.map(r => r.adminId === admin.adminId ? { ...r, enabled: admin.enabled } : r)
       );
-      showError(err?.response?.data?.error?.message || 'Failed to update status.');
+      showError(err?.response?.data?.reason || 'Failed to update status.');
     } finally {
       setStatusLoadingId(null);
     }
@@ -194,7 +194,7 @@ export const useAdminList = () => {
       setData(prev =>
         prev.map(r => r.adminId === admin.adminId ? { ...r, role: prevRole } : r)
       );
-      showError(err?.response?.data?.error?.message || 'Failed to update role.');
+      showError(err?.response?.data?.reason || 'Failed to update role.');
     } finally {
       setRoleLoadingId(null);
     }

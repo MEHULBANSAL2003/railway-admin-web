@@ -40,7 +40,7 @@ const UserInfoPage = () => {
         if (!cancelled) setUser(res.data.data);
       } catch (err) {
         if (!cancelled) {
-          showError(err?.response?.data?.error?.message || 'Failed to load user details.');
+          showError(err?.response?.data?.reason || 'Failed to load user details.');
         }
       } finally {
         if (!cancelled) setLoading(false);

@@ -52,7 +52,7 @@ const ProfilePage = () => {
         const res = await AdminService.getMyProfile();
         setProfile(res.data.data);
       } catch (err) {
-        showError(err?.response?.data?.error?.message || 'Failed to load profile.');
+        showError(err?.response?.data?.reason || 'Failed to load profile.');
       } finally {
         setLoading(false);
       }
@@ -69,7 +69,7 @@ const ProfilePage = () => {
     } catch (err) {
       setSession(null);
       setSessionFetched(true);
-      showError(err?.response?.data?.error?.message || 'Failed to fetch session.');
+      showError(err?.response?.data?.reason || 'Failed to fetch session.');
     } finally {
       setSessionLoading(false);
     }
