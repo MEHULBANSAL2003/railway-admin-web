@@ -1,6 +1,7 @@
 import {
   Mail, Phone, User, Shield, MapPin, Monitor,
-  Calendar, Lock, Globe, Fingerprint, Clock,
+  Calendar, Lock, Globe, Fingerprint, Clock, Smartphone,
+  Chrome, Wifi,
 } from 'lucide-react';
 
 const formatDate = (iso) => {
@@ -27,6 +28,77 @@ const InfoItem = ({ icon: Icon, label, value }) => (
     </div>
   </div>
 );
+
+const MetadataSection = ({ title, metadata, icon: Icon = Monitor }) => {
+  if (!metadata || Object.keys(metadata).length === 0) {
+    return (
+      <div className="ui-profile-section card">
+        <div className="card-header">
+          <h3 className="card-title">{title}</h3>
+        </div>
+        <div className="card-body">
+          <p className="text-muted" style={{ textAlign: 'center', padding: '1rem 0' }}>
+            No metadata available
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const getIconForField = (key) => {
+    const lowerKey = key.toLowerCase();
+    if (lowerKey.includes('ip')) return Globe;
+    if (lowerKey.includes('device') || lowerKey.includes('model')) return Smartphone;
+    if (lowerKey.includes('browser')) return Chrome;
+    if (lowerKey.includes('os') || lowerKey.includes('platform')) return Monitor;
+    if (lowerKey.includes('city') || lowerKey.includes('state') || lowerKey.includes('country') || lowerKey.includes('location')) return MapPin;
+    if (lowerKey.includes('time') || lowerKey.includes('date') || lowerKey.includes('at')) return Clock;
+    if (lowerKey.includes('network') || lowerKey.includes('isp')) return Wifi;
+    return Icon;
+  };
+
+  const formatKey = (key) => {
+    // Convert camelCase to Title Case with spaces
+    return key
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, str => str.toUpperCase())
+      .trim();
+  };
+
+  const formatValue = (value) => {
+    if (value === null || value === undefined) return '—';
+    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+    if (typeof value === 'object') return JSON.stringify(value, null, 2);
+    // Check if value looks like an ISO date
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
+      return formatDateTime(value);
+    }
+    return String(value);
+  };
+
+  return (
+    <div className="ui-profile-section card">
+      <div className="card-header">
+        <h3 className="card-title">{title}</h3>
+      </div>
+      <div className="card-body">
+        <div className="ui-info-grid">
+          {Object.entries(metadata).map(([key, value]) => {
+            const FieldIcon = getIconForField(key);
+            return (
+              <InfoItem
+                key={key}
+                icon={FieldIcon}
+                label={formatKey(key)}
+                value={formatValue(value)}
+              />
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const ProfileTab = ({ user }) => {
   return (
@@ -115,6 +187,20 @@ const ProfileTab = ({ user }) => {
           </div>
         </div>
       </div>
+
+      {/* Registration Metadata */}
+      <MetadataSection
+        title="Registration Metadata"
+        metadata={user.registrationMetaData}
+        icon={User}
+      />
+
+      {/* Login Metadata */}
+      <MetadataSection
+        title="Login Metadata"
+        metadata={user.loginMetaData}
+        icon={Lock}
+      />
     </div>
   );
 };
