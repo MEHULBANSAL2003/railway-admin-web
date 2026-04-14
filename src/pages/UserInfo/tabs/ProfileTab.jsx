@@ -154,27 +154,6 @@ const ProfileTab = ({ user }) => {
         </div>
       </div>
 
-      {/* Last Login Details */}
-      <div className="ui-profile-section card">
-        <div className="card-header">
-          <h3 className="card-title">Last Login</h3>
-        </div>
-        <div className="card-body">
-          <div className="ui-info-grid">
-            <InfoItem icon={Clock} label="Login Time" value={formatDateTime(user.lastLoginAt)} />
-            <InfoItem icon={Globe} label="IP Address" value={user.lastLoginIp} />
-            <InfoItem icon={Monitor} label="Device" value={user.lastDeviceType} />
-            <InfoItem icon={Monitor} label="OS" value={user.lastOs} />
-            <InfoItem icon={Globe} label="Browser" value={user.lastBrowser} />
-            <InfoItem icon={MapPin} label="Location" value={
-              [user.lastLoginCity, user.lastLoginState, user.lastLoginCountry]
-                .filter(Boolean)
-                .join(', ') || '—'
-            } />
-          </div>
-        </div>
-      </div>
-
       {/* Timestamps */}
       <div className="ui-profile-section card">
         <div className="card-header">
@@ -191,14 +170,14 @@ const ProfileTab = ({ user }) => {
       {/* Registration Metadata */}
       <MetadataSection
         title="Registration Metadata"
-        metadata={user.registrationMetaData}
+        metadata={user.registrationMetadata}
         icon={User}
       />
 
       {/* Login Metadata */}
       <MetadataSection
         title="Login Metadata"
-        metadata={user.loginMetaData}
+        metadata={user.lastLoginMetadata}
         icon={Lock}
       />
     </div>
