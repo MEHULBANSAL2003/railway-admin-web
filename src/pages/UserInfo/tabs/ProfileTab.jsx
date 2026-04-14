@@ -101,6 +101,7 @@ const MetadataSection = ({ title, metadata, icon: Icon = Monitor }) => {
 };
 
 const ProfileTab = ({ user }) => {
+  console.log(user);
   return (
     <div className="ui-profile-grid">
       {/* Identity */}
@@ -154,19 +155,6 @@ const ProfileTab = ({ user }) => {
         </div>
       </div>
 
-      {/* Timestamps */}
-      <div className="ui-profile-section card">
-        <div className="card-header">
-          <h3 className="card-title">Timestamps</h3>
-        </div>
-        <div className="card-body">
-          <div className="ui-info-grid">
-            <InfoItem icon={Calendar} label="Account Created" value={formatDateTime(user.createdAt)} />
-            <InfoItem icon={Calendar} label="Last Updated" value={formatDateTime(user.updatedAt)} />
-          </div>
-        </div>
-      </div>
-
       {/* Registration Metadata */}
       <MetadataSection
         title="Registration Metadata"
@@ -180,6 +168,19 @@ const ProfileTab = ({ user }) => {
         metadata={user.lastLoginMetadata}
         icon={Lock}
       />
+
+      {/* Timestamps */}
+      <div className="ui-profile-section card" style={{ gridColumn: '1 / -1', maxWidth: '600px' }}>
+        <div className="card-header">
+          <h3 className="card-title">Timestamps</h3>
+        </div>
+        <div className="card-body">
+          <div className="ui-info-grid">
+            <InfoItem icon={Calendar} label="Account Created" value={formatDateTime(user.createdAt)} />
+            <InfoItem icon={Calendar} label="Last Updated" value={formatDateTime(user.updatedAt)} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
