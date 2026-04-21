@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import AdminService from '../../services/AdminService.js';
+import {AdminService} from '../../services/AdminService.js';
 
 const useUsersAnalytics = () => {
   const [data, setData]       = useState(null);
