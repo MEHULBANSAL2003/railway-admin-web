@@ -22,7 +22,7 @@ const DonutChart = ({ segments, size = 110, stroke = 22 }) => {
       viewBox={`0 0 ${size} ${size}`}
       style={{ transform: 'rotate(-90deg)' }}
     >
-      <circle cx={cx} cy={cx} r={r} fill="none" stroke="#1a1e28" strokeWidth={stroke} />
+      <circle cx={cx} cy={cx} r={r} fill="none" stroke="#e5e7eb" strokeWidth={stroke} />
       {segments.map((seg, i) => {
         const dash = (seg.pct / 100) * circ;
         const gap  = circ - dash;
@@ -135,18 +135,14 @@ const UsersAnalytics = () => {
   const d = data;
   const total = d.totalUsers || 1; // avoid /0
 
-  /* Status segments for donut */
   const statusSegments = [
-    { label: 'Active',    value: d.activeUsers,    color: '#00e5a0', pct: +pct(d.activeUsers,    total) },
-    { label: 'Inactive',  value: d.inactiveUsers,  color: '#4d9fff', pct: +pct(d.inactiveUsers,  total) },
-    { label: 'Suspended', value: d.suspendedUsers, color: '#ffd166', pct: +pct(d.suspendedUsers, total) },
-    { label: 'Banned',    value: d.bannedUsers,    color: '#ff4d6d', pct: +pct(d.bannedUsers,    total) },
+    { label: 'Active',    value: d.activeUsers,    color: '#059669', pct: +pct(d.activeUsers,    total) },
   ].filter(s => s.value > 0);
 
   /* Device segments */
   const deviceMap   = d.registeredByDeviceType || {};
   const deviceTotal = Object.values(deviceMap).reduce((a, b) => a + b, 0) || 1;
-  const deviceColors = ['#00e5a0', '#4d9fff', '#b57aff', '#ffd166', '#ff8c42'];
+  const deviceColors = ['#2563eb', '#059669', '#7c3aed', '#d97706', '#ea580c'];
   const deviceSegments = Object.entries(deviceMap).map(([k, v], i) => ({
     label: k, value: v, color: deviceColors[i % deviceColors.length],
     pct: +pct(v, deviceTotal),
@@ -155,7 +151,7 @@ const UsersAnalytics = () => {
   /* OS segments */
   const osMap   = d.registeredByOs || {};
   const osTotal = Object.values(osMap).reduce((a, b) => a + b, 0) || 1;
-  const osColors = ['#4d9fff', '#00e5a0', '#ffd166', '#ff8c42', '#b57aff', '#ff4d6d'];
+  const osColors = ['#2563eb', '#059669', '#d97706', '#ea580c', '#7c3aed', '#dc2626'];
   const osSegments = Object.entries(osMap).map(([k, v], i) => ({
     label: k, value: v, color: osColors[i % osColors.length],
     pct: +pct(v, osTotal),
@@ -164,7 +160,7 @@ const UsersAnalytics = () => {
   /* Browser segments */
   const browserMap   = d.registeredByBrowser || {};
   const browserTotal = Object.values(browserMap).reduce((a, b) => a + b, 0) || 1;
-  const browserColors = ['#ff8c42', '#4d9fff', '#b57aff', '#00e5a0', '#ffd166'];
+  const browserColors = ['#ea580c', '#2563eb', '#7c3aed', '#059669', '#d97706'];
   const browserSegments = Object.entries(browserMap).map(([k, v], i) => ({
     label: k, value: v, color: browserColors[i % browserColors.length],
     pct: +pct(v, browserTotal),
@@ -199,15 +195,15 @@ const UsersAnalytics = () => {
       <p className="ua-section-label">Overview</p>
       <div className="ua-overview-grid">
         <StatCard
-          label="Total Users"
+          label="Total Registered Users"
           value={d.totalUsers}
           sub="all time"
           icon="👥"
-          accent="var(--ua-accent)"
-          accentDim="var(--ua-accent-dim)"
+          accent="var(--ua-blue)"
+          accentDim="var(--ua-blue-dim)"
         />
         <StatCard
-          label="Active"
+          label="Active Users"
           value={d.activeUsers}
           sub={`${pct(d.activeUsers, total)}% of total`}
           icon="✓"
@@ -215,45 +211,45 @@ const UsersAnalytics = () => {
           accentDim="var(--ua-accent-dim)"
         />
         <StatCard
-          label="Inactive"
-          value={d.inactiveUsers}
-          sub={`${pct(d.inactiveUsers, total)}%`}
-          icon="◌"
-          accent="var(--ua-blue)"
-          accentDim="var(--ua-blue-dim)"
+          label="New Registrations Today"
+          value={d.registrationsToday}
+          sub="since midnight"
+          icon="📥"
+          accent="var(--ua-purple)"
+          accentDim="var(--ua-purple-dim)"
         />
         <StatCard
-          label="Suspended"
-          value={d.suspendedUsers}
-          sub={`${pct(d.suspendedUsers, total)}%`}
-          icon="⏸"
+          label="Logins Today"
+          value={d.loginsToday}
+          sub="active sessions"
+          icon="🔑"
+          accent="var(--ua-orange)"
+          accentDim="var(--ua-orange-dim)"
+        />
+        <StatCard
+          label="Fully Verified Users"
+          value={d.fullyVerifiedUsers}
+          sub="email + phone both"
+          icon="🛡"
           accent="var(--ua-yellow)"
           accentDim="var(--ua-yellow-dim)"
-        />
-        <StatCard
-          label="Banned"
-          value={d.bannedUsers}
-          sub={`${pct(d.bannedUsers, total)}%`}
-          icon="⊘"
-          accent="var(--ua-red)"
-          accentDim="var(--ua-red-dim)"
         />
       </div>
 
       {/* ── Registrations + Logins ── */}
-      <p className="ua-section-label">Activity</p>
+      <p className="ua-section-label">Registration & Login Activity</p>
       <div className="ua-two-col" style={{ marginBottom: 16 }}>
 
         {/* Registrations */}
         <div className="ua-panel">
           <div className="ua-panel-title">
             <span className="dot" style={{ background: 'var(--ua-accent)' }} />
-            New Registrations
+            New User Registrations
           </div>
           <div className="ua-timeline-row">
-            <TimelineItem label="Today"  value={d.registrationsToday}      max={regMax} color="var(--ua-accent)" />
-            <TimelineItem label="7 days" value={d.registrationsThisWeek}   max={regMax} color="var(--ua-accent)" />
-            <TimelineItem label="30 days"value={d.registrationsThisMonth}  max={regMax} color="var(--ua-accent)" />
+            <TimelineItem label="Today"   value={d.registrationsToday}     max={regMax} color="var(--ua-accent)" />
+            <TimelineItem label="7 days"  value={d.registrationsThisWeek}  max={regMax} color="var(--ua-accent)" />
+            <TimelineItem label="30 days" value={d.registrationsThisMonth} max={regMax} color="var(--ua-accent)" />
           </div>
         </div>
 
@@ -261,51 +257,45 @@ const UsersAnalytics = () => {
         <div className="ua-panel">
           <div className="ua-panel-title">
             <span className="dot" style={{ background: 'var(--ua-blue)' }} />
-            Logins
+            User Login Activity
           </div>
           <div className="ua-timeline-row">
-            <TimelineItem label="Today"  value={d.loginsToday}      max={loginMax} color="var(--ua-blue)" />
-            <TimelineItem label="7 days" value={d.loginsThisWeek}   max={loginMax} color="var(--ua-blue)" />
-            <TimelineItem label="30 days"value={d.loginsThisMonth}  max={loginMax} color="var(--ua-blue)" />
+            <TimelineItem label="Today"   value={d.loginsToday}     max={loginMax} color="var(--ua-blue)" />
+            <TimelineItem label="7 days"  value={d.loginsThisWeek}  max={loginMax} color="var(--ua-blue)" />
+            <TimelineItem label="30 days" value={d.loginsThisMonth} max={loginMax} color="var(--ua-blue)" />
           </div>
         </div>
       </div>
 
-      {/* ── Status + Verification + Password ── */}
-      <p className="ua-section-label">Users Detail</p>
-      <div className="ua-three-col" style={{ marginBottom: 16 }}>
-
-        {/* Status donut */}
-        <div className="ua-panel">
-          <div className="ua-panel-title">
-            <span className="dot" style={{ background: 'var(--ua-accent)' }} />
-            Status Breakdown
-          </div>
-          <div className="ua-donut-wrap">
-            <DonutChart segments={statusSegments} />
-            <div className="ua-donut-legend">
-              {statusSegments.map((s) => (
-                <div key={s.label} className="ua-legend-item">
-                  <div className="ua-legend-dot" style={{ background: s.color }} />
-                  <span className="ua-legend-label">{s.label}</span>
-                  <span className="ua-legend-val">{fmt(s.value)}</span>
-                  <span className="ua-legend-pct">{s.pct}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+      {/* ── Verification + Password ── */}
+      <p className="ua-section-label">Verification & Security</p>
+      <div className="ua-two-col" style={{ marginBottom: 16 }}>
 
         {/* Verification */}
         <div className="ua-panel">
           <div className="ua-panel-title">
             <span className="dot" style={{ background: 'var(--ua-purple)' }} />
-            Verification Rates
+            Account Verification Status
           </div>
           <div className="ua-verify-row">
-            <VerifyItem label="Email Verified"         count={d.emailVerifiedUsers}  total={total} color="var(--ua-purple)" />
-            <VerifyItem label="Phone Verified"         count={d.phoneVerifiedUsers}  total={total} color="var(--ua-orange)" />
-            <VerifyItem label="Fully Verified (Both)"  count={d.fullyVerifiedUsers}  total={total} color="var(--ua-accent)" />
+            <VerifyItem
+              label={`Email Verified (${d.emailVerificationRate}%)`}
+              count={d.emailVerifiedUsers}
+              total={total}
+              color="var(--ua-purple)"
+            />
+            <VerifyItem
+              label={`Phone Verified (${d.phoneVerificationRate}%)`}
+              count={d.phoneVerifiedUsers}
+              total={total}
+              color="var(--ua-orange)"
+            />
+            <VerifyItem
+              label="Fully Verified (Email + Phone Both)"
+              count={d.fullyVerifiedUsers}
+              total={total}
+              color="var(--ua-accent)"
+            />
           </div>
         </div>
 
@@ -313,34 +303,34 @@ const UsersAnalytics = () => {
         <div className="ua-panel">
           <div className="ua-panel-title">
             <span className="dot" style={{ background: 'var(--ua-orange)' }} />
-            Password Health
+            Password Change Statistics
           </div>
           <div className="ua-password-grid">
             <div className="ua-pwd-card">
-              <div className="ua-pwd-card pwd-val" style={{ color: 'var(--ua-accent)' }}>
+              <div className="pwd-val" style={{ color: 'var(--ua-accent)', fontFamily: 'Syne, sans-serif', fontSize: '1.5rem', fontWeight: 800, marginBottom: 4 }}>
                 {d.avgPasswordChangeCount ?? '—'}
               </div>
-              <div className="pwd-label">AVG CHANGES</div>
+              <div className="pwd-label">AVG PASSWORD CHANGES PER USER</div>
             </div>
             <div className="ua-pwd-card">
-              <div className="ua-pwd-card pwd-val" style={{ color: 'var(--ua-red)' }}>
+              <div className="pwd-val" style={{ color: 'var(--ua-red)', fontFamily: 'Syne, sans-serif', fontSize: '1.5rem', fontWeight: 800, marginBottom: 4 }}>
                 {fmt(d.usersNeverChangedPassword)}
               </div>
-              <div className="pwd-label">NEVER CHANGED</div>
+              <div className="pwd-label">USERS NEVER CHANGED PASSWORD</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* ── Device / OS / Browser ── */}
-      <p className="ua-section-label">Device & Platform</p>
+      <p className="ua-section-label">Registration Device & Platform Breakdown</p>
       <div className="ua-three-col">
 
         {/* Device Type */}
         <div className="ua-panel">
           <div className="ua-panel-title">
-            <span className="dot" style={{ background: 'var(--ua-accent)' }} />
-            Device Type
+            <span className="dot" style={{ background: 'var(--ua-blue)' }} />
+            Registered Via — Device Type
           </div>
           {deviceSegments.length > 0 ? (
             <div className="ua-donut-wrap">

@@ -2,27 +2,27 @@
 
 /* ── Root Variables ── */
 .ua-page {
-  --ua-bg: #0a0c0f;
-  --ua-surface: #111318;
-  --ua-surface-2: #181c24;
-  --ua-border: rgba(255, 255, 255, 0.06);
-  --ua-border-hover: rgba(255, 255, 255, 0.14);
-  --ua-text: #e8eaf0;
-  --ua-text-muted: #5a6070;
-  --ua-text-dim: #8892a4;
-  --ua-accent: #00e5a0;
-  --ua-accent-dim: rgba(0, 229, 160, 0.12);
-  --ua-accent-glow: rgba(0, 229, 160, 0.25);
-  --ua-blue: #4d9fff;
-  --ua-blue-dim: rgba(77, 159, 255, 0.12);
-  --ua-orange: #ff8c42;
-  --ua-orange-dim: rgba(255, 140, 66, 0.12);
-  --ua-red: #ff4d6d;
-  --ua-red-dim: rgba(255, 77, 109, 0.12);
-  --ua-yellow: #ffd166;
-  --ua-yellow-dim: rgba(255, 209, 102, 0.12);
-  --ua-purple: #b57aff;
-  --ua-purple-dim: rgba(181, 122, 255, 0.12);
+  --ua-bg: #f4f6f9;
+  --ua-surface: #ffffff;
+  --ua-surface-2: #f0f2f6;
+  --ua-border: rgba(0, 0, 0, 0.07);
+  --ua-border-hover: rgba(0, 0, 0, 0.15);
+  --ua-text: #111827;
+  --ua-text-muted: #9ca3af;
+  --ua-text-dim: #6b7280;
+  --ua-accent: #059669;
+  --ua-accent-dim: rgba(5, 150, 105, 0.1);
+  --ua-accent-glow: rgba(5, 150, 105, 0.2);
+  --ua-blue: #2563eb;
+  --ua-blue-dim: rgba(37, 99, 235, 0.1);
+  --ua-orange: #ea580c;
+  --ua-orange-dim: rgba(234, 88, 12, 0.1);
+  --ua-red: #dc2626;
+  --ua-red-dim: rgba(220, 38, 38, 0.1);
+  --ua-yellow: #d97706;
+  --ua-yellow-dim: rgba(217, 119, 6, 0.1);
+  --ua-purple: #7c3aed;
+  --ua-purple-dim: rgba(124, 58, 237, 0.1);
   font-family: 'DM Mono', monospace;
   background: var(--ua-bg);
   min-height: 100vh;
@@ -116,8 +116,9 @@
   padding: 20px;
   position: relative;
   overflow: hidden;
-  transition: border-color 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   cursor: default;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
 
 .ua-stat-card::before {
@@ -135,6 +136,7 @@
 .ua-stat-card:hover {
   border-color: var(--ua-border-hover);
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
 }
 
 .ua-stat-card:hover::before {
@@ -200,6 +202,7 @@
   border-radius: 12px;
   padding: 24px;
   animation: ua-fade-up 0.5s 0.2s ease both;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
 
 .ua-panel-title {
