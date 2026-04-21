@@ -18,6 +18,7 @@ const ApiConstants = {
     CHANGE_ROLE: (id) => `${BASE}/admin/${id}/change-role`,
     LOGOUT: `${BASE}/admin/logout`,
     MY_SESSION: `${BASE}/admin/me/session`,
+    USER_ANALYTICS: `${BASE}/admin/users/data`,
   },
 
   // Users (Admin View)

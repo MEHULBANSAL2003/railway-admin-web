@@ -29,4 +29,8 @@ export const AdminService = {
   getMySession: async () => {
     return await HttpWrapper.get(ApiConstants.ADMIN.MY_SESSION, null, true);
   },
+
+  getUserAnalyticsData: async() => {
+    return await HttpWrapper.get(ApiConstants.ADMIN.USER_ANALYTICS, null, true);
+  }
 };

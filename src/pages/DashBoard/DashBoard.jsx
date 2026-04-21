@@ -30,6 +30,14 @@ const Dashboard = () => {
       link: '/profile',
       color: '#f59e0b'
     },
+    {
+      id: 4,
+      title: 'User Analytics',
+      description: 'View User Analytics',
+      icon: User,
+      link: '/user-analytics',
+      color: '#d60bf5'
+    },
   ];
 
   return (
