@@ -1,7 +1,7 @@
 import {
   Mail, Phone, User, Shield, MapPin, Monitor,
   Calendar, Lock, Globe, Fingerprint, Clock, Smartphone,
-  Chrome, Wifi,
+  Chrome, Wifi, Trash2, AlertCircle,
 } from 'lucide-react';
 
 const formatDate = (iso) => {
@@ -154,6 +154,36 @@ const ProfileTab = ({ user }) => {
           </div>
         </div>
       </div>
+
+      {/* Account Deletion — only show if deletion-related data exists */}
+      {(user.deletedAt || user.deletionScheduledAt || user.deletionReason) && (
+        <div className="ui-profile-section card">
+          <div className="card-header">
+            <h3 className="card-title">Account Deletion</h3>
+          </div>
+          <div className="card-body">
+            <div className="ui-info-grid">
+              {user.deletedAt && (
+                <InfoItem icon={Trash2} label="Deleted At" value={
+                  <span style={{ color: '#dc2626', fontWeight: 500 }}>
+                    {formatDateTime(user.deletedAt)}
+                  </span>
+                } />
+              )}
+              {user.deletionScheduledAt && (
+                <InfoItem icon={Clock} label="Deletion Scheduled At" value={
+                  <span style={{ color: '#ea580c', fontWeight: 500 }}>
+                    {formatDateTime(user.deletionScheduledAt)}
+                  </span>
+                } />
+              )}
+              {user.deletionReason && (
+                <InfoItem icon={AlertCircle} label="Deletion Reason" value={user.deletionReason} />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Registration Metadata */}
       <MetadataSection
