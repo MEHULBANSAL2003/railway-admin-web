@@ -234,6 +234,22 @@ const UsersAnalytics = () => {
           accent="var(--ua-yellow)"
           accentDim="var(--ua-yellow-dim)"
         />
+        <StatCard
+          label="Deleted Accounts"
+          value={d.deletedAccounts}
+          sub="all time"
+          icon="🗑"
+          accent="var(--ua-red)"
+          accentDim="#fee2e2"
+        />
+        <StatCard
+          label="Deletion Pending"
+          value={d.deletionPendingAccounts}
+          sub="awaiting action"
+          icon="⏳"
+          accent="var(--ua-orange)"
+          accentDim="var(--ua-orange-dim)"
+        />
       </div>
 
       {/* ── Registrations + Logins ── */}
@@ -263,6 +279,37 @@ const UsersAnalytics = () => {
             <TimelineItem label="Today"   value={d.loginsToday}     max={loginMax} color="var(--ua-blue)" />
             <TimelineItem label="7 days"  value={d.loginsThisWeek}  max={loginMax} color="var(--ua-blue)" />
             <TimelineItem label="30 days" value={d.loginsThisMonth} max={loginMax} color="var(--ua-blue)" />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Account Deletions ── */}
+      <p className="ua-section-label">Account Deletion Activity</p>
+      <div className="ua-two-col" style={{ marginBottom: 16 }}>
+
+        {/* Accounts Deleted */}
+        <div className="ua-panel">
+          <div className="ua-panel-title">
+            <span className="dot" style={{ background: 'var(--ua-red)' }} />
+            Accounts Deleted
+          </div>
+          <div className="ua-timeline-row">
+            <TimelineItem label="Today"   value={d.accountsDeletedToday || 0}    max={Math.max(d.accountsDeletedToday || 0, d.accountsDeletedLast7Days || 0, d.accountsDeletedLast30Days || 0) || 1} color="var(--ua-red)" />
+            <TimelineItem label="7 days"  value={d.accountsDeletedLast7Days || 0}  max={Math.max(d.accountsDeletedToday || 0, d.accountsDeletedLast7Days || 0, d.accountsDeletedLast30Days || 0) || 1} color="var(--ua-red)" />
+            <TimelineItem label="30 days" value={d.accountsDeletedLast30Days || 0} max={Math.max(d.accountsDeletedToday || 0, d.accountsDeletedLast7Days || 0, d.accountsDeletedLast30Days || 0) || 1} color="var(--ua-red)" />
+          </div>
+        </div>
+
+        {/* Deletion Requests */}
+        <div className="ua-panel">
+          <div className="ua-panel-title">
+            <span className="dot" style={{ background: 'var(--ua-orange)' }} />
+            Deletion Requests
+          </div>
+          <div className="ua-timeline-row">
+            <TimelineItem label="Today"   value={d.deletionRequestsToday || 0}    max={Math.max(d.deletionRequestsToday || 0, d.deletionRequestsLast7Days || 0, d.deletionRequestsLast30Days || 0) || 1} color="var(--ua-orange)" />
+            <TimelineItem label="7 days"  value={d.deletionRequestsLast7Days || 0}  max={Math.max(d.deletionRequestsToday || 0, d.deletionRequestsLast7Days || 0, d.deletionRequestsLast30Days || 0) || 1} color="var(--ua-orange)" />
+            <TimelineItem label="30 days" value={d.deletionRequestsLast30Days || 0} max={Math.max(d.deletionRequestsToday || 0, d.deletionRequestsLast7Days || 0, d.deletionRequestsLast30Days || 0) || 1} color="var(--ua-orange)" />
           </div>
         </div>
       </div>
